@@ -5,7 +5,7 @@
 | Family | machine-made Sans |
 | Version | 0.100 (release 0.1) |
 | Branch | `sans/v0.1` |
-| Stage | 0.1 built and checked. Forked from Plus Jakarta Sans 2.071; Lurus and Lancip forms are the defaults; line metrics match Weft. |
+| Stage | 0.1 built and checked. Forked from Plus Jakarta Sans 2.071; Lurus (straight) forms are the defaults, Lancip (sharp) forms are in ss02; line metrics match Weft. |
 | Gate now | Jac reviews the branch and opens the PR. The founder looks at the proofs in `proofs/sans/`. |
 | Next | 0.2: redraw the shapes in the style of Weft (see "For 0.2" below). |
 | Upstream | tokotype/PlusJakartaSans at `18d1cd2f7ea10481919d2f05c1f7064b7307fc26` |
@@ -21,17 +21,21 @@
   | Files | PASS | WARN | FAIL | ERROR | SKIP | INFO |
   | --- | --- | --- | --- | --- | --- | --- |
   | variable (2) | 181 | 12 | 0 | 0 | 41 | 5 |
-  | ttf (14) | 1017 | 32 | 0 | 0 | 499 | 33 |
-  | otf (14) | 895 | 42 | 0 | 0 | 625 | 19 |
+  | ttf (14) | 1002 | 46 | 0 | 0 | 499 | 34 |
+  | otf (14) | 890 | 46 | 0 | 0 | 625 | 20 |
   | webfonts (2) | 10 | 0 | 0 | 0 | 3 | 0 |
 
 - fontTools `varLib.interpolatable` on the master UFOs of both sources:
   no problems.
-- pytest: 116 tests pass (`sans/tests`). They check that the committed
-  sources are the output of `fork.py` on the pinned upstream, that each
-  new default letter draws the same outline as the upstream Lurus or
-  Lancip glyph, that ss01 draws the upstream default, the names, the
-  line metrics, style linking and the stylistic-set names.
+- pytest: 117 tests pass, 1 skips (`sans/tests`; the skip is the italic
+  Cyrillic test, because the italic has no Cyrillic). They check that
+  the committed sources are the output of `fork.py` on the pinned
+  upstream; that a j p q r y draw the upstream Lurus outline and the
+  other letters the upstream default; that ss01 draws the upstream
+  default and ss02 the upstream Lancip outline; that the f ligatures
+  work in default text; that Cyrillic а р у ј follow the Latin default
+  and п ш ц do not change; the names, line metrics, style linking and
+  stylistic-set names.
 - For comparison, the upstream 2.071 fonts in the same Fontspector
   version: variable 36 FAIL (missing fvar PostScript names, Mac name
   records, instance name length), OTF 14 ERROR. The upstream static TTF
@@ -97,7 +101,7 @@ redraw outlines.
 | --- | --- | --- |
 | `typoascender_exceeds_Agrave` | all 30 TTF, OTF, VF | Intended. The typo ascender is 906 for the shared line with Weft. Accented capitals are taller (999 to 1019). Win metrics are not changed, so no clipping. |
 | `unreachable_glyphs` | all 30 | Upstream glyphs that no cmap or feature reaches: `dotlessi.wide`, `registered.alt` (both styles), `igravecyr.loclBGR` (upright). Not removed in 0.1; keep the fork close to upstream. |
-| `contour_count` | VF (2), OTF (10) | Upstream design. `infinity` has 4 contours and U+2B10 has 2; in OTF, overlap removal gives 2 contours for ỡ, ợ (uni1EDF, uni1EE1) in some weights. Upstream has the same WARN. |
+| `contour_count` | VF (2), TTF (14), OTF (14) | Upstream design. `infinity` has 4 contours and U+2B10 has 2; in OTF, overlap removal gives 2 contours for ỡ, ợ (uni1EDF, uni1EE1) in some weights. The sharp alternates `uni1E21.ss02` (ḡ, 3 contours) and `uni1ECB.ss02` (ị, 2 contours) are unencoded upstream Lancip outlines; the check compares them with the encoded letters. |
 | `name/family_and_style_max_length` (nameid6-too-long) | 4 TTF + 4 OTF | PostScript names such as `MachineMadeSans-ExtraLightItalic` (32 characters) are longer than 27. The family prefix `MachineMadeSans` is fixed. Upstream has the same WARN. |
 | `name/family_and_style_max_length` (instance-too-long) | italic VF | FAIL changed to WARN in `sans/fontspector.toml`. "machine-made Sans ExtraLight Italic" (35), "SemiBold Italic" (33), "ExtraBold Italic" (34) are longer than 32 characters. Reported risk: accent shaping in some Microsoft Word versions. The family name is fixed by the brief. Upstream has the same FAIL ("Plus Jakarta Sans ExtraBold Italic"). |
 | `mandatory_avar_table` | VF (2) | Linear wght axis, as upstream. No avar needed. |
@@ -105,14 +109,17 @@ redraw outlines.
 
 ## Decisions
 
-- Glyphs with a sharp and a straight alternate (a, j, r, y and their
-  accented forms, 46 per style): straight (Lurus) is the default, sharp
-  (Lancip) is in ss02.
-- The f ligatures (fi, fl, ff, ffi, ffl) have the round shapes, so liga
-  applies only after ss01. Default text has no f ligature.
-- Composites that use a changed letter (Cyrillic look-alikes, Bulgarian
-  forms, digraphs) follow the new defaults, so mixed Latin and Cyrillic
-  text has one style.
+- Founder decision (2026-10-26, release branch): only the straight
+  (Lurus) forms are defaults (a, j, r, y, p, q and accented forms, 48
+  per style). All sharp (Lancip) forms are in ss02 "Lancip: sharp
+  forms" (175 per style). The first 0.1 build had Lurus and Lancip as
+  defaults.
+- The f ligatures (fi, fl, ff, ffi, ffl) work in default text, as
+  upstream. liga comes after the sets, so ss02 gives sharp f, i, l with
+  no round ligature.
+- Composites that use a changed letter (Cyrillic а р у ў ј, digraphs)
+  follow the new defaults, so mixed Latin and Cyrillic text has one
+  style. Cyrillic п ш ц do not change with the Latin sets.
 - Reserved Font Name "machine-made" added (OFL FAQ 5.10). See
   `README.md`.
 

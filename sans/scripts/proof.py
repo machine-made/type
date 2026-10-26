@@ -38,8 +38,8 @@ FONTS = ROOT / "fonts" / "sans"
 VF = FONTS / "variable" / "MachineMadeSans[wght].ttf"
 VF_IT = FONTS / "variable" / "MachineMadeSans-Italic[wght].ttf"
 
-CHANGED = "a f g h i j k l m n p q r t u y G I K U"
-WORDS = "jumpy fighting Kraut quilt Glyph Unity"
+CHANGED = "a j p q r y"
+WORDS = "jumpy quarry prayer Joy"
 WEIGHTS = [200, 300, 400, 500, 600, 700, 800]
 WEIGHT_NAMES = ["ExtraLight", "Light", "Regular", "Medium", "SemiBold", "Bold", "ExtraBold"]
 
@@ -48,7 +48,7 @@ BODY = (
     "A reading face for both must keep its shapes plain at small sizes, "
     "keep the counters open, and hold an even colour on the page. "
     "This is machine-made Sans 0.1, a modified version of Plus Jakarta Sans "
-    "with straight and sharp forms as the defaults. 0123456789"
+    "with the straight forms as the defaults. 0123456789"
 )
 
 
@@ -116,13 +116,13 @@ def before_after(upstream_dir: Path, out: Path) -> Path:
 
 
 def stylistic_sets(out: Path) -> Path:
-    text = "a f g h i j k l m n p q r t u y G I K U fi fl"
+    text = "a j p q r y f g h i k l m n t u G I K U fi fl"
     rows = [
-        ("Default (Lurus, straight; Lancip, sharp)", []),
+        ("Default (Lurus, straight a j p q r y; upstream forms of the other letters)", []),
         ("ss01  Round forms (original defaults)", ["ss01"]),
-        ("ss02  Lancip: sharp a j r y", ["ss02"]),
+        ("ss02  Lancip: sharp forms", ["ss02"]),
         ("ss03  Lingkar: swirl", ["ss03"]),
-        ("ss01 + ss03", ["ss01", "ss03"]),
+        ("ss02 + ss03", ["ss02", "ss03"]),
     ]
     w, step = 1800, 104
     img, d = canvas(w, 150 + 2 * step * len(rows) + 40)

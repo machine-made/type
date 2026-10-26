@@ -11,14 +11,19 @@ Rahayu, Tokotype (commit 18d1cd2f7ea10481919d2f05c1f7064b7307fc26).
 - Keep the upstream copyright line. Add "Copyright 2026 The
   machine-made Sans Project Authors". Add the Reserved Font Name
   "machine-made" (OFL FAQ 5.10).
-- Make the Lurus (straight) and Lancip (sharp) alternates the default
-  forms: 177 glyphs per style. When a glyph has both, use Lurus.
-- Keep the old default forms in ss01 "Round forms (original defaults)".
-  Put the Lancip forms of a, j, r, y in ss02. Keep Lingkar in ss03 and
-  make it work from all forms. Give each set a name in the font.
-- Make the f ligatures only from the round forms (after ss01).
+- Make the Lurus (straight) alternates the default forms: a, j, r, y,
+  p, q and their accented forms, 48 glyphs per style.
+- Keep the old default forms of these glyphs in ss01 "Round forms
+  (original defaults)". Put all Lancip (sharp) forms in ss02 "Lancip:
+  sharp forms" (175 glyphs per style). Keep Lingkar in ss03 and make it
+  work from all forms. Give each set a name in the font.
+- Keep the upstream f ligatures in default text. Put liga after the
+  sets, so ss02 gives the sharp f, i and l with no ligature.
 - Change the widths, offsets and anchors of composite glyphs that use a
-  changed letter (Cyrillic look-alikes, Bulgarian forms, digraphs).
+  changed letter (Cyrillic а р у ў ј, digraphs).
+- Release branch: before the release, the founder changed the defaults
+  from "Lurus and Lancip" to "Lurus only, Lancip in ss02". The change
+  is in `scripts/fork.py`.
 - Set the typo and hhea line metrics to 906/−281/0, the same as Weft 0.1.
   Keep win metrics 1296/356.
 - Repair upstream source errors: bad escapes in the ss04 feature, the

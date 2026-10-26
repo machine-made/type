@@ -12,9 +12,11 @@ script again and compares the output with the committed sources.
 Steps:
 1. Names: family name, copyright, designer, description, vendor, version.
 2. Line metrics: typo and hhea 906/-281/0, for one line with Weft.
-3. Default forms (not with --skip-forms): the Lurus (straight) or Lancip
-   (sharp) alternate becomes the default glyph. When a glyph has both,
-   Lurus is the default. The old default stays in the font as X.ss01.
+3. Default forms (not with --skip-forms): the Lurus (straight)
+   alternate becomes the default glyph (a, j, r, y, p, q and their
+   accented forms). The old default stays in the font as X.ss01. All
+   Lancip (sharp) alternates go to X.ss02 (ss02). Glyphs with only a
+   Lancip alternate keep the upstream default form.
 
 The script does not change outlines. It renames glyphs, moves glyph data
 between names, and changes advance widths, anchors and component offsets
@@ -72,12 +74,12 @@ METRICS = {
 
 SET_LABELS = {
     "ss01": "Round forms (original defaults)",
-    "ss02": "Lancip: sharp a j r y",
+    "ss02": "Lancip: sharp forms",
     "ss03": "Lingkar: swirl",
 }
 
-# Ligature glyphs that keep the round forms. The liga feature makes them
-# only from round forms (ss01), so they must keep the round shapes.
+# Ligature glyphs that keep the round forms. f, i and l keep the upstream
+# round default, so liga makes them from default text, as upstream.
 KEEP_ROUND = {"f_f", "f_f_i", "f_f_l", "fi", "fl"}
 
 SOURCES = {
@@ -193,8 +195,9 @@ def plan_forms(font: dict):
 
     slots: slot names in feature order.
     rename: old glyph name -> new glyph name (a permutation, except for
-    the names that are only in ss02).
-    chosen: slot -> "Lurus" or "Lancip".
+    the names that are only in one set).
+    chosen: slot -> "Lurus" (the straight form is the new default) or
+    "Round" (the upstream default stays; the sharp form is X.ss02).
     """
     s1 = dict(SUB_RE.findall(feature(font, "ss01")["code"]))
     s2 = dict(SUB_RE.findall(feature(font, "ss02")["code"]))
@@ -217,9 +220,12 @@ def plan_forms(font: dict):
             if alt1 is not None:
                 rename[alt1] = f"{x}.ss02"
         else:
-            chosen[x] = "Lancip"
-            rename[alt1] = x
-            rename[x] = f"{x}.ss01"
+            # Only a Lancip alternate: keep the default, move the sharp
+            # form from X.ss01 to X.ss02.
+            chosen[x] = "Round"
+            if f"{x}.ss02" in names:
+                raise ForkError(f"{x}.ss02 exists already.")
+            rename[alt1] = f"{x}.ss02"
     return slots, rename, chosen
 
 
@@ -284,16 +290,19 @@ def apply_forms(font: dict, report: list) -> None:
     def origin(name: str) -> str:
         return inverse.get(name, name)
 
-    # Names that go away: an alternate that was only in ss02 (p.ss02)
-    # becomes the default, and the old default takes the name X.ss01.
+    # Names that go away and names that are new: an alternate that was
+    # only in ss02 (p.ss02) becomes the default and the old default takes
+    # the name p.ss01; a sharp form that was only in ss01 (f.ss01) takes
+    # the name f.ss02. The new name takes the place of the old name.
     removed = {n for n in rename if n not in inverse}
     added = {n for n in inverse if n not in old}
     place = {}
     for n in removed:
-        target = n.rsplit(".", 1)[0] + ".ss01"
-        if target not in added:
+        base = n.rsplit(".", 1)[0]
+        targets = [a for a in added if a.rsplit(".", 1)[0] == base]
+        if len(targets) != 1:
             raise ForkError(f"No new name for the place of {n}.")
-        place[n] = target
+        place[n] = targets[0]
     if set(place.values()) != added:
         raise ForkError("Added and removed glyph names do not match.")
 
@@ -362,8 +371,8 @@ def apply_forms(font: dict, report: list) -> None:
             fix_layer(name, mid, nl, ol, pairs, new, old, report)
         shape_changed[name] = changed
 
-    # 5. Glyph list in the original order of names. A name that is only
-    #    in ss02 (for example p.ss02) is now X.ss01 at the same place.
+    # 5. Glyph list in the original order of names. A name that went
+    #    away (p.ss02, f.ss01) is replaced by its new name (p.ss01, f.ss02).
     out = [new[place.get(g["glyphname"], g["glyphname"])] for g in font["glyphs"]]
     names_out = [g["glyphname"] for g in out]
     if len(set(names_out)) != len(names_out) or set(names_out) != set(new):
@@ -379,7 +388,7 @@ def apply_forms(font: dict, report: list) -> None:
     rewrite_features(font, slots, rename, chosen, new)
 
     for x in slots:
-        report.append(("form", x, chosen[x], f"{x}.ss01"))
+        report.append(("form", x, chosen[x], f"{x}.ss01" if chosen[x] == "Lurus" else f"{x}.ss02"))
 
 
 def topo_order(glyphs: dict) -> list[str]:
@@ -486,10 +495,18 @@ def rewrite_features(font, slots, rename, chosen, glyphs) -> None:
     names = set(glyphs)
     lurus = [x for x in slots if chosen[x] == "Lurus"]
 
-    ss01 = "\n".join(f"sub {x} by {x}.ss01;" for x in slots)
-    ss02 = "\n".join(
-        f"sub [{x} {x}.ss01] by {x}.ss02;" for x in lurus if f"{x}.ss02" in names
-    )
+    # ss01: the upstream default of each glyph whose default is now Lurus.
+    ss01 = "\n".join(f"sub {x} by {x}.ss01;" for x in lurus)
+    # ss02: every sharp form. For a Lurus glyph, also from the round form.
+    rules2 = []
+    for x in slots:
+        if f"{x}.ss02" not in names:
+            continue
+        if chosen[x] == "Lurus":
+            rules2.append(f"sub [{x} {x}.ss01] by {x}.ss02;")
+        else:
+            rules2.append(f"sub {x} by {x}.ss02;")
+    ss02 = "\n".join(rules2)
     f3 = feature(font, "ss03")
     rules = []
     for x, y in SUB_RE.findall(f3["code"]):
@@ -511,7 +528,9 @@ def rewrite_features(font, slots, rename, chosen, glyphs) -> None:
         f.clear()
         f.update(ordered)
 
-    # liga: make the ligatures only from the round forms, after the sets.
+    # liga: the upstream rules on the default f, i and l (round forms).
+    # Put liga after the sets: with ss02 on, f, i and l are sharp and no
+    # round ligature replaces them.
     liga = feature(font, "liga")
     liga["code"] = TOKEN_RE.sub(lambda m: rename.get(m.group(0), m.group(0)), liga["code"])
     liga.pop("automatic", None)

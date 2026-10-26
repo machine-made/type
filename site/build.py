@@ -489,8 +489,8 @@ def font_face_css(chosen: dict, info: dict) -> str:
             f"src:url(\"../fonts/sans/{url_path(name)}\") format(\"woff2\");"
             f"font-weight:{sans_w};font-style:{style};font-display:swap}}"
         )
-    # machine-made Sans 0.1 has the sharp and straight forms as the
-    # default, so no feature is on.
+    # machine-made Sans 0.1 has the straight forms as the default, so no
+    # feature is on. The sharp forms are in ss02.
     out.append(":root{--sans-features:normal}")
     return "\n".join(out) + "\n"
 
@@ -571,7 +571,7 @@ def build(out: Path) -> None:
         "SANS_WATERFALL": sans_waterfall(sans_axes.get("wght") or [400, 400, 400], italic=False),
         "SANS_WATERFALL_ITALIC": sans_waterfall(sans_axes.get("wght") or [400, 400, 400], italic=True),
         "SANS_SWIRL_TAG": swirl_tag(info["sans"]["features"]),
-        "SANS_FORMS_NOTE": "These are the default forms of machine-made Sans 0.1. No feature is on.",
+        "SANS_FORMS_NOTE": "The default forms of machine-made Sans 0.1: straight a j p q r y. No feature is on.",
     }
 
     layout = (SITE / "templates" / "layout.html").read_text(encoding="utf-8")

@@ -17,7 +17,12 @@ STATICS = [p for p in ALL if "/ttf/" in p or "/otf/" in p]
 WEIGHTS = ["ExtraLight", "Light", "Regular", "Medium", "SemiBold", "Bold", "ExtraBold"]
 
 # Letters with a Lancip or Lurus default form (base letters only).
-CHANGED = "afghijklmnpqrtuyGIKU"
+# Letters with a Lurus (straight) alternate upstream: the default now.
+LURUS = "ajrypq"
+# Letters with only a Lancip (sharp) alternate: the default stays upstream.
+LANCIP_ONLY = "fghiklmntuGIKU"
+# Letters with both alternates.
+BOTH = "ajry"
 
 
 def test_file_set():
@@ -89,25 +94,68 @@ def shape(path, text: str, features: dict) -> list[str]:
 
 
 @pytest.mark.parametrize("italic", [False, True], ids=["upright", "italic"])
-def test_defaults_are_upstream_alternates(upstream, italic):
-    """Each changed default draws the upstream Lurus form, else the Lancip form.
+def test_defaults_are_upstream_forms(upstream, italic):
+    """Compare outlines with upstream at the default location (wght 400).
 
-    And ss01 draws the upstream default form. Outlines are compared at the
-    default location (wght 400).
+    - a j r y p q: the default draws the upstream Lurus form (upstream
+      ss02), and ss01 draws the upstream default.
+    - All other letters: the default draws the upstream default.
+    - ss02 draws the upstream Lancip form (upstream ss01) of every letter
+      that has one.
     """
     name = "PlusJakartaSans-Italic[wght].ttf" if italic else "PlusJakartaSans[wght].ttf"
     up_path = upstream / "fonts" / "variable" / name
     mine_path = VF_IT if italic else VF
     up, mine = TTFont(up_path), TTFont(mine_path)
-    for ch in CHANGED:
+    for ch in LURUS + LANCIP_ONLY + "bcdeosvwxzABCDEHJMNOPRSTVWXYZ":
+        g_up_default = shape(up_path, ch, {})[0]
         g_up_lurus = shape(up_path, ch, {"ss02": True})[0]
         g_up_lancip = shape(up_path, ch, {"ss01": True})[0]
-        g_up_default = shape(up_path, ch, {})[0]
-        expected = g_up_lurus if g_up_lurus != g_up_default else g_up_lancip
         g_mine = shape(mine_path, ch, {})[0]
-        assert outline(mine, g_mine) == outline(up, expected), ch
-        g_mine_round = shape(mine_path, ch, {"ss01": True})[0]
-        assert outline(mine, g_mine_round) == outline(up, g_up_default), ch
+        if ch in LURUS:
+            assert g_up_lurus != g_up_default, ch
+            assert outline(mine, g_mine) == outline(up, g_up_lurus), ch
+            g_round = shape(mine_path, ch, {"ss01": True})[0]
+            assert outline(mine, g_round) == outline(up, g_up_default), ch
+        else:
+            assert outline(mine, g_mine) == outline(up, g_up_default), ch
+            # ss01 does not change a letter whose default is upstream.
+            assert shape(mine_path, ch, {"ss01": True}) == [g_mine], ch
+        g_sharp = shape(mine_path, ch, {"ss02": True})[0]
+        if ch in LANCIP_ONLY or ch in BOTH:
+            assert g_up_lancip != g_up_default, ch
+            assert outline(mine, g_sharp) == outline(up, g_up_lancip), ch
+            # ss02 also works after ss01.
+            g_sharp2 = shape(mine_path, ch, {"ss01": True, "ss02": True})[0]
+            assert outline(mine, g_sharp2) == outline(up, g_up_lancip), ch
+        else:
+            assert g_sharp == g_mine, ch
+
+
+@pytest.mark.parametrize("italic", [False, True], ids=["upright", "italic"])
+def test_cyrillic_follows_latin_defaults(italic):
+    """Cyrillic look-alikes of a j p y draw the same outline as the Latin
+    default. п ш ц do not change with the Latin sets, and the default Latin
+    n m u do not draw the п ш ц outlines.
+
+    The upstream binary fonts have no Cyrillic, so this test compares
+    glyphs in the machine-made Sans font only.
+    """
+    mine_path = VF_IT if italic else VF
+    mine = TTFont(mine_path)
+    if 0x0430 not in mine.getBestCmap():
+        pytest.skip("No Cyrillic in this style (as upstream).")
+
+    def draw(ch, feats=None):
+        return outline(mine, shape(mine_path, ch, feats or {})[0])
+
+    for cyr, lat in (("а", "a"), ("р", "p"), ("у", "y"), ("ј", "j")):
+        assert draw(cyr) == draw(lat), cyr
+    for cyr, lat in (("п", "n"), ("ш", "m"), ("ц", "u")):
+        assert draw(cyr), cyr
+        for feats in ({"ss01": True}, {"ss02": True}):
+            assert draw(cyr, feats) == draw(cyr), (cyr, feats)
+        assert draw(lat) != draw(cyr), lat
 
 
 @pytest.mark.parametrize("path", [VF, VF_IT], ids=["upright", "italic"])
@@ -120,21 +168,20 @@ def test_set_names_in_font(path):
         if tag.startswith("ss") and params is not None:
             labels[tag] = font["name"].getDebugName(params.UINameID)
     assert labels["ss01"] == "Round forms (original defaults)"
-    assert labels["ss02"] == "Lancip: sharp a j r y"
+    assert labels["ss02"] == "Lancip: sharp forms"
     assert labels["ss03"] == "Lingkar: swirl"
 
 
 @pytest.mark.parametrize("path", [VF, VF_IT], ids=["upright", "italic"])
-def test_ligatures_use_round_f(path):
-    """The f ligatures have round forms, so only the round set (ss01) makes them.
-
-    The default sharp f has no hook over the next letter and needs no ligature.
-    """
-    assert shape(path, "fi", {}) == ["f", "i"]
-    assert shape(path, "fi", {"ss01": True}) == ["fi"]
-    assert shape(path, "fl", {"ss01": True}) == ["fl"]
-    assert shape(path, "ffi", {"ss01": True}) == ["f_f_i"]
-    assert shape(path, "fi", {"ss01": True, "liga": False}) == ["f.ss01", "i.ss01"]
+def test_ligatures_as_upstream(path):
+    """The default f is the round upstream form, so liga makes the f
+    ligatures from default text, as upstream. With ss02, f, i and l are
+    sharp and no round ligature replaces them."""
+    assert shape(path, "fi", {}) == ["fi"]
+    assert shape(path, "fl", {}) == ["fl"]
+    assert shape(path, "ffi", {}) == ["f_f_i"]
+    assert shape(path, "fi", {"liga": False}) == ["f", "i"]
+    assert shape(path, "fi", {"ss02": True}) == ["f.ss02", "i.ss02"]
 
 
 def test_up_down_arrow_has_outline():

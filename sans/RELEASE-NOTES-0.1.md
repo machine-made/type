@@ -23,19 +23,22 @@ under the SIL Open Font License 1.1.
 
 ## What is different from Plus Jakarta Sans
 
-- **Straight and sharp forms are the defaults.** Plus Jakarta Sans has
-  three sets of alternates: Lancip (sharp), Lurus (straight) and Lingkar
-  (swirl). In machine-made Sans the Lurus and Lancip forms are the
-  default letters. Where a letter has both (a, j, r, y), the straight
-  form is the default.
-- **The round forms are still there.** Turn on stylistic set 1 (ss01,
-  "Round forms (original defaults)") to get the Plus Jakarta Sans
-  letters. ss02 gives the sharp a, j, r, y. ss03 is the Lingkar (swirl)
-  set.
+- **Straight forms are the defaults.** Plus Jakarta Sans has three
+  sets of alternates: Lancip (sharp), Lurus (straight) and Lingkar
+  (swirl). In machine-made Sans the Lurus forms of a, j, p, q, r and y
+  are the default letters. All other letters keep the Plus Jakarta
+  Sans form.
+- **Sharp forms are one switch away.** Stylistic set 2 (ss02, "Lancip:
+  sharp forms") gives the sharp f g h i k l m n t u G I K U and the
+  sharp a j r y.
+- **The round forms are still there.** ss01 ("Round forms (original
+  defaults)") gives the Plus Jakarta Sans a, j, p, q, r, y. ss03 is the
+  Lingkar (swirl) set.
 - **Line metrics match machine-made Weft.** Both fonts have ascender
   906, descender −281 and line gap 0 at 1000 units per em, so they sit
   on one line with the same line height (1.187 em).
-- **The f ligatures** apply only with the round forms (ss01).
+- **The f ligatures** (fi, fl, ff, ffi, ffl) work in default text, as in
+  Plus Jakarta Sans. With ss02, the sharp f needs no ligature.
 
 CSS:
 
@@ -53,7 +56,8 @@ CSS:
   font-style: italic;
 }
 body { font-family: "machine-made Sans", sans-serif; line-height: 1.5; }
-.round { font-feature-settings: "ss01"; }   /* Plus Jakarta Sans forms */
+.sharp { font-feature-settings: "ss02"; }   /* sharp (Lancip) forms */
+.round { font-feature-settings: "ss01"; }   /* Plus Jakarta Sans a j p q r y */
 ```
 
 ## Known limits

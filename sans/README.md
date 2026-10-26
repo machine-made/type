@@ -1,9 +1,9 @@
 # machine-made Sans
 
 A reading sans for machine-made. Version 0.1 is a modified version of
-**Plus Jakarta Sans** with the straight (Lurus) and sharp (Lancip)
-alternates as the default forms, and with line metrics that match
-machine-made Weft. Version 0.2 will redesign the shapes in the style of
+**Plus Jakarta Sans** with the straight (Lurus) alternates as the
+default forms, the sharp (Lancip) alternates in a stylistic set, and
+with line metrics that match machine-made Weft. Version 0.2 will redesign the shapes in the style of
 Weft.
 
 ![Default forms, upstream and machine-made Sans](../proofs/sans/sans-alternates-before-after.png)
@@ -51,29 +51,32 @@ checks that the committed sources are its output.
    Jakarta Sans" and "Jakarta" are not in any name, file name or STAT
    record. They stay only in the credit text (copyright and
    description).
-2. **Default forms.** The upstream Lurus (straight, ss02) and Lancip
-   (sharp, ss01) alternates are now the default glyphs. When a letter
-   has both, the straight form is the default (see the table below).
-   The old default forms are not removed: they are `X.ss01` glyphs, in
-   the ss01 set.
+2. **Default forms.** The upstream Lurus (straight, upstream ss02)
+   alternates are now the default glyphs: a, j, r, y, p, q and their
+   accented forms. The old default forms are not removed: they are
+   `X.ss01` glyphs, in the ss01 set. All upstream Lancip (sharp,
+   upstream ss01) alternates are now `X.ss02` glyphs, in the ss02 set.
+   All other letters keep the upstream default form.
 3. **Stylistic sets** (all with names in the font):
 
    | Set | Name | Content |
    | --- | --- | --- |
-   | ss01 | Round forms (original defaults) | The upstream default forms of all changed letters. |
-   | ss02 | Lancip: sharp a j r y | The sharp forms of the four letters whose default is now Lurus. |
+   | ss01 | Round forms (original defaults) | The upstream default forms of a, j, r, y, p, q and their accented forms. |
+   | ss02 | Lancip: sharp forms | All sharp forms: f g h i k l m n t u G I K U, the sharp a j r y, and their accented forms. It also works after ss01. |
    | ss03 | Lingkar: swirl | Upstream Lingkar set, unchanged. It applies to the default, ss01 and ss02 forms. |
    | ss04 | Bulgarian Cyrillic | Upstream set, unchanged in effect. |
 
-4. **Ligatures.** The f ligatures (fi, fl, ff, ffi, ffl) have the round
-   upstream shapes. They now apply only after ss01, so default text has
-   the sharp f and i with no ligature. The sharp f has no hook over the
-   next letter and needs none.
+4. **Ligatures.** The f ligatures (fi, fl, ff, ffi, ffl) work as in
+   upstream: f, i and l keep the round default form, so liga makes the
+   ligatures in default text. The liga feature comes after the sets, so
+   with ss02 on, f, i and l are sharp and no round ligature replaces
+   them. The sharp f has no hook over the next letter and needs none.
 5. **Composite glyphs** that use a changed letter follow the new
-   default: the Cyrillic look-alikes а, р, у, ў, ј, і, ї, К, Ќ, І, Ї
-   and the Bulgarian forms that use Latin g, k, m, n and u, and the
-   digraphs ĳ, Ĳ, ǈ, ǋ, ǉ, ǌ. Their widths, component offsets and
-   anchors change with the new base. No outline changes.
+   default: the Cyrillic look-alikes а, р, у, ў, ј and the digraphs ĳ,
+   ǈ, ǋ, ǉ, ǌ (and nj.ss02, nj.ss03). Their widths, component offsets
+   and anchors change with the new base. No outline changes. Cyrillic
+   п, ш, ц and the Bulgarian forms do not change, and the default Latin
+   n, m, u keep their upstream form.
 6. **Line metrics.** typo and hhea 906/−281/0, the same as Weft 0.1 (see
    `STATUS.md`). The win metrics stay at 1296/356.
 7. **Repairs of upstream source errors** (needed to build with current
@@ -97,15 +100,14 @@ checks that the committed sources are its output.
 
 The changed letters, with each accented form in the same group:
 
-| Default now | Letters | Old default |
+| Form | Letters | Where |
 | --- | --- | --- |
-| Lurus (straight) | a, j, r, y (and à á â ã ä å ā ă ą ǻ ạ ả ấ ầ ẩ ẫ ậ ắ ằ ẳ ẵ ặ ȁ ȃ, ĵ ȷ, ŕ ř ŗ ȑ ȓ ṛ ṟ, ý ÿ ŷ ẏ ỵ ỳ ỷ ỹ ȳ), p, q | ss01 |
-| Lancip (sharp) | f, g, h, i, k, l, m, n, t, u, G, I, K, U (and their accented forms, ı, ħ, ŀ, ł, ŋ, ŧ, ư, Ư) | ss01 |
+| Lurus (straight) | a, j, r, y (and à á â ã ä å ā ă ą ǻ ạ ả ấ ầ ẩ ẫ ậ ắ ằ ẳ ẵ ặ ȁ ȃ, ĵ ȷ, ŕ ř ŗ ȑ ȓ ṛ ṟ, ý ÿ ŷ ẏ ỵ ỳ ỷ ỹ ȳ), p, q | Default. The old default is in ss01. |
+| Lancip (sharp) | f, g, h, i, k, l, m, n, t, u, G, I, K, U (and their accented forms, ı, ħ, ŀ, ł, ŋ, ŧ, ư, Ư), and the sharp a, j, r, y | ss02. The other letters keep the upstream form as the default. |
 
-Glyphs with both a sharp and a straight alternate: a, j, r, y and their
-accented forms (46 glyphs per style). For these, the default is the
-straight form and the sharp form is in ss02. p and q have only a
-straight alternate. In total 177 glyphs per style change default form.
+48 glyphs per style change default form (Lurus). 175 glyphs per style
+have a sharp form in ss02: 129 that have only a sharp alternate and the
+46 forms of a, j, r, y that have both.
 
 ## Licence and Reserved Font Name
 

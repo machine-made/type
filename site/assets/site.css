@@ -288,6 +288,9 @@ input[type=range] { width: 100%; accent-color: var(--red); margin: 4px 0; min-he
 .form-row { display: grid; gap: 8px; padding-block: 18px; border-bottom: 1px solid var(--rule); }
 .form-sample { font-size: clamp(2rem, 1.2rem + 3.4vw, 3.75rem); line-height: 1.15; font-weight: 500; overflow-wrap: anywhere; max-width: none; }
 .form-swirl { font-feature-settings: var(--swirl); }
+.form-sharp { font-feature-settings: "ss02" 1; }
+.form-sharp.off { font-feature-settings: normal; }
+.toggle { display: inline-flex; gap: 6px; align-items: center; margin-right: 12px; color: var(--ink); font-weight: 600; }
 .credit { font-size: var(--step-2); }
 .weft-title { font-family: var(--mono); font-weight: 400; letter-spacing: 0; }
 .sans-title { font-family: var(--sans); }
