@@ -133,7 +133,7 @@ with Reserved Font Name "machine-made".
   placeholders at the top of the OFL.txt file. Be sure you do not
   remove any existing RFNs but only add your own." `OFL.txt` does
   exactly this.
-- The RFN is the same as for machine-made Weft (root `OFL.txt`), so one
+- The RFN is the same as for machine-made Weft (`weft/OFL.txt`), so one
   name protects the house name in both families.
 - Effect: a person who modifies machine-made Sans and distributes it
   must use a name that does not contain "machine-made". Plus Jakarta

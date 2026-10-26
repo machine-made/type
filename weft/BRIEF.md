@@ -128,5 +128,5 @@ which the current overlap-removal path does not give. See open risks in
 
 * All outlines come from the stroke table. Do not trace, import or copy
   outlines from any other font.
-* Fonts: SIL OFL 1.1, Reserved Font Name "machine-made" (`OFL.txt`).
+* Fonts: SIL OFL 1.1, Reserved Font Name "machine-made" (`weft/OFL.txt`).
   Generator code: Apache-2.0 (`LICENSE`).
