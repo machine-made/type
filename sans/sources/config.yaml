@@ -1,9 +1,12 @@
+# gftools builder configuration for machine-made Sans.
+# Run from the repository root: sans/scripts/build.sh
 sources:
-  - PlusJakartaSans.glyphs
-  - PlusJakartaSans-Italic.glyphs
+  - MachineMadeSans.glyphs
+  - MachineMadeSans-Italic.glyphs
 axisOrder:
   - wght
   - ital
-outputDir: "../fonts"
-familyName: "Plus Jakarta Sans"
-version: 2.071
+familyName: "machine-made Sans"
+outputDir: "../../build/sans"
+buildWebfont: false
+buildSmallCap: false

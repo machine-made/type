@@ -90,7 +90,7 @@ value = (
 }
 );
 date = "2021-11-10 07:58:16 +0000";
-familyName = "Plus Jakarta Sans";
+familyName = "machine-made Sans";
 featurePrefixes = (
 {
 automatic = 1;
@@ -852,11 +852,11 @@ axesValues = (
 customParameters = (
 {
 name = typoAscender;
-value = 1038;
+value = 875;
 },
 {
 name = typoDescender;
-value = -222;
+value = -281;
 },
 {
 name = typoLineGap;
@@ -864,11 +864,11 @@ value = 0;
 },
 {
 name = hheaAscender;
-value = 1038;
+value = 875;
 },
 {
 name = hheaDescender;
-value = -222;
+value = -281;
 },
 {
 name = hheaLineGap;
@@ -962,11 +962,11 @@ axesValues = (
 customParameters = (
 {
 name = typoAscender;
-value = 1038;
+value = 875;
 },
 {
 name = typoDescender;
-value = -222;
+value = -281;
 },
 {
 name = typoLineGap;
@@ -974,11 +974,11 @@ value = 0;
 },
 {
 name = hheaAscender;
-value = 1038;
+value = 875;
 },
 {
 name = hheaDescender;
-value = -222;
+value = -281;
 },
 {
 name = hheaLineGap;
@@ -1071,11 +1071,11 @@ axesValues = (
 customParameters = (
 {
 name = typoAscender;
-value = 1038;
+value = 875;
 },
 {
 name = typoDescender;
-value = -222;
+value = -281;
 },
 {
 name = typoLineGap;
@@ -1083,11 +1083,11 @@ value = 0;
 },
 {
 name = hheaAscender;
-value = 1038;
+value = 875;
 },
 {
 name = hheaDescender;
-value = -222;
+value = -281;
 },
 {
 name = hheaLineGap;
@@ -95611,11 +95611,21 @@ value = 1;
 {
 name = "TTFAutohint options";
 value = "--default-script=latn --fallback-script=latn --fallback-stem-width=52 --windows-compatibility --no-info";
+},
+{
+name = fileName;
+value = "MachineMadeSans-ExtraLightItalic";
 }
 );
 isItalic = 1;
 linkStyle = ExtraLight;
 name = "ExtraLight Italic";
+properties = (
+{
+key = postscriptFontName;
+value = "MachineMadeSans-ExtraLightItalic";
+}
+);
 weightClass = 200;
 },
 {
@@ -95630,11 +95640,21 @@ value = 1;
 {
 name = "TTFAutohint options";
 value = "--default-script=latn --fallback-script=latn --fallback-stem-width=52 --windows-compatibility --no-info";
+},
+{
+name = fileName;
+value = "MachineMadeSans-LightItalic";
 }
 );
 isItalic = 1;
 linkStyle = Light;
 name = "Light Italic";
+properties = (
+{
+key = postscriptFontName;
+value = "MachineMadeSans-LightItalic";
+}
+);
 weightClass = 300;
 },
 {
@@ -95649,11 +95669,21 @@ value = 1;
 {
 name = "TTFAutohint options";
 value = "--default-script=latn --fallback-script=latn --fallback-stem-width=52 --windows-compatibility --no-info";
+},
+{
+name = fileName;
+value = "MachineMadeSans-Italic";
 }
 );
 isItalic = 1;
 linkStyle = Regular;
 name = Italic;
+properties = (
+{
+key = postscriptFontName;
+value = "MachineMadeSans-Italic";
+}
+);
 },
 {
 axesValues = (
@@ -95667,11 +95697,21 @@ value = 1;
 {
 name = "TTFAutohint options";
 value = "--default-script=latn --fallback-script=latn --fallback-stem-width=52 --windows-compatibility --no-info";
+},
+{
+name = fileName;
+value = "MachineMadeSans-MediumItalic";
 }
 );
 isItalic = 1;
 linkStyle = Medium;
 name = "Medium Italic";
+properties = (
+{
+key = postscriptFontName;
+value = "MachineMadeSans-MediumItalic";
+}
+);
 weightClass = 500;
 },
 {
@@ -95686,11 +95726,21 @@ value = 1;
 {
 name = "TTFAutohint options";
 value = "--default-script=latn --fallback-script=latn --fallback-stem-width=52 --windows-compatibility --no-info";
+},
+{
+name = fileName;
+value = "MachineMadeSans-SemiBoldItalic";
 }
 );
 isItalic = 1;
 linkStyle = SemiBold;
 name = "SemiBold Italic";
+properties = (
+{
+key = postscriptFontName;
+value = "MachineMadeSans-SemiBoldItalic";
+}
+);
 weightClass = 600;
 },
 {
@@ -95705,12 +95755,22 @@ value = 1;
 {
 name = "TTFAutohint options";
 value = "--default-script=latn --fallback-script=latn --fallback-stem-width=52 --windows-compatibility --no-info";
+},
+{
+name = fileName;
+value = "MachineMadeSans-BoldItalic";
 }
 );
 isBold = 1;
 isItalic = 1;
 linkStyle = Regular;
 name = "Bold Italic";
+properties = (
+{
+key = postscriptFontName;
+value = "MachineMadeSans-BoldItalic";
+}
+);
 weightClass = 700;
 },
 {
@@ -95725,11 +95785,21 @@ value = 1;
 {
 name = "TTFAutohint options";
 value = "--default-script=latn --fallback-script=latn --fallback-stem-width=52 --windows-compatibility --no-info";
+},
+{
+name = fileName;
+value = "MachineMadeSans-ExtraBoldItalic";
 }
 );
 isItalic = 1;
 linkStyle = ExtraBold;
 name = "ExtraBold Italic";
+properties = (
+{
+key = postscriptFontName;
+value = "MachineMadeSans-ExtraBoldItalic";
+}
+);
 weightClass = 800;
 },
 {
@@ -96999,14 +97069,13 @@ name = "zone 1";
 type = "italic angle";
 }
 );
-note = "Generated with version 2.6";
 properties = (
 {
 key = copyrights;
 values = (
 {
 language = dflt;
-value = "Copyright 2020 The Plus Jakarta Sans Project Authors (https://github.com/tokotype/PlusJakartaSans)";
+value = "Copyright 2020 The Plus Jakarta Sans Project Authors (https://github.com/tokotype/PlusJakartaSans). Copyright 2026 The machine-made Sans Project Authors (https://github.com/machine-made/type).";
 }
 );
 },
@@ -97015,7 +97084,7 @@ key = designers;
 values = (
 {
 language = dflt;
-value = "Gumpita Rahayu";
+value = "Gumpita Rahayu (Tokotype); modified by machine-made";
 }
 );
 },
@@ -97028,24 +97097,24 @@ key = manufacturers;
 values = (
 {
 language = dflt;
-value = Tokotype;
+value = "machine-made";
 }
 );
 },
 {
 key = manufacturerURL;
-value = "https://www.tokotype.com";
+value = "https://github.com/machine-made";
 },
 {
 key = vendorID;
-value = TOKO;
+value = NONE;
 },
 {
 key = descriptions;
 values = (
 {
 language = dflt;
-value = "This font designed for Plus Jakarta City of Collaboration by Gumpita Rahayu from Tokotype in 2020.";
+value = "machine-made Sans is a modified version of Plus Jakarta Sans. Based on Plus Jakarta Sans by Gumpita Rahayu, Tokotype.";
 }
 );
 },
@@ -97054,13 +97123,13 @@ key = licenses;
 values = (
 {
 language = dflt;
-value = "This Font Software is licensed under the SIL Open Font License, Version 1.1. This license is available with a FAQ at: https://scripts.sil.org/OFL";
+value = "This Font Software is licensed under the SIL Open Font License, Version 1.1. This license is available with a FAQ at: https://openfontlicense.org";
 }
 );
 },
 {
 key = licenseURL;
-value = "https://scripts.sil.org/OFL";
+value = "https://openfontlicense.org";
 }
 );
 settings = {
@@ -97169,6 +97238,6 @@ tH = "75";
 };
 };
 };
-versionMajor = 2;
-versionMinor = 71;
+versionMajor = 0;
+versionMinor = 100;
 }
