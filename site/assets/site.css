@@ -107,10 +107,6 @@ main:focus { outline: none; }
 .note { font-size: var(--step-0); color: var(--muted); }
 .lede { font-size: var(--step-2); line-height: 1.45; max-width: 56ch; }
 .page-hero { display: grid; gap: 18px; padding-block: 48px 40px; border-bottom: 1px solid var(--rule); }
-.standin {
-  font-size: var(--step-0); color: var(--muted); border-left: 3px solid var(--red);
-  padding: 6px 0 6px 12px; max-width: 72ch;
-}
 
 /* Buttons */
 .btn {

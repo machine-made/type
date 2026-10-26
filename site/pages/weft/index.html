@@ -10,7 +10,6 @@ scripts: weft.js
   <p class="eyebrow"><span class="dot" aria-hidden="true"></span>Monospace · {{WEFT_CHAR_COUNT}} characters · {{WEFT_VERSION}}</p>
   <h1 id="weft-h"><span class="nb">machine-made</span> Weft</h1>
   <p class="lede">A monospace built from strokes on a 12-unit grid. Every glyph is 750 units wide. The weight axis sets the stroke. The FRAG axis takes the strokes from clean to broken.</p>
-  {{WEFT_STANDIN_NOTE}}
 </section>
 
 <section class="wrap band" id="play" aria-labelledby="play-h">
@@ -134,7 +133,7 @@ pc spend card 0042</p>
     <p class="intro">CI sets a test text in Weft at each FRAG level, renders it and reads it back with OCR. The character error rate (CER) is the share of characters the OCR gets wrong. The release gate: up to FRAG 15, CER must match FRAG 0.</p>
   </div>
   <div id="read-report">
-    <p class="pending"><span class="chip" data-k="head">Report pending</span> The readability report for 0.1 is not in the repo yet. This section fills in when <code>proofs/weft/readability.json</code> lands.</p>
+    <p class="pending">The table needs JavaScript. The report is <a href="{{REPO_URL}}/blob/main/proofs/weft/readability.json"><code>proofs/weft/readability.json</code></a>.</p>
   </div>
 </section>
 
@@ -147,8 +146,8 @@ pc spend card 0042</p>
   <div class="cards">
     <article class="card">
       <h3>The loom</h3>
-      <p>A Python generator. It reads a table of centre-line strokes, adds square caps and miter joins, removes overlaps and writes a UFO master at 1000 units per em. No outline comes from another font.</p>
-      <p><a href="{{REPO_URL}}/tree/main/loom">Read the loom</a></p>
+      <p>A Python generator. It reads a table of centre-line strokes on a 12-unit grid, cuts each stroke into pieces with the same points in every master, and writes 12 UFO masters (wght × FRAG) at 1000 units per em. No outline comes from another font.</p>
+      <p><a href="{{REPO_URL}}/tree/main/weft/loom">Read the loom</a></p>
     </article>
     <article class="card">
       <h3>CI</h3>

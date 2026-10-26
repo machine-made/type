@@ -173,7 +173,7 @@
       var meta = r.meta || {};
       var cap = "OCR character error rate by FRAG level";
       if (meta.engine || meta.ocr) cap += ", " + (meta.engine || meta.ocr);
-      if (meta.size_px) cap += ", " + meta.size_px + " px";
+      if (meta.size_px) cap += ", mean of " + meta.size_px + " px";
       if (meta.date) cap += ", " + meta.date;
       tbl.appendChild(el("caption", null, cap + ". Lower is better."));
       var thead = el("thead"), hr = el("tr");
@@ -202,6 +202,12 @@
       });
       tbl.appendChild(tb);
       box.appendChild(tbl);
+      if (typeof meta.reference_cer === "number") {
+        box.appendChild(el("p", { "class": "note" },
+          "Reference: " + (meta.reference_font || "reference font") + " reads at " +
+          pct(meta.reference_cer) + " on the same text." +
+          (meta.gate_pass === true ? " The release gate passes." : "")));
+      }
       box.appendChild(el("p", { "class": "note" },
         "Source: proofs/weft/readability.json in the repo, read when the site is built."));
     }).catch(function () { /* Keep the "report pending" text. */ });

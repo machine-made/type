@@ -6,11 +6,16 @@ Usage:
 
 The script:
 
-1. Selects the font files (see FONT_SOURCE below).
-2. Copies the fonts and the static assets into the output folder.
+1. Selects the committed webfonts in fonts/<family>/webfonts/. It stops
+   with an error when a file is missing, so a deploy never ships
+   without the real fonts.
+2. Copies the fonts, their licences and the static assets into the
+   output folder.
 3. Reads the fonts with fontTools and writes JSON for the pages:
    axes, character map, features, version.
-4. Reads proofs/weft/readability.json if it exists.
+4. Reads proofs/weft/readability.json (written by
+   weft/tools/readability.py). It stops with an error when the file is
+   missing or has no FRAG rows.
 5. Draws the "machine-made" wordmark and the favicon as SVG from the
    Weft outlines.
 6. Fills the page templates and writes the HTML.
@@ -37,20 +42,8 @@ from fontTools.pens.svgPathPen import SVGPathPen
 from fontTools.pens.transformPen import TransformPen
 from fontTools.ttLib import TTFont
 
-# ---------------------------------------------------------------------------
-# FONT SOURCE: the one switch between the stand-in fonts and the real fonts.
-#
-#   "auto"    : for each family, use the real webfonts in fonts/<family>/
-#               webfonts/ when they exist, else use the stand-ins.
-#   "release" : use only the real webfonts. Stop with an error if one is
-#               missing.
-#   "standin" : use only the stand-ins in site/assets/fonts/standin/.
-# ---------------------------------------------------------------------------
-FONT_SOURCE = "auto"
-
 SITE = Path(__file__).resolve().parent
 ROOT = SITE.parent
-STANDIN = SITE / "assets" / "fonts" / "standin"
 
 REPO_URL = "https://github.com/machine-made/type"
 ORG_URL = "https://github.com/machine-made"
@@ -59,31 +52,28 @@ RELEASES = {
     "sans": REPO_URL + "/releases/tag/sans-v0.1.0",
 }
 
-# Font files per family. "vf" is the file the pages use. "extra" files are
-# copied too, so that the site also serves them.
+# Font files per family, in fonts/<family>/webfonts/. Every role is
+# required. "vf" is the file the pages use. The other WOFF2 files in the
+# folder are copied too, so that the site also serves them. "licence" is
+# copied next to the fonts as OFL.txt.
 FAMILIES = {
     "weft": {
-        "release_dir": ROOT / "fonts" / "weft" / "webfonts",
-        "release": {
+        "dir": ROOT / "fonts" / "weft" / "webfonts",
+        "files": {
             "vf": "MachineMadeWeft[FRAG,wght].woff2",
             "bold": "MachineMadeWeft-Bold.woff2",
         },
-        "standin": {
-            "vf": STANDIN / "standin-Weft-phase1-Regular.woff2",
-        },
-        # Planned values, shown when the loaded font does not have the axis.
+        "licence": ROOT / "weft" / "OFL.txt",
+        # Shown only when the loaded font does not have the axis.
         "planned_axes": {"wght": [100, 400, 900], "FRAG": [0, 0, 100]},
     },
     "sans": {
-        "release_dir": ROOT / "fonts" / "sans" / "webfonts",
-        "release": {
+        "dir": ROOT / "fonts" / "sans" / "webfonts",
+        "files": {
             "vf": "MachineMadeSans[wght].woff2",
             "italic": "MachineMadeSans-Italic[wght].woff2",
         },
-        "standin": {
-            "vf": STANDIN / "standin-PlusJakartaSans[wght].woff2",
-            "italic": STANDIN / "standin-PlusJakartaSans-Italic[wght].woff2",
-        },
+        "licence": ROOT / "sans" / "OFL.txt",
         "planned_axes": {"wght": [200, 400, 800]},
     },
 }
@@ -104,32 +94,22 @@ class BuildError(Exception):
 # Font selection
 # ---------------------------------------------------------------------------
 
-def select_fonts(source: str) -> dict:
-    """Return the selected files per family and the source of each family."""
-    if source not in ("auto", "release", "standin"):
-        raise BuildError(f'FONT_SOURCE must be "auto", "release" or "standin", not "{source}".')
+def select_fonts() -> dict:
+    """Return the font files per family. Stop when a file is missing."""
     chosen = {}
     for fam, spec in FAMILIES.items():
-        rel_dir = spec["release_dir"]
-        rel_vf = rel_dir / spec["release"]["vf"]
-        use_release = source == "release" or (source == "auto" and rel_vf.is_file())
-        if use_release:
-            files = {}
-            for role, name in spec["release"].items():
-                path = rel_dir / name
-                if path.is_file():
-                    files[role] = path
-                elif role == "vf" or (fam == "sans" and role == "italic"):
-                    raise BuildError(f"Font file not found: {path}. Build the fonts first, or set FONT_SOURCE.")
-            # Copy every webfont of the family, also the ones the pages do not use.
-            extra = sorted(p for p in rel_dir.glob("*.woff2") if p not in files.values())
-            chosen[fam] = {"source": "release", "files": files, "extra": extra}
-        else:
-            files = {role: path for role, path in spec["standin"].items()}
-            for path in files.values():
-                if not path.is_file():
-                    raise BuildError(f"Stand-in font not found: {path}.")
-            chosen[fam] = {"source": "standin", "files": files, "extra": []}
+        files = {}
+        for role, name in spec["files"].items():
+            path = spec["dir"] / name
+            if not path.is_file():
+                raise BuildError(f"Font file not found: {path}. Build the fonts with "
+                                 f"{fam}/scripts/build.sh and commit fonts/{fam}/.")
+            files[role] = path
+        if not spec["licence"].is_file():
+            raise BuildError(f"Font licence not found: {spec['licence']}.")
+        # Copy every webfont of the family, also the ones the pages do not use.
+        extra = sorted(p for p in spec["dir"].glob("*.woff2") if p not in files.values())
+        chosen[fam] = {"files": files, "extra": extra, "licence": spec["licence"]}
     return chosen
 
 
@@ -359,59 +339,51 @@ def favicon_svg(font: TTFont) -> str:
 # ---------------------------------------------------------------------------
 
 def normalise_readability(raw) -> list:
-    """Return [{"frag": n, "cer": fraction}, ...] from the accepted shapes.
+    """Return [{"frag": n, "cer": fraction}, ...] from the report.
 
-    Accepted input:
-      {"levels": [{"frag": 0, "cer": 0.004}, ...], ...}   (also "results")
-      [{"frag": 0, "cer": 0.004}, ...]
-      {"0": 0.004, "15": 0.006}  or  {"cer": {"0": 0.004, ...}}
-    "cer" is a fraction (0.004 = 0.4 %). "cer_percent" is also accepted.
+    The report is the output of weft/tools/readability.py:
+      {"weft": {"paragraph": {"FRAG 0": {"cer_mean": 0.0023, ...}, ...}}, ...}
+    "cer_mean" is a fraction (0.0023 = 0.23 %), the mean over the sizes
+    in "sizes_px".
     """
-    rows = None
-    if isinstance(raw, dict):
-        for key in ("levels", "results", "rows", "data"):
-            if isinstance(raw.get(key), list):
-                rows = raw[key]
-                break
-        if rows is None:
-            table = raw.get("cer") if isinstance(raw.get("cer"), dict) else raw
-            pairs = [(k, v) for k, v in table.items() if re.fullmatch(r"\d+(\.\d+)?", str(k))]
-            rows = [{"frag": float(k), "cer": v} for k, v in pairs]
-    elif isinstance(raw, list):
-        rows = raw
+    if not isinstance(raw, dict):
+        return []
+    para = (raw.get("weft") or {}).get("paragraph") or {}
     out = []
-    for r in rows or []:
-        if not isinstance(r, dict):
-            continue
-        frag = r.get("frag", r.get("FRAG", r.get("level")))
-        if "cer" in r:
-            cer = r["cer"]
-        elif "cer_percent" in r:
-            cer = float(r["cer_percent"]) / 100
-        else:
-            cer = r.get("char_error_rate")
-        if isinstance(cer, (int, float)) and isinstance(frag, (int, float)):
-            out.append({"frag": frag, "cer": float(cer)})
+    for key, row in para.items():
+        m = re.fullmatch(r"FRAG\s+(\d+(?:\.\d+)?)", str(key))
+        cer = row.get("cer_mean") if isinstance(row, dict) else None
+        if m and isinstance(cer, (int, float)):
+            frag = float(m.group(1))
+            out.append({"frag": int(frag) if frag.is_integer() else frag, "cer": float(cer)})
     return sorted(out, key=lambda r: r["frag"])
 
 
 def readability() -> dict:
+    """Return the readability table for the Weft page. Stop when it is missing."""
     if not READABILITY.is_file():
-        return {"status": "pending"}
+        raise BuildError(f"{READABILITY} not found. Run weft/tools/readability.py and commit the report.")
     try:
         raw = json.loads(READABILITY.read_text(encoding="utf-8"))
     except (OSError, json.JSONDecodeError) as exc:
-        print(f"Warning: cannot read {READABILITY}: {exc}. The page shows 'report pending'.", file=sys.stderr)
-        return {"status": "pending"}
+        raise BuildError(f"Cannot read {READABILITY}: {exc}.") from exc
     rows = normalise_readability(raw)
     if not rows:
-        print(f"Warning: no FRAG and CER rows in {READABILITY}. The page shows 'report pending'.", file=sys.stderr)
-        return {"status": "pending"}
+        raise BuildError(f'No "weft.paragraph" FRAG rows in {READABILITY}.')
     meta = {}
-    if isinstance(raw, dict):
-        for key in ("engine", "ocr", "size_px", "sample", "date", "threshold", "font_version"):
-            if key in raw and isinstance(raw[key], (str, int, float)):
-                meta[key] = raw[key]
+    engine = raw.get("tesseract")
+    if isinstance(engine, str):
+        meta["engine"] = engine.replace("tesseract", "Tesseract", 1)
+    sizes = raw.get("sizes_px")
+    if isinstance(sizes, list) and sizes:
+        meta["size_px"] = ", ".join(str(s) for s in sizes)
+    ref = ((raw.get("reference") or {}).get("paragraph") or {}).get("static") or {}
+    if isinstance(ref.get("cer_mean"), (int, float)):
+        meta["reference_cer"] = float(ref["cer_mean"])
+        meta["reference_font"] = "DejaVu Sans Mono"
+    gate = raw.get("gate") or {}
+    if isinstance(gate.get("pass"), bool):
+        meta["gate_pass"] = gate["pass"]
     return {"status": "ok", "rows": rows, "meta": meta}
 
 
@@ -517,17 +489,14 @@ def font_face_css(chosen: dict, info: dict) -> str:
             f"src:url(\"../fonts/sans/{url_path(name)}\") format(\"woff2\");"
             f"font-weight:{sans_w};font-style:{style};font-display:swap}}"
         )
-    # machine-made Sans 0.1 makes the sharp (ss01) and straight (ss02) forms
-    # the default. The upstream stand-in needs the features on to look the same.
-    ff = '"ss01" 1, "ss02" 1' if chosen["sans"]["source"] == "standin" else "normal"
-    out.append(f":root{{--sans-features:{ff}}}")
+    # machine-made Sans 0.1 has the sharp and straight forms as the
+    # default, so no feature is on.
+    out.append(":root{--sans-features:normal}")
     return "\n".join(out) + "\n"
 
 
 def short_version(fam_info: dict) -> str:
-    """Return "version 0.100" from the name table, or "stand-in" for a stand-in."""
-    if fam_info["source"] == "standin":
-        return "stand-in font"
+    """Return "version 0.100" from the name table."""
     m = re.search(r"(\d+\.\d+)", fam_info["version"])
     return f"version {m.group(1)}" if m else "version 0.1"
 
@@ -544,8 +513,9 @@ def swirl_tag(features: dict) -> str:
 # Main
 # ---------------------------------------------------------------------------
 
-def build(out: Path, source: str) -> None:
-    chosen = select_fonts(source)
+def build(out: Path) -> None:
+    chosen = select_fonts()
+    report = readability()
 
     if out.exists():
         shutil.rmtree(out)
@@ -559,12 +529,10 @@ def build(out: Path, source: str) -> None:
         dest.mkdir(parents=True, exist_ok=True)
         for path in list(sel["files"].values()) + sel["extra"]:
             shutil.copy2(path, dest / path.name)
-        if sel["source"] == "standin" and fam == "sans":
-            shutil.copy2(STANDIN / "standin-PlusJakartaSans-OFL.txt", dest / "OFL.txt")
+        shutil.copy2(sel["licence"], dest / "OFL.txt")
 
     info = {fam: inspect(sel["files"]["vf"]) for fam, sel in chosen.items()}
     for fam, sel in chosen.items():
-        info[fam]["source"] = sel["source"]
         info[fam]["file"] = "fonts/" + fam + "/" + url_path(sel["files"]["vf"].name)
         info[fam]["planned_axes"] = FAMILIES[fam]["planned_axes"]
         info[fam]["release_url"] = RELEASES[fam]
@@ -574,7 +542,7 @@ def build(out: Path, source: str) -> None:
 
     (out / "data" / "weft.json").write_text(json.dumps(info["weft"], ensure_ascii=False, indent=1), encoding="utf-8")
     (out / "data" / "sans.json").write_text(json.dumps(info["sans"], ensure_ascii=False, indent=1), encoding="utf-8")
-    (out / "data" / "readability.json").write_text(json.dumps(readability(), indent=1), encoding="utf-8")
+    (out / "data" / "readability.json").write_text(json.dumps(report, indent=1), encoding="utf-8")
     (out / "assets" / "fonts.css").write_text(font_face_css(chosen, info), encoding="utf-8")
 
     mark_font = weft_for_wordmark(chosen)
@@ -585,12 +553,6 @@ def build(out: Path, source: str) -> None:
     weft_axes = info["weft"]["axes"]
     sans_axes = info["sans"]["axes"]
     planned_w = FAMILIES["weft"]["planned_axes"]
-    standin_note = {
-        "weft": ("Stand-in: this page uses the Weft phase 1 build (Regular only, a–z, A–Z, 0–9). "
-                 "The 0.1 variable font replaces it when it is built."),
-        "sans": ("Stand-in: this page uses upstream Plus Jakarta Sans. "
-                 "The machine-made Sans 0.1 files replace it when they are built."),
-    }
     values = {
         "REPO_URL": REPO_URL,
         "ORG_URL": ORG_URL,
@@ -609,14 +571,7 @@ def build(out: Path, source: str) -> None:
         "SANS_WATERFALL": sans_waterfall(sans_axes.get("wght") or [400, 400, 400], italic=False),
         "SANS_WATERFALL_ITALIC": sans_waterfall(sans_axes.get("wght") or [400, 400, 400], italic=True),
         "SANS_SWIRL_TAG": swirl_tag(info["sans"]["features"]),
-        "WEFT_STANDIN_NOTE": (f'<p class="standin" role="note">{standin_note["weft"]}</p>'
-                              if chosen["weft"]["source"] == "standin" else ""),
-        "SANS_STANDIN_NOTE": (f'<p class="standin" role="note">{standin_note["sans"]}</p>'
-                              if chosen["sans"]["source"] == "standin" else ""),
-        "SANS_FORMS_NOTE": ("The stand-in is upstream Plus Jakarta Sans, so this row turns on ss01 and ss02 "
-                            "to show the forms that 0.1 makes default."
-                            if chosen["sans"]["source"] == "standin" else
-                            "These are the default forms of machine-made Sans 0.1. No feature is on."),
+        "SANS_FORMS_NOTE": "These are the default forms of machine-made Sans 0.1. No feature is on.",
     }
 
     layout = (SITE / "templates" / "layout.html").read_text(encoding="utf-8")
@@ -649,8 +604,8 @@ def build(out: Path, source: str) -> None:
 
     print(f"Built the site in {out}.")
     for fam, sel in chosen.items():
-        print(f"  {fam}: {sel['source']} font {sel['files']['vf'].name}, axes {info[fam]['axes'] or 'none'}")
-    print(f"  readability: {readability()['status']}")
+        print(f"  {fam}: {sel['files']['vf'].name}, axes {info[fam]['axes'] or 'none'}")
+    print(f"  readability: {len(report['rows'])} FRAG rows from {READABILITY.relative_to(ROOT)}")
 
 
 def main(argv: list[str]) -> int:
@@ -658,7 +613,7 @@ def main(argv: list[str]) -> int:
     ap.add_argument("--out", type=Path, default=SITE / "_site", help="output folder (default: site/_site)")
     args = ap.parse_args(argv)
     try:
-        build(args.out.resolve(), FONT_SOURCE)
+        build(args.out.resolve())
     except BuildError as exc:
         print(f"Error: {exc}", file=sys.stderr)
         return 1
