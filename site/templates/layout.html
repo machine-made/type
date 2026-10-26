@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{{TITLE}}</title>
+<meta name="description" content="{{DESCRIPTION}}">
+<meta name="color-scheme" content="light dark">
+<meta name="theme-color" content="#F4F5F3" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0E0F10" media="(prefers-color-scheme: dark)">
+<meta property="og:title" content="{{TITLE}}">
+<meta property="og:description" content="{{DESCRIPTION}}">
+<meta property="og:type" content="website">
+<link rel="icon" href="{{ROOT}}assets/favicon.svg" type="image/svg+xml">
+{{PRELOAD}}
+<link rel="stylesheet" href="{{ROOT}}assets/fonts.css">
+<link rel="stylesheet" href="{{ROOT}}assets/site.css">
+{{SCRIPTS}}
+</head>
+<body class="{{BODY_CLASS}}" data-root="{{ROOT}}">
+<a class="skip" href="#main">Skip to content</a>
+<header class="site-head">
+  <div class="wrap site-head-in">
+    <a class="brand" href="{{ROOT}}" aria-label="machine-made type, home">{{WORDMARK}}<span class="brand-sub">type</span></a>
+    <nav aria-label="Main">
+      <ul class="nav">
+        <li><a href="{{ROOT}}weft/"{{NAV_WEFT}}>Weft</a></li>
+        <li><a href="{{ROOT}}sans/"{{NAV_SANS}}>Sans</a></li>
+        <li><a href="{{ROOT}}download/"{{NAV_DOWNLOAD}}>Download</a></li>
+        <li><a href="{{REPO_URL}}">GitHub</a></li>
+      </ul>
+    </nav>
+  </div>
+</header>
+<main id="main" tabindex="-1">
+{{BODY}}
+</main>
+<footer class="site-foot">
+  <div class="wrap site-foot-in">
+    <p class="foot-mark"><span class="dot" aria-hidden="true"></span>machine-made</p>
+    <ul class="foot-links">
+      <li><a href="{{ORG_URL}}">machine-made on GitHub</a></li>
+      <li><a href="{{REPO_URL}}">Source of these fonts</a></li>
+      <li><a href="{{REPO_URL}}/blob/main/OFL.txt">Fonts: SIL OFL 1.1</a></li>
+      <li><a href="{{REPO_URL}}/blob/main/LICENSE">Code: Apache-2.0</a></li>
+    </ul>
+    <p class="foot-note">No analytics, no cookies, no third-party scripts. Every font on this site is served from this site.</p>
+  </div>
+</footer>
+</body>
+</html>

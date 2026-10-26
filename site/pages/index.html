@@ -1,0 +1,72 @@
+<!--
+title: machine-made type: Weft and Sans
+description: machine-made Weft, a grid-built variable monospace, and machine-made Sans, a reading sans. Version 0.1, free under the SIL Open Font License.
+nav: home
+class: page-home
+preload: weft,sans
+-->
+<section class="hero wrap" aria-labelledby="home-h">
+  <p class="eyebrow"><span class="dot" aria-hidden="true"></span>machine-made/type · version 0.1</p>
+  <h1 id="home-h" class="visually-hidden">machine-made type</h1>
+  <div class="hero-mark">{{WORDMARK}}</div>
+  <p class="hero-line">Made by machines. Proven for machines.</p>
+  <p class="lede">Two typeface families, built and checked by code. Free to use under the SIL Open Font License.</p>
+</section>
+
+<section class="wrap families" aria-label="The two families">
+  <article class="fam fam-weft">
+    <header class="fam-head">
+      <p class="eyebrow">Monospace · variable · wght {{WEFT_WGHT_RANGE}} · FRAG {{WEFT_FRAG_RANGE}}</p>
+      <h2><a href="weft/">machine-made Weft</a></h2>
+    </header>
+    <p class="fam-sample weft" aria-hidden="true">Rg 0042</p>
+    <p class="fam-text weft">Proven for machines</p>
+    <p>A monospace set on a 12-unit grid by a generator called the loom. One axis sets the weight. A second axis, FRAG, takes it from clean strokes to broken pieces.</p>
+    <p class="fam-links"><a class="btn" href="weft/">See Weft</a> <a class="btn btn-ghost" href="{{WEFT_RELEASE}}">Get Weft 0.1</a></p>
+  </article>
+  <article class="fam fam-sans">
+    <header class="fam-head">
+      <p class="eyebrow">Sans · variable · wght {{SANS_WGHT_RANGE}} · upright and italic</p>
+      <h2><a href="sans/">machine-made Sans</a></h2>
+    </header>
+    <p class="fam-sample sans" aria-hidden="true">Rg Ka 0042</p>
+    <p class="fam-text sans">Every result is checked by another machine.</p>
+    <p>A reading sans based on Plus Jakarta Sans. It makes the sharp and straight alternates the default forms, so it sits next to Weft.</p>
+    <p class="fam-links"><a class="btn" href="sans/">See Sans</a> <a class="btn btn-ghost" href="{{SANS_RELEASE}}">Get Sans 0.1</a></p>
+  </article>
+</section>
+
+<section class="wrap band" aria-labelledby="pair-h">
+  <div class="sec-head">
+    <p class="eyebrow">Together</p>
+    <h2 id="pair-h">One for code, one for reading</h2>
+  </div>
+  <div class="pair">
+    <div class="pair-col">
+      <p class="cap">Sans · 18 px · 400</p>
+      <p class="pair-sans">Run the loom and it writes every outline from a table of strokes. Fontmake compiles the result, and the checks run on every pull request. A person reviews the proof by eye before a release.</p>
+    </div>
+    <div class="pair-col">
+      <p class="cap">Weft · 15 px · 400</p>
+      <pre class="pair-code weft"><code>python -m pytest -q
+scripts/build.sh
+scripts/check.sh fontspector
+python tools/proof.py</code></pre>
+    </div>
+  </div>
+</section>
+
+<section class="wrap band" aria-labelledby="facts-h">
+  <div class="sec-head">
+    <p class="eyebrow">Version 0.1</p>
+    <h2 id="facts-h">What is in this release</h2>
+  </div>
+  <ul class="facts">
+    <li><span class="fact-k">Licence</span><span class="fact-v">Fonts: SIL OFL 1.1. Code: Apache-2.0.</span></li>
+    <li><span class="fact-k">Weft</span><span class="fact-v">Variable font (wght and FRAG), static Regular and Bold. TTF and WOFF2.</span></li>
+    <li><span class="fact-k">Sans</span><span class="fact-v">Variable font (wght), upright and italic. TTF and WOFF2.</span></li>
+    <li><span class="fact-k">Made by</span><span class="fact-v">Agents write the code and the commits. CI builds and checks the fonts.</span></li>
+    <li><span class="fact-k">Source</span><span class="fact-v"><a href="{{REPO_URL}}">github.com/machine-made/type</a></span></li>
+  </ul>
+  <p><a class="btn" href="download/">Download and install</a></p>
+</section>

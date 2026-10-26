@@ -1,0 +1,100 @@
+<!--
+title: Download and install machine-made type
+description: Download machine-made Weft 0.1 and machine-made Sans 0.1 from GitHub, copy the @font-face CSS, and read the licence.
+nav: download
+class: page-download
+preload: sans
+scripts: copy.js
+-->
+<section class="wrap page-hero" aria-labelledby="dl-h">
+  <p class="eyebrow"><span class="dot" aria-hidden="true"></span>Version 0.1</p>
+  <h1 id="dl-h">Download and install</h1>
+  <p class="lede">Each family has its own release on GitHub. Each release holds the TTF files for desktop use, the WOFF2 files for the web, and the licence.</p>
+</section>
+
+<section class="wrap band" id="weft" aria-labelledby="dl-weft-h">
+  <div class="sec-head">
+    <p class="eyebrow">Monospace</p>
+    <h2 id="dl-weft-h" class="weft-title">machine-made Weft 0.1</h2>
+  </div>
+  <p><a class="btn" href="{{WEFT_RELEASE}}">Download Weft 0.1 from GitHub</a></p>
+  <h3>On your computer</h3>
+  <p>Unzip the release. On macOS, open the TTF files and select Install. On Windows, right-click the files and select Install. On Linux, copy them to <code>~/.local/share/fonts</code> and run <code>fc-cache</code>.</p>
+  <h3>On the web</h3>
+  <p>Copy the WOFF2 files to your site, then add this CSS. Change the path to where you put the files.</p>
+  <div class="snippet">
+    <button class="btn btn-small copy" type="button" data-copy="css-weft">Copy</button>
+<pre id="css-weft"><code>@font-face {
+  font-family: "machine-made Weft";
+  src: url("/fonts/MachineMadeWeft[FRAG,wght].woff2") format("woff2");
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+code, pre, kbd {
+  font-family: "machine-made Weft", ui-monospace, monospace;
+}
+
+/* FRAG: 0 is clean. Keep body text at 15 or below. */
+.headline {
+  font-family: "machine-made Weft", ui-monospace, monospace;
+  font-variation-settings: "FRAG" 30;
+}</code></pre>
+  </div>
+  <p class="note">For a static font, use <code>MachineMadeWeft-Regular.woff2</code> with <code>font-weight: 400</code>, and <code>MachineMadeWeft-Bold.woff2</code> with <code>font-weight: 700</code>.</p>
+</section>
+
+<section class="wrap band" id="sans" aria-labelledby="dl-sans-h">
+  <div class="sec-head">
+    <p class="eyebrow">Sans</p>
+    <h2 id="dl-sans-h" class="sans-title">machine-made Sans 0.1</h2>
+  </div>
+  <p><a class="btn" href="{{SANS_RELEASE}}">Download Sans 0.1 from GitHub</a></p>
+  <h3>On your computer</h3>
+  <p>Install the two variable TTF files, upright and italic, the same way as Weft.</p>
+  <h3>On the web</h3>
+  <div class="snippet">
+    <button class="btn btn-small copy" type="button" data-copy="css-sans">Copy</button>
+<pre id="css-sans"><code>@font-face {
+  font-family: "machine-made Sans";
+  src: url("/fonts/MachineMadeSans[wght].woff2") format("woff2");
+  font-weight: 200 800;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "machine-made Sans";
+  src: url("/fonts/MachineMadeSans-Italic[wght].woff2") format("woff2");
+  font-weight: 200 800;
+  font-style: italic;
+  font-display: swap;
+}
+
+body {
+  font-family: "machine-made Sans", system-ui, sans-serif;
+}</code></pre>
+  </div>
+  <p class="note">Square brackets in a file name are valid in a URL path. If your server does not accept them, rename the files and change the CSS to match.</p>
+</section>
+
+<section class="wrap band" id="npm" aria-labelledby="npm-h">
+  <div class="sec-head">
+    <p class="eyebrow">Packages</p>
+    <h2 id="npm-h">npm package coming</h2>
+  </div>
+  <p>An npm package for each family is coming. Until then, use the files from the GitHub releases.</p>
+</section>
+
+<section class="wrap band" id="licence" aria-labelledby="lic-h">
+  <div class="sec-head">
+    <p class="eyebrow">Licence</p>
+    <h2 id="lic-h">Free to use, change and share</h2>
+  </div>
+  <ul class="facts">
+    <li><span class="fact-k">Fonts</span><span class="fact-v"><a href="{{REPO_URL}}/blob/main/OFL.txt">SIL Open Font License 1.1</a>. Use them in any project, also commercial ones. You can embed them in apps, documents and websites. If you change a font, give it a new name: "machine-made" is a Reserved Font Name. You cannot sell the fonts alone.</span></li>
+    <li><span class="fact-k">Code</span><span class="fact-v"><a href="{{REPO_URL}}/blob/main/LICENSE">Apache License 2.0</a>. This covers the generator, the tools, the tests, the CI and this site.</span></li>
+    <li><span class="fact-k">Sans base</span><span class="fact-v">machine-made Sans is based on <a href="https://github.com/tokotype/PlusJakartaSans">Plus Jakarta Sans</a> by Gumpita Rahayu, Tokotype (SIL OFL 1.1).</span></li>
+  </ul>
+</section>
