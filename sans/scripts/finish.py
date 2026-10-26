@@ -87,7 +87,7 @@ def add_static_stat(font: TTFont, path: Path) -> None:
         {"tag": "wght", "name": "Weight", "values": [wght_value]},
         {"tag": "ital", "name": "Italic", "values": [ital_value]},
     ]
-    buildStatTable(font, axes, elidedFallbackName=2)
+    buildStatTable(font, axes, elidedFallbackName=2, macNames=False)
 
 
 def finish_file(src: Path, dst: Path, kind: str) -> None:

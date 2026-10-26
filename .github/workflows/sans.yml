@@ -1,0 +1,108 @@
+name: sans
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "sans/**"
+      - "fonts/sans/**"
+      - "proofs/sans/**"
+      - ".github/workflows/sans.yml"
+  pull_request:
+    paths:
+      - "sans/**"
+      - "fonts/sans/**"
+      - "proofs/sans/**"
+      - ".github/workflows/sans.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  FONTSPECTOR_VERSION: "1.9.0"
+  # SHA-256 of fontspector-1.9.0-x86_64-unknown-linux-gnu.tar.gz.
+  FONTSPECTOR_SHA256: "0d4a7fbc577f7f99a084dec2a7acc13f64f923cbe44c0e3c5e3d76469786b8e2"
+  # Upstream Plus Jakarta Sans commit that the sources fork (sans/upstream/UPSTREAM.txt).
+  UPSTREAM_REPO: "https://github.com/tokotype/PlusJakartaSans"
+  UPSTREAM_COMMIT: "18d1cd2f7ea10481919d2f05c1f7064b7307fc26"
+
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+    steps:
+      - name: Check out
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Set up Python
+        uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
+        with:
+          python-version: "3.14"
+
+      - name: Install system libraries for text shaping in proofs
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends libraqm0 libfribidi0
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -r sans/requirements.txt
+
+      - name: Get the upstream sources at the pinned commit
+        run: |
+          git init -q "$RUNNER_TEMP/upstream"
+          git -C "$RUNNER_TEMP/upstream" fetch -q --depth 1 "$UPSTREAM_REPO" "$UPSTREAM_COMMIT"
+          git -C "$RUNNER_TEMP/upstream" checkout -q FETCH_HEAD
+          echo "SANS_UPSTREAM=$RUNNER_TEMP/upstream" >> "$GITHUB_ENV"
+
+      - name: Keep the committed fonts for comparison
+        run: cp -r fonts/sans "$RUNNER_TEMP/committed-fonts"
+
+      - name: Build fonts
+        run: sans/scripts/build.sh
+
+      - name: Compare the build with the committed fonts
+        # The build is not byte-identical between machines (timestamps,
+        # tool versions). Compare glyph sets, cmap and names instead.
+        run: python sans/scripts/compare_builds.py "$RUNNER_TEMP/committed-fonts" fonts/sans
+
+      - name: Run tests
+        run: python -m pytest -q sans/tests
+
+      - name: Install Fontspector
+        run: |
+          name="fontspector-${FONTSPECTOR_VERSION}-x86_64-unknown-linux-gnu"
+          curl -sSfL -o fontspector.tar.gz \
+            "https://github.com/fonttools/fontspector/releases/download/fontspector-v${FONTSPECTOR_VERSION}/${name}.tar.gz"
+          echo "${FONTSPECTOR_SHA256}  fontspector.tar.gz" | sha256sum --check
+          tar xzf fontspector.tar.gz
+          install -m 755 "${name}/fontspector" /usr/local/bin/fontspector
+          fontspector --version
+
+      - name: Check fonts (Fontspector universal profile, varLib.interpolatable)
+        run: sans/scripts/check.sh fontspector
+
+      - name: Add check reports to the summary
+        if: always()
+        run: cat reports/sans/summary.md >> "$GITHUB_STEP_SUMMARY" || true
+
+      - name: Render proof sheets
+        run: |
+          weft=""
+          for f in fonts/weft/MachineMadeWeft-Regular.ttf fonts/weft/Weft-Regular.ttf fonts/Weft-Regular.ttf; do
+            if [ -f "$f" ]; then weft="--weft $f"; break; fi
+          done
+          python sans/scripts/proof.py --upstream "$SANS_UPSTREAM/fonts" $weft --out build/sans/proofs
+
+      - name: Upload fonts, proofs and reports
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: machine-made-sans
+          path: |
+            fonts/sans/
+            build/sans/proofs/
+            reports/sans/
+          if-no-files-found: warn

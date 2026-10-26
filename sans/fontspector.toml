@@ -1,0 +1,7 @@
+# Fontspector configuration for machine-made Sans.
+# Each override is a decision. sans/STATUS.md lists them with the reason.
+
+[[overrides]]
+code = "instance-too-long"
+status = "WARN"
+reason = "The family name machine-made Sans is fixed. In the italic variable font, three fvar instance names are longer than 32 characters: ExtraLight Italic (35), SemiBold Italic (33), ExtraBold Italic (34). The static fonts pass: the check removes Regular, Bold and Italic from name ID 4 before it counts. Shorter style names are a decision for 0.2."
