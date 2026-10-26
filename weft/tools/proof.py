@@ -1,172 +1,176 @@
-"""Render the Weft proof sheet from the compiled font.
+"""Render the Weft 0.1 proof sheets from the compiled variable font.
 
 Usage:
-    python tools/proof.py [--font ../fonts/weft/Weft-Regular.ttf] [--out ../proofs/weft/weft-phase1-proof.png]
-    python tools/proof.py --compare SKETCH_PNG   # also write the comparison
+    python tools/proof.py [--font VF.ttf] [--out-dir ../proofs/weft]
 
-The proof uses FreeType (Pillow) on the compiled TTF. It does not use the
-sketch. The --compare option reads a PNG that tools/sketch_render.js made
-from the same layout spec and writes a side-by-side image and an overlay.
+Writes five PNGs (FreeType through Pillow, no sketch code):
+
+    weft-charset.png         every encoded character, wght 400, FRAG 0
+    weft-weight-waterfall.png  wght 100 to 900, FRAG 0
+    weft-frag-waterfall.png    FRAG 0 to 100 at wght 400 and 900
+    weft-body-text.png         body text at 16, 18, 20, 22, 24 px (FRAG 0 and 15)
+    weft-lookalikes.png        Il1| O0 rn/m cl/d 5S 2Z B8 g9 at FRAG 0 and 15
 """
 
 from __future__ import annotations
 
 import argparse
-import json
+import sys
 from pathlib import Path
 
-from PIL import Image, ImageChops, ImageDraw, ImageFont
+from PIL import Image, ImageDraw, ImageFont
 
-PAPER = (244, 245, 243)
-INK = (18, 19, 20)
-MUTED = (91, 96, 100)
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
-# Phase 1 has no '.' and no '|'. The proof drops them.
-LINES = [
-    "abcdefghijklmnopqrstuvwxyz",
-    "ABCDEFGHIJKLMNOPQRSTUVWXYZ",
-    "0123456789",
-    "Made by machines Proven for machines",
-    "Il1 O0 rn m cl d 5S 2Z B8 g9",
-]
+from loom import build  # noqa: E402
 
+PAPER = 244
+INK = 18
+MUTED = 110
+WIDTH = 1600
+PAD = 32
 
-def layout(size: int) -> dict:
-    s = size / 16
-    cols = max(len(line) for line in LINES)
-    left = round(2 * s)
-    return {
-        "size": size,
-        "left": left,
-        "top": round(15 * s),  # baseline of the first line
-        "lineStep": round(19 * s),
-        "width": round(left * 2 + cols * 12 * s),
-        "height": round(15 * s + (len(LINES) - 1) * 19 * s + 6 * s),
-        "lines": LINES,
-    }
+BODY = (
+    "Every result a machine hands you has been checked by another machine. "
+    "Weft is set on a grid by code, compiled by fontmake and checked on every "
+    "pull request: 1,204 of 1,204 glyph tests pass. Façade, naïve, Øresund, "
+    "São Paulo, Zürich, 25 °C, 3/4 cup, «quotes» and “quotes” — all in one face."
+)
+LOOKALIKES = "Il1| O0 rn m cl d 5S 2Z B8 g9"
 
 
-def render_font(font_path: Path, spec: dict) -> Image.Image:
-    img = Image.new("RGB", (spec["width"], spec["height"]), PAPER)
-    draw = ImageDraw.Draw(img)
-    font = ImageFont.truetype(str(font_path), spec["size"])
-    for i, line in enumerate(spec["lines"]):
-        y = spec["top"] + i * spec["lineStep"]
-        draw.text((spec["left"], y), line, font=font, fill=INK, anchor="ls")
-    return img
+def font_at(path: str, size: int, wght: float, frag: float) -> ImageFont.FreeTypeFont:
+    font = ImageFont.truetype(path, size)
+    names = [a["name"] if isinstance(a["name"], str) else a["name"].decode()
+             for a in font.get_variation_axes()]
+    values = {"Weight": wght, "Fragmentation": frag}
+    font.set_variation_by_axes([values[n] for n in names])
+    return font
 
 
-def label(img: Image.Image, text: str, pad: int = 36) -> Image.Image:
-    out = Image.new("RGB", (img.width, img.height + pad), PAPER)
-    out.paste(img, (0, pad))
-    draw = ImageDraw.Draw(out)
-    draw.text((12, 8), text, font=ImageFont.load_default(18), fill=MUTED)
-    return out
+def label_font(size: int = 18) -> ImageFont.FreeTypeFont:
+    return ImageFont.load_default(size)
 
 
-def ink_mask(img: Image.Image) -> Image.Image:
-    return img.convert("L").point(lambda v: 255 if v < 128 else 0)
+class Sheet:
+    def __init__(self, title: str):
+        self.blocks: list[Image.Image] = []
+        self.text(title, 26)
+
+    def text(self, s: str, size: int = 18, fill: int = MUTED) -> None:
+        img = Image.new("L", (WIDTH, size + 14), PAPER)
+        ImageDraw.Draw(img).text((PAD, 4), s, font=label_font(size), fill=fill)
+        self.blocks.append(img)
+
+    def line(self, s: str, font: ImageFont.FreeTypeFont, size: int, note: str = "") -> None:
+        h = round(size * 1.25) + 8
+        img = Image.new("L", (WIDTH, h), PAPER)
+        d = ImageDraw.Draw(img)
+        x = PAD
+        if note:
+            d.text((PAD, h // 2 - 8), note, font=label_font(14), fill=MUTED)
+            x = PAD + 150
+        d.text((x, round(size * 0.95) + 4), s, font=font, fill=INK, anchor="ls")
+        self.blocks.append(img)
+
+    def gap(self, h: int = 16) -> None:
+        self.blocks.append(Image.new("L", (WIDTH, h), PAPER))
+
+    def save(self, path: Path) -> None:
+        h = sum(b.height for b in self.blocks) + PAD
+        out = Image.new("L", (WIDTH, h), PAPER)
+        y = PAD // 2
+        for b in self.blocks:
+            out.paste(b, (0, y))
+            y += b.height
+        out.save(path)
+        print(f"Wrote {path}.")
 
 
-def coverage(img: Image.Image) -> Image.Image:
-    """Return ink coverage per pixel (0 = paper, 255 = full ink)."""
-    lo, hi = INK[0], PAPER[0]
-    return img.convert("L").point(lambda v: max(0, min(255, round((hi - v) * 255 / (hi - lo)))))
+def wrap(text: str, cols: int) -> list[str]:
+    lines, line = [], ""
+    for word in text.split():
+        if line and len(line) + 1 + len(word) > cols:
+            lines.append(line)
+            line = word
+        else:
+            line = f"{line} {word}" if line else word
+    return lines + [line] if line else lines
 
 
-def soft_iou(a: Image.Image, b: Image.Image) -> float:
-    """Return sum(min) / sum(max) of two coverage maps.
-
-    This uses the anti-aliased grey levels, so a stem edge on a half
-    pixel does not count as a shape change.
-    """
-    lo = ImageChops.darker(a, b).histogram()
-    hi = ImageChops.lighter(a, b).histogram()
-    s_lo = sum(i * n for i, n in enumerate(lo))
-    s_hi = sum(i * n for i, n in enumerate(hi))
-    return round(s_lo / s_hi, 4) if s_hi else 1.0
-
-
-def _count(m: Image.Image) -> int:
-    return m.histogram()[255]
-
-
-def best_shift(a: Image.Image, b: Image.Image, reach: int = 2) -> tuple[int, int]:
-    """Return the pixel shift of b that gives the most shared ink.
-
-    The canvas renderer does not snap the pen origin to pixels and
-    FreeType does. A shift of 1 px or less is a raster offset, not a
-    shape change.
-    """
-    best, best_n = (0, 0), -1
-    for dx in range(-reach, reach + 1):
-        for dy in range(-reach, reach + 1):
-            n = _count(ImageChops.multiply(a, ImageChops.offset(b, dx, dy)))
-            if n > best_n:
-                best, best_n = (dx, dy), n
-    return best
-
-
-def compare(font_img: Image.Image, sketch_img: Image.Image, out: Path) -> dict:
-    a, b = ink_mask(font_img), ink_mask(sketch_img)
-    dx, dy = best_shift(a, b)
-    b = ImageChops.offset(b, dx, dy)
-    sketch_img = ImageChops.offset(sketch_img, dx, dy)
-    both = ImageChops.multiply(a, b)
-    either = ImageChops.lighter(a, b)
-    only_a = ImageChops.subtract(a, b)
-    only_b = ImageChops.subtract(b, a)
-    count = _count
-    n_both, n_either = count(both), count(either)
-    stats = {
-        "ink_pixels_font": count(a),
-        "ink_pixels_sketch": count(b),
-        "only_font": count(only_a),
-        "only_sketch": count(only_b),
-        "iou": round(n_both / n_either, 4) if n_either else 1.0,
-        "sketch_shift_px": [dx, dy],
-        "soft_iou": soft_iou(coverage(font_img), coverage(sketch_img)),
-    }
-    # Overlay: black where both agree, red only in the font, blue only in
-    # the sketch.
-    ov = Image.new("RGB", a.size, PAPER)
-    ov.paste((18, 19, 20), mask=both)
-    ov.paste((222, 42, 31), mask=only_a)
-    ov.paste((30, 90, 220), mask=only_b)
-    left = label(font_img, "Compiled font: ../fonts/weft/Weft-Regular.ttf (FreeType)")
-    right = label(sketch_img, "Sketch 0.1 renderer (canvas), wght 400, FRAG 0")
-    bottom = label(ov, f"Overlay: black = both, red = font only, blue = sketch only. coverage IoU {stats['soft_iou']}, binary IoU {stats['iou']}")
-    gap = 24
-    w = left.width + right.width + gap
-    sheet = Image.new("RGB", (w, left.height + bottom.height + gap), PAPER)
-    sheet.paste(left, (0, 0))
-    sheet.paste(right, (left.width + gap, 0))
-    sheet.paste(bottom, ((w - bottom.width) // 2, left.height + gap))
-    out.parent.mkdir(parents=True, exist_ok=True)
+def charset(vf: str, out: Path) -> None:
+    sheet = Sheet(f"machine-made Weft 0.1: full character set ({len(build.charset()) - 1} characters), wght 400, FRAG 0")
+    chars = [c for c in build.charset() if c not in "  "]
+    size, cols = 48, 32
+    font = font_at(vf, size, 400, 0)
+    for i in range(0, len(chars), cols):
+        sheet.line("".join(chars[i:i + cols]), font, size)
+    sheet.gap()
+    sheet.text("Same set at wght 900")
+    font = font_at(vf, size, 900, 0)
+    for i in range(0, len(chars), cols):
+        sheet.line("".join(chars[i:i + cols]), font, size)
     sheet.save(out)
-    return stats
+
+
+def weight_waterfall(vf: str, out: Path) -> None:
+    sheet = Sheet("machine-made Weft 0.1: weight waterfall, FRAG 0 (the nine static instances)")
+    for wght, style in build.STATICS:
+        sheet.line("Weft 0042 Hamburgefonstiv", font_at(vf, 56, wght, 0), 56, f"{wght} {style}")
+    sheet.save(out)
+
+
+def frag_waterfall(vf: str, out: Path) -> None:
+    sheet = Sheet("machine-made Weft 0.1: FRAG waterfall (0 Clean, 15 Notched, 50 Cut, 100 Broken)")
+    for wght in (400, 900):
+        sheet.text(f"wght {wght}")
+        for frag in (0, 8, 15, 30, 50, 62, 80, 100):
+            sheet.line("Weft 0042 machine", font_at(vf, 64, wght, frag), 64, f"FRAG {frag}")
+        sheet.gap()
+    sheet.save(out)
+
+
+def body_text(vf: str, out: Path) -> None:
+    sheet = Sheet("machine-made Weft 0.1: body text, wght 400, at FRAG 0 (left) and FRAG 15 (right)")
+    half = WIDTH // 2
+    for size in (16, 18, 20, 22, 24):
+        sheet.text(f"{size} px")
+        cols = int((half - PAD - 20) / (size * 0.75))
+        lines = wrap(BODY, cols)
+        step = round(size * 1.45)
+        img = Image.new("L", (WIDTH, step * len(lines) + 8), PAPER)
+        d = ImageDraw.Draw(img)
+        for col, frag in enumerate((0, 15)):
+            font = font_at(vf, size, 400, frag)
+            for i, line in enumerate(lines):
+                d.text((PAD + col * half, size + i * step), line, font=font, fill=INK, anchor="ls")
+        sheet.blocks.append(img)
+        sheet.gap(10)
+    sheet.save(out)
+
+
+def lookalikes(vf: str, out: Path) -> None:
+    sheet = Sheet("machine-made Weft 0.1: look-alike pairs")
+    for frag in (0, 15):
+        for wght in (400, 700):
+            sheet.line(LOOKALIKES, font_at(vf, 52, wght, frag), 52, f"wght {wght} FRAG {frag}")
+    for frag in (0, 15):
+        sheet.line(LOOKALIKES, font_at(vf, 20, 400, frag), 20, f"20 px FRAG {frag}")
+    sheet.save(out)
 
 
 def main(argv: list[str] | None = None) -> int:
-    ap = argparse.ArgumentParser(description="Render the Weft proof sheet.")
-    ap.add_argument("--font", default="../fonts/weft/Weft-Regular.ttf")
-    ap.add_argument("--out", default="../proofs/weft/weft-phase1-proof.png")
-    ap.add_argument("--size", type=int, default=64)
-    ap.add_argument("--spec-out", help="Write the layout spec as JSON.")
-    ap.add_argument("--compare", help="Sketch PNG made from the same spec.")
-    ap.add_argument("--compare-out", default="../proofs/weft/weft-phase1-vs-sketch.png")
+    ap = argparse.ArgumentParser(description="Render the Weft proof sheets.")
+    ap.add_argument("--font", default="../fonts/weft/variable/MachineMadeWeft[FRAG,wght].ttf")
+    ap.add_argument("--out-dir", default="../proofs/weft")
     args = ap.parse_args(argv)
-    spec = layout(args.size)
-    if args.spec_out:
-        Path(args.spec_out).write_text(json.dumps(spec))
-    img = render_font(Path(args.font), spec)
-    out = Path(args.out)
-    out.parent.mkdir(parents=True, exist_ok=True)
-    img.save(out)
-    print(f"Wrote {out}.")
-    if args.compare:
-        stats = compare(img, Image.open(args.compare).convert("RGB"), Path(args.compare_out))
-        print(f"Wrote {args.compare_out}. {json.dumps(stats)}")
+    out = Path(args.out_dir)
+    out.mkdir(parents=True, exist_ok=True)
+    charset(args.font, out / "weft-charset.png")
+    weight_waterfall(args.font, out / "weft-weight-waterfall.png")
+    frag_waterfall(args.font, out / "weft-frag-waterfall.png")
+    body_text(args.font, out / "weft-body-text.png")
+    lookalikes(args.font, out / "weft-lookalikes.png")
     return 0
 
 
