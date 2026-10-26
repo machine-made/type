@@ -1,0 +1,6 @@
+# Build output. site/build.py makes it again.
+_site/
+__pycache__/
+# The root .gitignore ignores every fonts/ directory (font build output).
+# The stand-in fonts of the site are source files, so keep them.
+!assets/fonts/
