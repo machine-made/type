@@ -1,0 +1,9 @@
+# Build output. CI makes these again.
+master/
+fonts/
+reports/
+__pycache__/
+*.egg-info/
+.pytest_cache/
+.venv*/
+build/
