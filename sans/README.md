@@ -190,5 +190,5 @@ To make the sources again from upstream:
 python sans/scripts/fork.py /tmp/pjs/sources sans/sources
 ```
 
-The build is repeatable: `SOURCE_DATE_EPOCH` is the date of the last
-commit that changed `sans/sources`, so two builds give the same bytes.
+The build is repeatable: `SOURCE_DATE_EPOCH` is fixed (2026-10-26), so
+two builds with the same tool versions give the same bytes.

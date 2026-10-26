@@ -7,10 +7,10 @@
 set -euo pipefail
 cd "$(dirname "$0")/../.."
 
-# Fixed timestamps (head.created and head.modified) for repeatable builds:
-# the date of the last commit that changed the sources.
-SOURCE_DATE_EPOCH="${SOURCE_DATE_EPOCH:-$(git log -1 --format=%ct -- sans/sources 2>/dev/null || echo 1792972800)}"
-export SOURCE_DATE_EPOCH
+# Fixed timestamps (head.created and head.modified) for repeatable builds.
+# A fixed date, not a commit date: a rebase or a squash merge changes
+# commit dates, and then the build would not match the committed fonts.
+export SOURCE_DATE_EPOCH="${SOURCE_DATE_EPOCH:-1792972800}"  # 2026-10-26 00:00 UTC
 
 rm -rf build/sans
 mkdir -p build/sans
