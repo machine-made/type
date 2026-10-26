@@ -1,0 +1,22 @@
+{
+  "about": "Drift attempt per glyph (0 if not listed). Made by tools/relock.py.",
+  "seed": "machine-made Weft 0.1",
+  "attempts": {
+    "E": 1,
+    "Eth": 1,
+    "a": 5,
+    "at": 8,
+    "bullet": 18,
+    "cent": 1,
+    "d": 1,
+    "f": 1,
+    "oslash": 3,
+    "paragraph": 3,
+    "quotedblleft": 1,
+    "ring.lc": 1,
+    "section": 7,
+    "threequarters": 3,
+    "uni20B9": 3,
+    "zero": 3
+  }
+}

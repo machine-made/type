@@ -1,0 +1,98 @@
+<!--
+title: machine-made Sans: a reading sans
+description: machine-made Sans 0.1. A reading sans based on Plus Jakarta Sans, with straight forms as default and sharp forms in ss02. Upright and italic, variable weight. Free under the SIL Open Font License.
+nav: sans
+class: page-sans
+preload: sans
+scripts: sans.js
+-->
+<section class="wrap page-hero" aria-labelledby="sans-h">
+  <p class="eyebrow"><span class="dot" aria-hidden="true"></span>Sans · upright and italic · wght {{SANS_WGHT_RANGE}} · {{SANS_VERSION}}</p>
+  <h1 id="sans-h"><span class="nb">machine-made</span> Sans</h1>
+  <p class="lede">A reading sans for text and interfaces. It keeps the geometry, tall x-height and open counters of Plus Jakarta Sans, makes the straight alternates the default forms, and puts the sharp forms in stylistic set ss02.</p>
+</section>
+
+<section class="wrap band" aria-labelledby="spec-h">
+  <div class="sec-head">
+    <p class="eyebrow">Specimen</p>
+    <h2 id="spec-h">Set for reading</h2>
+  </div>
+  <div class="sans-spec">
+    <p class="sans-display" aria-hidden="true">Rg Ka<br>0123</p>
+    <div class="sans-copy">
+      <p class="sans-l">Every result a machine hands you is checked by another machine.</p>
+      <p class="sans-m">machine-made Sans sits next to Weft. Its x-height is tall and its counters are open, so it stays clear at small sizes on screens. The straight forms give it a plain, flat look, and the sharp set in ss02 gives it the cut look of the monospace.</p>
+      <p class="sans-s">ABCDEFGHIJKLMNOPQRSTUVWXYZ<br>abcdefghijklmnopqrstuvwxyz<br>0123456789 &amp; ! ? @ # % ( ) [ ] { } / \ * + − = € £ $</p>
+      <p class="sans-s sans-italic">ABCDEFGHIJKLMNOPQRSTUVWXYZ<br>abcdefghijklmnopqrstuvwxyz<br>0123456789 &amp; ! ? @ # % ( ) [ ] { } / \ * + − = € £ $</p>
+    </div>
+  </div>
+</section>
+
+<section class="wrap band" aria-labelledby="wf-h">
+  <div class="sec-head">
+    <p class="eyebrow">Weights</p>
+    <h2 id="wf-h">Waterfall, upright and italic</h2>
+    <p class="intro">One variable font per style. The weight axis runs from {{SANS_WGHT_RANGE}}.</p>
+  </div>
+  <div class="waterfalls">
+    <div>
+      <p class="cap">Upright</p>
+      <ul class="waterfall sans">
+{{SANS_WATERFALL}}
+      </ul>
+    </div>
+    <div>
+      <p class="cap">Italic</p>
+      <ul class="waterfall sans">
+{{SANS_WATERFALL_ITALIC}}
+      </ul>
+    </div>
+  </div>
+</section>
+
+<section class="wrap band" aria-labelledby="forms-h">
+  <div class="sec-head">
+    <p class="eyebrow">Default forms</p>
+    <h2 id="forms-h">Straight by default, sharp in ss02</h2>
+    <p class="intro">Plus Jakarta Sans ships three sets of alternates: sharp, straight and swirl. machine-made Sans makes the straight a j p q r y the default. The sharp forms are in ss02, the original round forms in ss01, and swirl in {{SANS_SWIRL_TAG}}.</p>
+  </div>
+  <div class="forms">
+    <div class="form-row">
+      <p class="cap">machine-made Sans 0.1 · default</p>
+      <p class="form-sample sans form-default">a j p q r y f g h i k l m n t u G I K U</p>
+      <p class="note">{{SANS_FORMS_NOTE}}</p>
+    </div>
+    <div class="form-row">
+      <p class="cap">Sharp · font-feature-settings: "ss02" 1</p>
+      <p class="form-sample sans form-sharp" id="sharp-sample">a j p q r y f g h i k l m n t u G I K U</p>
+      <p class="note"><label class="toggle"><input type="checkbox" id="sharp-toggle" checked> Turn ss02 on</label> Turn the sharp forms on with <code>font-feature-settings: "ss02" 1;</code></p>
+    </div>
+    <div class="form-row">
+      <p class="cap">Swirl · font-feature-settings: "{{SANS_SWIRL_TAG}}" 1</p>
+      <p class="form-sample sans form-swirl" style="--swirl:'{{SANS_SWIRL_TAG}}' 1">a e g j l m n r u y G J K Q R</p>
+      <p class="note">Turn swirl on with <code>font-feature-settings: "{{SANS_SWIRL_TAG}}" 1;</code></p>
+    </div>
+  </div>
+</section>
+
+<section class="wrap band" aria-labelledby="credit-h">
+  <div class="sec-head">
+    <p class="eyebrow">Credit</p>
+    <h2 id="credit-h">Based on Plus Jakarta Sans</h2>
+  </div>
+  <p class="credit">Based on <a href="https://github.com/tokotype/PlusJakartaSans">Plus Jakarta Sans</a> by Gumpita Rahayu, Tokotype (SIL OFL 1.1).</p>
+  <p>The Open Font License lets anyone change and share the font, under a new name. machine-made Sans is that new name. The original licence and copyright notice ship with every file.</p>
+</section>
+
+<section class="wrap band" aria-labelledby="next-h">
+  <div class="sec-head">
+    <p class="eyebrow">Next</p>
+    <h2 id="next-h">What comes in 0.2</h2>
+  </div>
+  <p>0.2 brings Weft's chamfered terminals and Text/Display cuts.</p>
+</section>
+
+<section class="wrap band cta" aria-labelledby="get-sans-h">
+  <h2 id="get-sans-h">Get Sans 0.1</h2>
+  <p><a class="btn" href="{{SANS_RELEASE}}">Download from GitHub</a> <a class="btn btn-ghost" href="../download/#sans">Install and @font-face</a></p>
+</section>

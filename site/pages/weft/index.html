@@ -1,0 +1,169 @@
+<!--
+title: machine-made Weft: a grid-built variable monospace
+description: machine-made Weft 0.1. A monospace built from strokes on a 12-unit grid, with a weight axis and a FRAG axis from clean to broken. Free under the SIL Open Font License.
+nav: weft
+class: page-weft
+preload: weft,sans
+scripts: weft.js
+-->
+<section class="wrap page-hero" aria-labelledby="weft-h">
+  <p class="eyebrow"><span class="dot" aria-hidden="true"></span>Monospace · {{WEFT_CHAR_COUNT}} characters · {{WEFT_VERSION}}</p>
+  <h1 id="weft-h"><span class="nb">machine-made</span> Weft</h1>
+  <p class="lede">A monospace built from strokes on a 12-unit grid. Every glyph is 750 units wide. The weight axis sets the stroke. The FRAG axis takes the strokes from clean to broken.</p>
+</section>
+
+<section class="wrap band" id="play" aria-labelledby="play-h">
+  <div class="sec-head">
+    <p class="eyebrow">Playground</p>
+    <h2 id="play-h">Set your own text</h2>
+  </div>
+  <div class="play">
+    <div class="controls">
+      <div class="field">
+        <label class="label" for="txt">Text</label>
+        <textarea id="txt" spellcheck="false" rows="3">Made by machines
+Proven for machines
+pc spend card 0042</textarea>
+      </div>
+      <div class="field" id="wght-field">
+        <div class="field-top"><label class="label" for="wght">Weight</label><output id="wght-out" for="wght">400</output></div>
+        <input type="range" id="wght" min="100" max="900" step="1" value="400">
+      </div>
+      <p class="axis-missing" id="wght-missing" hidden>The weight axis arrives with the variable font. This build has Regular only.</p>
+      <div class="field" id="frag-field" hidden>
+        <div class="field-top"><label class="label" for="frag">FRAG</label><output id="frag-out" for="frag">0</output></div>
+        <input type="range" id="frag" min="0" max="100" step="1" value="0" aria-describedby="frag-stage">
+        <div class="frag-scale" aria-hidden="true">
+          <span style="left:0">0</span><span style="left:15%">15</span><span style="left:50%">50</span><span style="right:0">100</span>
+        </div>
+        <p class="chip" id="frag-stage" data-k="safe" aria-live="polite">Clean · safe for body text</p>
+      </div>
+      <p class="axis-missing" id="frag-missing">FRAG arrives with the variable font.</p>
+      <div class="field">
+        <div class="field-top"><label class="label" for="size">Size</label><output id="size-out" for="size">72 px</output></div>
+        <input type="range" id="size" min="12" max="200" step="1" value="72">
+      </div>
+    </div>
+    <div class="stage">
+      <p class="stage-text weft" id="stage-text" aria-live="off">Made by machines
+Proven for machines
+pc spend card 0042</p>
+    </div>
+  </div>
+</section>
+
+<section class="wrap band" id="frag-axis" aria-labelledby="frag-h">
+  <div class="sec-head">
+    <p class="eyebrow">The FRAG axis</p>
+    <h2 id="frag-h">From clean to broken on one axis</h2>
+    <p class="intro">FRAG runs from 0 to 100. Up to 15 it only cuts small notches into the joints, so body text stays safe. From 16 it cuts across the strokes. Past 50 the pieces move and drop out.</p>
+  </div>
+  <ol class="stages">
+    <li><span class="stage-range">0</span><span class="stage-name">Clean</span><span class="stage-use">Body text</span></li>
+    <li><span class="stage-range">1–15</span><span class="stage-name">Ink-trap notches</span><span class="stage-use">Body text</span></li>
+    <li><span class="stage-range">16–50</span><span class="stage-name">Cuts across strokes</span><span class="stage-use">Headings</span></li>
+    <li><span class="stage-range">51–100</span><span class="stage-name">Broken pieces</span><span class="stage-use">Titles and marks</span></li>
+  </ol>
+  <div class="axis-rows" id="axis-rows" hidden></div>
+  <p class="axis-missing" id="axis-rows-missing">FRAG arrives with the variable font. Then this section shows Weft at FRAG 0, 8, 15, 30, 50, 70 and 100.</p>
+</section>
+
+<section class="wrap band" id="sizes" aria-labelledby="sizes-h">
+  <div class="sec-head">
+    <p class="eyebrow">Specimen</p>
+    <h2 id="sizes-h">From 12 to 200 pixels</h2>
+  </div>
+  <ul class="sizes weft">
+    <li><span class="size-k">12 px</span><span class="size-v" style="font-size:12px">The loom writes every outline from a table of strokes on a twelve unit grid and fontmake compiles it</span></li>
+    <li><span class="size-k">14 px</span><span class="size-v" style="font-size:14px">The loom writes every outline from a table of strokes on a twelve unit grid and fontmake compiles it</span></li>
+    <li><span class="size-k">16 px</span><span class="size-v" style="font-size:16px">The loom writes every outline from a table of strokes on a twelve unit grid</span></li>
+    <li><span class="size-k">20 px</span><span class="size-v" style="font-size:20px">Every glyph is seven hundred fifty units wide</span></li>
+    <li><span class="size-k">24 px</span><span class="size-v" style="font-size:24px">Made by machines Proven for machines</span></li>
+    <li><span class="size-k">32 px</span><span class="size-v" style="font-size:32px">Proven for machines 0123456789</span></li>
+    <li><span class="size-k">48 px</span><span class="size-v" style="font-size:48px">Strokes on a grid</span></li>
+    <li><span class="size-k">72 px</span><span class="size-v" style="font-size:72px">Weft 0042</span></li>
+    <li><span class="size-k">120 px</span><span class="size-v" style="font-size:120px">Rg Ka</span></li>
+    <li><span class="size-k">200 px</span><span class="size-v" style="font-size:200px">Weft</span></li>
+  </ul>
+</section>
+
+<section class="wrap band" id="glyphs" aria-labelledby="glyphs-h">
+  <div class="sec-head">
+    <p class="eyebrow">Character set</p>
+    <h2 id="glyphs-h"><span id="glyph-count">{{WEFT_CHAR_COUNT}}</span> characters</h2>
+    <p class="intro">Read from the font's character map when the site is built. Select a character to see it large.</p>
+  </div>
+  <div class="glyph-wrap">
+    <div class="glyph-detail" id="glyph-detail" aria-live="polite">
+      <p class="glyph-big weft" id="glyph-big">a</p>
+      <dl class="glyph-meta">
+        <div><dt>Character</dt><dd id="glyph-name">Latin Small Letter A</dd></div>
+        <div><dt>Unicode</dt><dd id="glyph-u">U+0061</dd></div>
+        <div><dt>Glyph</dt><dd id="glyph-g">a</dd></div>
+      </dl>
+    </div>
+    <div class="glyph-map" id="glyph-map"><p class="muted">Loading the character map.</p></div>
+  </div>
+</section>
+
+<section class="wrap band" id="lookalikes" aria-labelledby="look-h">
+  <div class="sec-head">
+    <p class="eyebrow">Look-alikes</p>
+    <h2 id="look-h">Characters that must not be confused</h2>
+    <p class="intro">Code, serial numbers and card numbers need these pairs to stay distinct. Each group is set at 48 px.</p>
+  </div>
+  <ul class="look weft" id="look-list">
+    <li>I l 1 |</li>
+    <li>O 0 o</li>
+    <li>rn m</li>
+    <li>cl d</li>
+    <li>5 S</li>
+    <li>2 Z</li>
+    <li>B 8</li>
+    <li>g 9 q</li>
+    <li>u v</li>
+  </ul>
+  <p class="note" id="look-note" hidden></p>
+</section>
+
+<section class="wrap band" id="readable" aria-labelledby="read-h">
+  <div class="sec-head">
+    <p class="eyebrow">Proven readable</p>
+    <h2 id="read-h">Read back by OCR at every FRAG level</h2>
+    <p class="intro">CI sets a test text in Weft at each FRAG level, renders it and reads it back with OCR. The character error rate (CER) is the share of characters the OCR gets wrong. The release gate: up to FRAG 15, CER must match FRAG 0.</p>
+  </div>
+  <div id="read-report">
+    <p class="pending">The table needs JavaScript. The report is <a href="{{REPO_URL}}/blob/main/proofs/weft/readability.json"><code>proofs/weft/readability.json</code></a>.</p>
+  </div>
+</section>
+
+<section class="wrap band" id="made" aria-labelledby="made-h">
+  <div class="sec-head">
+    <p class="eyebrow">Made by machines</p>
+    <h2 id="made-h">No person draws the outlines</h2>
+    <p class="intro">Agents write the generator, the tests and the CI. People set the goals and review the proofs.</p>
+  </div>
+  <div class="cards">
+    <article class="card">
+      <h3>The loom</h3>
+      <p>A Python generator. It reads a table of centre-line strokes on a 12-unit grid, cuts each stroke into pieces with the same points in every master, and writes 12 UFO masters (wght × FRAG) at 1000 units per em. No outline comes from another font.</p>
+      <p><a href="{{REPO_URL}}/tree/main/weft/loom">Read the loom</a></p>
+    </article>
+    <article class="card">
+      <h3>CI</h3>
+      <p>Every pull request runs the tests, builds the fonts with fontmake, checks them with Fontspector and renders a proof sheet. GitHub Actions are pinned to commit SHAs.</p>
+      <p><a href="{{REPO_URL}}/actions">See the CI runs</a></p>
+    </article>
+    <article class="card">
+      <h3>Agent commits</h3>
+      <p>Jac, the director agent of machine-made, plans the work. Agent sessions write the code and open the pull requests. The latest commits:</p>
+      <ul class="commits" id="commits"><li class="muted">Loading the commit list.</li></ul>
+      <p><a href="{{REPO_URL}}/commits/main">All commits</a></p>
+    </article>
+  </div>
+</section>
+
+<section class="wrap band cta" aria-labelledby="get-weft-h">
+  <h2 id="get-weft-h">Get Weft 0.1</h2>
+  <p><a class="btn" href="{{WEFT_RELEASE}}">Download from GitHub</a> <a class="btn btn-ghost" href="../download/#weft">Install and @font-face</a></p>
+</section>

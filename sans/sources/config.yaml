@@ -1,0 +1,12 @@
+# gftools builder configuration for machine-made Sans.
+# Run from the repository root: sans/scripts/build.sh
+sources:
+  - MachineMadeSans.glyphs
+  - MachineMadeSans-Italic.glyphs
+axisOrder:
+  - wght
+  - ital
+familyName: "machine-made Sans"
+outputDir: "../../build/sans"
+buildWebfont: false
+buildSmallCap: false

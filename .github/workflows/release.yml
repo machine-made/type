@@ -1,0 +1,296 @@
+name: release
+
+# Make a GitHub release from a pushed tag:
+#   weft-vX.Y.Z  machine-made Weft
+#   sans-vX.Y.Z  machine-made Sans
+#   site-vX.Y.Z  the specimen site (zip of site/_site; the live deploy is site.yml)
+# Each job builds again from the tagged commit, fails if the build differs
+# from the committed fonts, runs the checks, makes the zip and the single
+# files, attests their build provenance and creates the release.
+
+on:
+  push:
+    tags:
+      - "weft-v*"
+      - "sans-v*"
+      - "site-v*"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
+env:
+  FONTSPECTOR_VERSION: "1.9.0"
+  # SHA-256 of fontspector-1.9.0-x86_64-unknown-linux-gnu.tar.gz.
+  FONTSPECTOR_SHA256: "0d4a7fbc577f7f99a084dec2a7acc13f64f923cbe44c0e3c5e3d76469786b8e2"
+  # Upstream Plus Jakarta Sans commit that the Sans sources fork (sans/upstream/UPSTREAM.txt).
+  UPSTREAM_REPO: "https://github.com/tokotype/PlusJakartaSans"
+  UPSTREAM_COMMIT: "18d1cd2f7ea10481919d2f05c1f7064b7307fc26"
+  OUT: ${{ github.workspace }}/release-files
+
+jobs:
+  weft:
+    if: startsWith(github.ref_name, 'weft-v')
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    permissions:
+      contents: write
+      id-token: write
+      attestations: write
+    steps:
+      - name: Check out
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Get the version from the tag
+        run: |
+          version="${GITHUB_REF_NAME#weft-v}"
+          if ! [[ "$version" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "::error::Tag ${GITHUB_REF_NAME} is not weft-vX.Y.Z."
+            exit 1
+          fi
+          echo "VERSION=$version" >> "$GITHUB_ENV"
+
+      - name: Set up Python
+        uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
+        with:
+          python-version: "3.14"
+
+      - name: Install dependencies
+        working-directory: weft
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends tesseract-ocr tesseract-ocr-eng fonts-dejavu-core
+          tesseract --version
+          python -m pip install --upgrade pip
+          python -m pip install -e ".[test]"
+
+      - name: Run tests
+        working-directory: weft
+        run: python -m pytest -q
+
+      - name: Build fonts
+        working-directory: weft
+        run: scripts/build.sh
+
+      - name: Check that the build is the same as the committed fonts
+        run: |
+          if [ -n "$(git status --porcelain -- fonts/weft)" ]; then
+            git status --short -- fonts/weft
+            echo "::error::The build differs from the committed fonts/weft. Do not release these files."
+            exit 1
+          fi
+          echo "The build has the same bytes as the committed fonts/weft."
+
+      - name: Check interpolation (fontTools varLib.interpolatable)
+        working-directory: weft
+        run: |
+          fonttools varLib.interpolatable build/Weft.designspace
+          fonttools varLib.interpolatable build/master/*.ufo
+          fonttools varLib.interpolatable "../fonts/weft/variable/MachineMadeWeft[FRAG,wght].ttf"
+
+      - name: Install Fontspector
+        run: |
+          name="fontspector-${FONTSPECTOR_VERSION}-x86_64-unknown-linux-gnu"
+          curl -sSfL -o "$RUNNER_TEMP/fontspector.tar.gz" \
+            "https://github.com/fonttools/fontspector/releases/download/fontspector-v${FONTSPECTOR_VERSION}/${name}.tar.gz"
+          echo "${FONTSPECTOR_SHA256}  $RUNNER_TEMP/fontspector.tar.gz" | sha256sum --check
+          tar xzf "$RUNNER_TEMP/fontspector.tar.gz" -C "$RUNNER_TEMP"
+          sudo install -m 755 "$RUNNER_TEMP/${name}/fontspector" /usr/local/bin/fontspector
+          fontspector --version
+
+      - name: Check fonts (Fontspector, universal profile)
+        working-directory: weft
+        run: scripts/check.sh fontspector
+
+      - name: Readability gate (Tesseract OCR)
+        working-directory: weft
+        run: |
+          mkdir -p "$OUT"
+          python tools/readability.py --gate --out "$OUT/readability.json"
+
+      - name: Make the release files
+        run: .github/scripts/package_release.sh weft "$VERSION" "$OUT"
+
+      - name: Attest build provenance
+        uses: actions/attest-build-provenance@4d101475d8b20a2381f78447822ac1eab6504dd8 # v4.2.2
+        with:
+          subject-path: |
+            ${{ env.OUT }}/machine-made-weft-*.zip
+            ${{ env.OUT }}/*.woff2
+            ${{ env.OUT }}/*.ttf
+            ${{ env.OUT }}/readability.json
+
+      - name: Create the release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "$GITHUB_REF_NAME" --verify-tag \
+            --title "machine-made Weft ${VERSION}" \
+            --notes-file "weft/RELEASE-NOTES-${VERSION%.*}.md" \
+            "$OUT/machine-made-weft-${VERSION}.zip" \
+            "$OUT/MachineMadeWeft[FRAG,wght].woff2" \
+            "$OUT/MachineMadeWeft-Regular.woff2" \
+            "$OUT/MachineMadeWeft-Bold.woff2" \
+            "$OUT/MachineMadeWeft[FRAG,wght].ttf" \
+            "$OUT/readability.json" \
+            "$OUT/SHA256SUMS"
+
+  sans:
+    if: startsWith(github.ref_name, 'sans-v')
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+    permissions:
+      contents: write
+      id-token: write
+      attestations: write
+    steps:
+      - name: Check out
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Get the version from the tag
+        run: |
+          version="${GITHUB_REF_NAME#sans-v}"
+          if ! [[ "$version" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "::error::Tag ${GITHUB_REF_NAME} is not sans-vX.Y.Z."
+            exit 1
+          fi
+          echo "VERSION=$version" >> "$GITHUB_ENV"
+
+      - name: Set up Python
+        uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
+        with:
+          python-version: "3.14"
+
+      - name: Install system libraries for text shaping in proofs
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends libraqm0 libfribidi0
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -r sans/requirements.txt
+
+      - name: Get the upstream sources at the pinned commit
+        run: |
+          git init -q "$RUNNER_TEMP/upstream"
+          git -C "$RUNNER_TEMP/upstream" fetch -q --depth 1 "$UPSTREAM_REPO" "$UPSTREAM_COMMIT"
+          git -C "$RUNNER_TEMP/upstream" checkout -q FETCH_HEAD
+          echo "SANS_UPSTREAM=$RUNNER_TEMP/upstream" >> "$GITHUB_ENV"
+
+      - name: Keep the committed fonts for comparison
+        run: cp -r fonts/sans "$RUNNER_TEMP/committed-fonts"
+
+      - name: Build fonts
+        run: sans/scripts/build.sh
+
+      - name: Check that the build is the same as the committed fonts
+        run: |
+          if [ -n "$(git status --porcelain -- fonts/sans)" ]; then
+            git status --short -- fonts/sans
+            # Show what differs (glyphs, cmap, names, metrics, outlines).
+            python sans/scripts/compare_builds.py "$RUNNER_TEMP/committed-fonts" fonts/sans || true
+            echo "::error::The build differs from the committed fonts/sans. Do not release these files."
+            exit 1
+          fi
+          echo "The build has the same bytes as the committed fonts/sans."
+
+      - name: Run tests
+        run: python -m pytest -q sans/tests
+
+      - name: Install Fontspector
+        run: |
+          name="fontspector-${FONTSPECTOR_VERSION}-x86_64-unknown-linux-gnu"
+          curl -sSfL -o "$RUNNER_TEMP/fontspector.tar.gz" \
+            "https://github.com/fonttools/fontspector/releases/download/fontspector-v${FONTSPECTOR_VERSION}/${name}.tar.gz"
+          echo "${FONTSPECTOR_SHA256}  $RUNNER_TEMP/fontspector.tar.gz" | sha256sum --check
+          tar xzf "$RUNNER_TEMP/fontspector.tar.gz" -C "$RUNNER_TEMP"
+          sudo install -m 755 "$RUNNER_TEMP/${name}/fontspector" /usr/local/bin/fontspector
+          fontspector --version
+
+      - name: Check fonts (Fontspector universal profile, varLib.interpolatable)
+        run: sans/scripts/check.sh fontspector
+
+      - name: Make the release files
+        run: .github/scripts/package_release.sh sans "$VERSION" "$OUT"
+
+      - name: Attest build provenance
+        uses: actions/attest-build-provenance@4d101475d8b20a2381f78447822ac1eab6504dd8 # v4.2.2
+        with:
+          subject-path: |
+            ${{ env.OUT }}/machine-made-sans-*.zip
+            ${{ env.OUT }}/*.woff2
+            ${{ env.OUT }}/*.ttf
+
+      - name: Create the release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "$GITHUB_REF_NAME" --verify-tag \
+            --title "machine-made Sans ${VERSION}" \
+            --notes-file "sans/RELEASE-NOTES-${VERSION%.*}.md" \
+            "$OUT/machine-made-sans-${VERSION}.zip" \
+            "$OUT/MachineMadeSans[wght].woff2" \
+            "$OUT/MachineMadeSans-Italic[wght].woff2" \
+            "$OUT/MachineMadeSans[wght].ttf" \
+            "$OUT/MachineMadeSans-Italic[wght].ttf" \
+            "$OUT/SHA256SUMS"
+
+  site:
+    if: startsWith(github.ref_name, 'site-v')
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    permissions:
+      contents: write
+      id-token: write
+      attestations: write
+    steps:
+      - name: Check out
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          # The Weft page lists the latest commits.
+          fetch-depth: 50
+
+      - name: Get the version from the tag
+        run: |
+          version="${GITHUB_REF_NAME#site-v}"
+          if ! [[ "$version" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "::error::Tag ${GITHUB_REF_NAME} is not site-vX.Y.Z."
+            exit 1
+          fi
+          echo "VERSION=$version" >> "$GITHUB_ENV"
+
+      - name: Set up Python
+        uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
+        with:
+          python-version: "3.14"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -r site/requirements.txt
+
+      - name: Build site
+        run: python site/build.py
+
+      - name: Make the release files
+        run: .github/scripts/package_release.sh site "$VERSION" "$OUT"
+
+      - name: Attest build provenance
+        uses: actions/attest-build-provenance@4d101475d8b20a2381f78447822ac1eab6504dd8 # v4.2.2
+        with:
+          subject-path: ${{ env.OUT }}/machine-made-type-site-*.zip
+
+      - name: Create the release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          sed "s/0\.1\.0/${VERSION}/g" .github/scripts/site-release-notes.md > "$RUNNER_TEMP/notes.md"
+          gh release create "$GITHUB_REF_NAME" --verify-tag \
+            --title "machine-made type site ${VERSION}" \
+            --notes-file "$RUNNER_TEMP/notes.md" \
+            "$OUT/machine-made-type-site-${VERSION}.zip" \
+            "$OUT/SHA256SUMS"

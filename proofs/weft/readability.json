@@ -1,0 +1,170 @@
+{
+  "about": "OCR character error rate (CER). Lower is better. See weft/tools/readability.py.",
+  "tesseract": "tesseract 5.3.4",
+  "paragraph": "Every result a machine hands you has been checked by another machine. Weft is set on a grid by code, compiled by fontmake and checked on every pull request: 1,204 of 1,204 glyph tests pass. The quick brown fox jumps over the lazy dog; pack my box with five dozen liquor jugs (no. 37, 2026).",
+  "sizes_px": [
+    16,
+    20,
+    24
+  ],
+  "upscale": 3,
+  "lookalike_text": "5mlg8 I8clO 0dcZr 98nrI Ol0Bg l8n|5\n1l|n| mcr5g S29rn 8OI95 c91Sl 99l9S\nn209r 01ZS2 1mS52 B1|m5 d92IO |9B9Z\nIIr82 mcSB8 In555 1I0gB mcBc| lr|SZ\n2ZlrI d25Id 2ZdO0 l9I0r 92|2| Ignl5\nS0I|5 g5ln0 S0nlg 5lIcZ Bm8mS 90g1B\nlgm|8 S5S19 |9ng5 8d|nB BgBSl 9g88d\nI9gl2 O|08r ||9Ol O2ZB0 nlrdr 051dl",
+  "weft": {
+    "font": "machine-made Weft (variable, wght 400)",
+    "paragraph": {
+      "FRAG 0": {
+        "cer_by_px": {
+          "16": 0.0034,
+          "20": 0.0,
+          "24": 0.0034
+        },
+        "cer_mean": 0.0023
+      },
+      "FRAG 15": {
+        "cer_by_px": {
+          "16": 0.0034,
+          "20": 0.0,
+          "24": 0.0
+        },
+        "cer_mean": 0.0011
+      },
+      "FRAG 50": {
+        "cer_by_px": {
+          "16": 0.0552,
+          "20": 0.0207,
+          "24": 0.031
+        },
+        "cer_mean": 0.0356
+      },
+      "FRAG 100": {
+        "cer_by_px": {
+          "16": 0.3621,
+          "20": 0.4172,
+          "24": 0.4552
+        },
+        "cer_mean": 0.4115
+      }
+    },
+    "lookalikes": {
+      "FRAG 0": {
+        "cer_by_px": {
+          "20": 0.1417,
+          "24": 0.1167,
+          "32": 0.1125
+        },
+        "cer": 0.1236,
+        "confusions": {
+          "O->0": 11,
+          "l->1": 11,
+          "0->O": 10,
+          "I->1": 8,
+          "other": 4,
+          "l->I": 3,
+          "5->S": 1,
+          "|->l": 1
+        }
+      },
+      "FRAG 15": {
+        "cer_by_px": {
+          "20": 0.1542,
+          "24": 0.1292,
+          "32": 0.1083
+        },
+        "cer": 0.1306,
+        "confusions": {
+          "l->1": 16,
+          "O->0": 12,
+          "0->O": 11,
+          "I->1": 10,
+          "other": 6,
+          "l->I": 3,
+          "|->1": 1,
+          "1->l": 1
+        }
+      }
+    }
+  },
+  "reference": {
+    "font": "DejaVuSansMono.ttf",
+    "paragraph": {
+      "static": {
+        "cer_by_px": {
+          "16": 0.0034,
+          "20": 0.0034,
+          "24": 0.0069
+        },
+        "cer_mean": 0.0046
+      }
+    },
+    "lookalikes": {
+      "static": {
+        "cer_by_px": {
+          "20": 0.0833,
+          "24": 0.0667,
+          "32": 0.075
+        },
+        "cer": 0.075,
+        "confusions": {
+          "0->O": 19,
+          "O->0": 12,
+          "l->1": 8,
+          "I->1": 4,
+          "1->l": 1,
+          "other": 1
+        }
+      }
+    }
+  },
+  "gate": {
+    "margin": 0.02,
+    "lookalike_margin": 0.06,
+    "frag15_margin": 0.02,
+    "reference_paragraph_cer": 0.0046,
+    "reference_lookalike_cer": 0.075,
+    "checks": [
+      {
+        "frag": 0,
+        "test": "paragraph",
+        "cer": 0.0023,
+        "limit": 0.0246,
+        "pass": true
+      },
+      {
+        "frag": 0,
+        "test": "lookalikes",
+        "cer": 0.1236,
+        "limit": 0.135,
+        "pass": true
+      },
+      {
+        "frag": 15,
+        "test": "paragraph",
+        "cer": 0.0011,
+        "limit": 0.0246,
+        "pass": true
+      },
+      {
+        "frag": 15,
+        "test": "lookalikes",
+        "cer": 0.1306,
+        "limit": 0.135,
+        "pass": true
+      },
+      {
+        "frag": 15,
+        "test": "paragraph vs FRAG 0",
+        "cer": 0.0011,
+        "limit": 0.0223,
+        "pass": true
+      },
+      {
+        "frag": 15,
+        "test": "lookalikes vs FRAG 0",
+        "cer": 0.1306,
+        "limit": 0.1436,
+        "pass": true
+      }
+    ],
+    "pass": true
+  }
+}
