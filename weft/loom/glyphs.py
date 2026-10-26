@@ -20,7 +20,7 @@ Do not trace, import or copy outlines from other fonts. All shapes come
 from this table.
 
 Licence: this table defines the font outlines, so it is Font Software
-under the SIL Open Font License 1.1 (see OFL.txt), Reserved Font Name
+under the SIL Open Font License 1.1 (see weft/OFL.txt), Reserved Font Name
 "machine-made". The rest of loom/ is Apache-2.0 (see LICENSE).
 """
 

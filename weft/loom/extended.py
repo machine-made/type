@@ -18,7 +18,7 @@ Contents:
 Do not trace, import or copy outlines from other fonts.
 
 Licence: this table defines font outlines, so it is Font Software under
-the SIL Open Font License 1.1 (see OFL.txt), Reserved Font Name
+the SIL Open Font License 1.1 (see weft/OFL.txt), Reserved Font Name
 "machine-made".
 """
 

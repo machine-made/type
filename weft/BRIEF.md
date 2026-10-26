@@ -4,6 +4,10 @@ Phase 0 of machine-made Weft. This file sets the metrics, the glyph list,
 the axes and the build plan. Source of all shapes: the approved sketch 0.1
 (`reference/weft-sketch-0.1.html`, glyph table `G`).
 
+> Update for Weft 0.1 (phase 2): the build plan below is done up to
+> phase 4. The width axis and the Thread style are not in 0.1. See
+> `STATUS.md`, `CHANGELOG.md` and `RELEASE-NOTES-0.1.md`.
+
 ## Name check: "Weft"
 
 Result (2026-10-26): **no serious conflict found.** No published typeface
@@ -46,11 +50,11 @@ Limits of this check:
 | Cap height | 11 | 688 |
 | Ascender | 11.5 | 719 |
 | Descender | -3.5 | -219 |
-| Typo / hhea ascender | 14 | 875 |
+| Typo / hhea ascender | 14.5 | 906 |
 | Typo / hhea descender | -4.5 | -281 |
 | Line gap | 0 | 0 |
-| Line height (typo) | 18.5 | 1156 |
-| win ascent / descent | from glyph bounds | at least 875 / 281 |
+| Line height (typo) | 19 | 1188 |
+| win ascent / descent | from glyph bounds of all masters, one value for the family | 1167 / 339 |
 | Underline position | -2.4 | -150 |
 
 Stroke rules (from the sketch):
@@ -62,8 +66,8 @@ Stroke rules (from the sketch):
 * Dots: squares of side w, centred on the point.
 * Lines only. No curves.
 
-The typo line height (18.5 units) is between the sketch's 18 and 19 unit
-line steps, and leaves room above the cap height for accents in phase 3.
+The typo line height (19 units) is the sketch's 19-unit line step, and
+leaves room above the cap height for most accents.
 
 ## Glyph list
 
