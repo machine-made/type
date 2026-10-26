@@ -1,7 +1,7 @@
 """Add a STAT table to the compiled static fonts.
 
 Usage:
-    python tools/finish.py fonts/Weft-Regular.ttf fonts/Weft-Regular.otf
+    python tools/finish.py ../fonts/weft/Weft-Regular.ttf ../fonts/weft/Weft-Regular.otf
 
 Phase 1 has one static master. The STAT table names its position on the
 future wght axis (400, Regular, elidable). Phase 2 builds the variable

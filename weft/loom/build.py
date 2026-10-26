@@ -1,7 +1,7 @@
 """Build the Weft phase 1 UFO master from the stroke table.
 
 Usage:
-    python -m loom.build [--out master/Weft-Regular.ufo] [--wght 400]
+    python -m loom.build [--out build/master/Weft-Regular.ufo] [--wght 400]
 
 Phase 1 scope: one master, wght 400, FRAG 0, Solid style.
 Glyphs: .notdef, space, a-z, A-Z, 0-9.
@@ -171,7 +171,7 @@ def build_font(wght: float = 400) -> ufoLib2.Font:
 
 def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(description="Build the Weft UFO master.")
-    ap.add_argument("--out", default="master/Weft-Regular.ufo")
+    ap.add_argument("--out", default="build/master/Weft-Regular.ufo")
     ap.add_argument("--wght", type=float, default=400)
     args = ap.parse_args(argv)
     font = build_font(args.wght)

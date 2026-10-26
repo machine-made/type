@@ -1,6 +1,7 @@
 # Build output. CI makes these again.
 master/
-fonts/
+fonts/*
+!fonts/weft/
 reports/
 __pycache__/
 *.egg-info/

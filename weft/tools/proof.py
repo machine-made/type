@@ -1,7 +1,7 @@
 """Render the Weft proof sheet from the compiled font.
 
 Usage:
-    python tools/proof.py [--font fonts/Weft-Regular.ttf] [--out proofs/weft-phase1-proof.png]
+    python tools/proof.py [--font ../fonts/weft/Weft-Regular.ttf] [--out ../proofs/weft/weft-phase1-proof.png]
     python tools/proof.py --compare SKETCH_PNG   # also write the comparison
 
 The proof uses FreeType (Pillow) on the compiled TTF. It does not use the
@@ -133,7 +133,7 @@ def compare(font_img: Image.Image, sketch_img: Image.Image, out: Path) -> dict:
     ov.paste((18, 19, 20), mask=both)
     ov.paste((222, 42, 31), mask=only_a)
     ov.paste((30, 90, 220), mask=only_b)
-    left = label(font_img, "Compiled font: fonts/Weft-Regular.ttf (FreeType)")
+    left = label(font_img, "Compiled font: ../fonts/weft/Weft-Regular.ttf (FreeType)")
     right = label(sketch_img, "Sketch 0.1 renderer (canvas), wght 400, FRAG 0")
     bottom = label(ov, f"Overlay: black = both, red = font only, blue = sketch only. coverage IoU {stats['soft_iou']}, binary IoU {stats['iou']}")
     gap = 24
@@ -149,12 +149,12 @@ def compare(font_img: Image.Image, sketch_img: Image.Image, out: Path) -> dict:
 
 def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(description="Render the Weft proof sheet.")
-    ap.add_argument("--font", default="fonts/Weft-Regular.ttf")
-    ap.add_argument("--out", default="proofs/weft-phase1-proof.png")
+    ap.add_argument("--font", default="../fonts/weft/Weft-Regular.ttf")
+    ap.add_argument("--out", default="../proofs/weft/weft-phase1-proof.png")
     ap.add_argument("--size", type=int, default=64)
     ap.add_argument("--spec-out", help="Write the layout spec as JSON.")
     ap.add_argument("--compare", help="Sketch PNG made from the same spec.")
-    ap.add_argument("--compare-out", default="proofs/weft-phase1-vs-sketch.png")
+    ap.add_argument("--compare-out", default="../proofs/weft/weft-phase1-vs-sketch.png")
     args = ap.parse_args(argv)
     spec = layout(args.size)
     if args.spec_out:

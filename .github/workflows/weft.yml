@@ -3,7 +3,9 @@ name: weft
 on:
   push:
     branches: [main]
+    paths: ["weft/**", "fonts/weft/**", ".github/workflows/weft.yml"]
   pull_request:
+    paths: ["weft/**", "fonts/weft/**", ".github/workflows/weft.yml"]
   workflow_dispatch:
 
 permissions:
@@ -18,6 +20,9 @@ jobs:
   build:
     runs-on: ubuntu-24.04
     timeout-minutes: 20
+    defaults:
+      run:
+        working-directory: weft
     steps:
       - name: Check out
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -53,7 +58,7 @@ jobs:
 
       - name: Add check reports to the summary
         if: always()
-        run: cat reports/*.md >> "$GITHUB_STEP_SUMMARY" || true
+        run: cat build/reports/*.md >> "$GITHUB_STEP_SUMMARY" || true
 
       - name: Render proof sheet
         run: python tools/proof.py
@@ -64,7 +69,7 @@ jobs:
         with:
           name: weft-phase1
           path: |
-            fonts/
-            proofs/weft-phase1-proof.png
-            reports/
+            fonts/weft/
+            proofs/weft/
+            weft/build/reports/
           if-no-files-found: warn
