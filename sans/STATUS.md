@@ -40,26 +40,27 @@
 
 ## Line metrics
 
-machine-made Weft: 1000 UPM, ascender 719, descender −219, typo and hhea
-875/−281/0.
+machine-made Weft 0.1: 1000 UPM, ascender 719, descender −219, typo and hhea
+906/−281/0. (Weft phase 1 had 875. The release branch changed Sans
+to 906 in `scripts/fork.py` to match Weft 0.1.)
 
 | Metric | Plus Jakarta Sans 2.071 | machine-made Sans 0.1 |
 | --- | --- | --- |
 | UPM | 1000 | 1000 |
-| typoAscender / typoDescender / typoLineGap | 772 / −228 / 0 (upright source) or 1038 / −222 / 0 (italic source); fonts: 1038 / −222 / 0 | **875 / −281 / 0** |
-| hheaAscender / hheaDescender / hheaLineGap | 1038 / −222 / 0 | **875 / −281 / 0** |
+| typoAscender / typoDescender / typoLineGap | 772 / −228 / 0 (upright source) or 1038 / −222 / 0 (italic source); fonts: 1038 / −222 / 0 | **906 / −281 / 0** |
+| hheaAscender / hheaDescender / hheaLineGap | 1038 / −222 / 0 | **906 / −281 / 0** |
 | winAscent / winDescent | 1296 / 356 | 1296 / 356 (no change) |
 | USE_TYPO_METRICS | on | on |
-| Default line height (typo) | 1.260 em | **1.156 em**, the same as Weft |
+| Default line height (typo) | 1.260 em | **1.187 em**, the same as Weft |
 
 The win values stay at the upstream values. They must be at least the
 font bounding box (yMax 1294, yMin −263 in ExtraBold), or Windows clips
 the glyphs. The line height on Windows GDI is thus larger than on other
 platforms; it was so in upstream too.
 
-The tighter line box (1.156 em) is a decision for the shared line with
+The tighter line box (1.187 em) is a decision for the shared line with
 Weft. Accents on capitals go above the typo ascender: Á is at 999 to
-1019 and Ấ at 1049 to 1069, against an ascender of 875. With line
+1019 and Ấ at 1049 to 1069, against an ascender of 906. With line
 height "normal", stacked lines of accented capitals can touch the line
 above. Set a CSS line-height of 1.3 or more for text with many accented
 capitals. The `typoascender_exceeds_Agrave` WARN reports this.
@@ -94,7 +95,7 @@ redraw outlines.
 
 | Check | Files | Reason |
 | --- | --- | --- |
-| `typoascender_exceeds_Agrave` | all 30 TTF, OTF, VF | Intended. The typo ascender is 875 for the shared line with Weft. Accented capitals are taller (999 to 1019). Win metrics are not changed, so no clipping. |
+| `typoascender_exceeds_Agrave` | all 30 TTF, OTF, VF | Intended. The typo ascender is 906 for the shared line with Weft. Accented capitals are taller (999 to 1019). Win metrics are not changed, so no clipping. |
 | `unreachable_glyphs` | all 30 | Upstream glyphs that no cmap or feature reaches: `dotlessi.wide`, `registered.alt` (both styles), `igravecyr.loclBGR` (upright). Not removed in 0.1; keep the fork close to upstream. |
 | `contour_count` | VF (2), OTF (10) | Upstream design. `infinity` has 4 contours and U+2B10 has 2; in OTF, overlap removal gives 2 contours for ỡ, ợ (uni1EDF, uni1EE1) in some weights. Upstream has the same WARN. |
 | `name/family_and_style_max_length` (nameid6-too-long) | 4 TTF + 4 OTF | PostScript names such as `MachineMadeSans-ExtraLightItalic` (32 characters) are longer than 27. The family prefix `MachineMadeSans` is fixed. Upstream has the same WARN. |
@@ -133,13 +134,8 @@ redraw outlines.
 - **Hinting.** Static TTF are autohinted by ttfautohint (gftools
   default). The variable fonts and OTF are not hinted. Upstream is the
   same.
-- **fonts/ is in the root .gitignore.** `fonts/sans` was added with
-  `git add -f`. A later `git add fonts` without `-f` does not add new
-  files. The root `.gitignore` belongs to another session.
 - **CI not run yet.** `sans.yml` installs `libraqm0` for shaped proofs
   and fetches upstream at the pinned commit with git. It has not run on
   GitHub yet.
 - **Weft proof.** The shared line proof uses
-  `/home/claude/type/fonts/Weft-Regular.ttf` (phase 1, one master). CI
-  uses `fonts/weft/` when that path exists on the branch, and skips the
-  sheet if no Weft font is present.
+  `fonts/weft/ttf/MachineMadeWeft-Regular.ttf` (Weft 0.1).

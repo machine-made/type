@@ -33,8 +33,8 @@ under the SIL Open Font License 1.1.
   letters. ss02 gives the sharp a, j, r, y. ss03 is the Lingkar (swirl)
   set.
 - **Line metrics match machine-made Weft.** Both fonts have ascender
-  875, descender −281 and line gap 0 at 1000 units per em, so they sit
-  on one line with the same line height (1.156 em).
+  906, descender −281 and line gap 0 at 1000 units per em, so they sit
+  on one line with the same line height (1.187 em).
 - **The f ligatures** apply only with the round forms (ss01).
 
 CSS:

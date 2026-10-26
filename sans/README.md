@@ -74,7 +74,7 @@ checks that the committed sources are its output.
    and the Bulgarian forms that use Latin g, k, m, n and u, and the
    digraphs ĳ, Ĳ, ǈ, ǋ, ǉ, ǌ. Their widths, component offsets and
    anchors change with the new base. No outline changes.
-6. **Line metrics.** typo and hhea 875/−281/0, the same as Weft (see
+6. **Line metrics.** typo and hhea 906/−281/0, the same as Weft 0.1 (see
    `STATUS.md`). The win metrics stay at 1296/356.
 7. **Repairs of upstream source errors** (needed to build with current
    tools):
@@ -179,7 +179,7 @@ sans/scripts/check.sh fontspector          # reports/sans/*
 git clone https://github.com/tokotype/PlusJakartaSans /tmp/pjs
 git -C /tmp/pjs checkout 18d1cd2f7ea10481919d2f05c1f7064b7307fc26
 SANS_UPSTREAM=/tmp/pjs python -m pytest -q sans/tests
-python sans/scripts/proof.py --upstream /tmp/pjs/fonts --weft fonts/weft/Weft-Regular.ttf
+python sans/scripts/proof.py --upstream /tmp/pjs/fonts --weft fonts/weft/ttf/MachineMadeWeft-Regular.ttf
 ```
 
 To make the sources again from upstream:

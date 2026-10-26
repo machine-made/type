@@ -19,7 +19,7 @@ Rahayu, Tokotype (commit 18d1cd2f7ea10481919d2f05c1f7064b7307fc26).
 - Make the f ligatures only from the round forms (after ss01).
 - Change the widths, offsets and anchors of composite glyphs that use a
   changed letter (Cyrillic look-alikes, Bulgarian forms, digraphs).
-- Set the typo and hhea line metrics to 875/−281/0, the same as Weft.
+- Set the typo and hhea line metrics to 906/−281/0, the same as Weft 0.1.
   Keep win metrics 1296/356.
 - Repair upstream source errors: bad escapes in the ss04 feature, the
   unused @noexport class, scale (0,0) in upDownArrow, the upright Bold

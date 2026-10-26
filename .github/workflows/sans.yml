@@ -89,12 +89,9 @@ jobs:
         run: cat reports/sans/summary.md >> "$GITHUB_STEP_SUMMARY" || true
 
       - name: Render proof sheets
-        run: |
-          weft=""
-          for f in fonts/weft/MachineMadeWeft-Regular.ttf fonts/weft/Weft-Regular.ttf fonts/Weft-Regular.ttf; do
-            if [ -f "$f" ]; then weft="--weft $f"; break; fi
-          done
-          python sans/scripts/proof.py --upstream "$SANS_UPSTREAM/fonts" $weft --out build/sans/proofs
+        run: >-
+          python sans/scripts/proof.py --upstream "$SANS_UPSTREAM/fonts"
+          --weft fonts/weft/ttf/MachineMadeWeft-Regular.ttf --out build/sans/proofs
 
       - name: Upload fonts, proofs and reports
         if: always()
