@@ -52,8 +52,8 @@ def test_line_metrics(path):
     font = TTFont(path)
     os2, hhea = font["OS/2"], font["hhea"]
     assert font["head"].unitsPerEm == 1000
-    assert (os2.sTypoAscender, os2.sTypoDescender, os2.sTypoLineGap) == (875, -281, 0)
-    assert (hhea.ascent, hhea.descent, hhea.lineGap) == (875, -281, 0)
+    assert (os2.sTypoAscender, os2.sTypoDescender, os2.sTypoLineGap) == (906, -281, 0)
+    assert (hhea.ascent, hhea.descent, hhea.lineGap) == (906, -281, 0)
     assert os2.fsSelection & (1 << 7), "USE_TYPO_METRICS must be set."
     assert os2.usWinAscent >= font["head"].yMax
     assert os2.usWinDescent >= -font["head"].yMin

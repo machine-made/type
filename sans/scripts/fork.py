@@ -11,7 +11,7 @@ script again and compares the output with the committed sources.
 
 Steps:
 1. Names: family name, copyright, designer, description, vendor, version.
-2. Line metrics: typo and hhea 875/-281/0, for one line with Weft.
+2. Line metrics: typo and hhea 906/-281/0, for one line with Weft.
 3. Default forms (not with --skip-forms): the Lurus (straight) or Lancip
    (sharp) alternate becomes the default glyph. When a glyph has both,
    Lurus is the default. The old default stays in the font as X.ss01.
@@ -56,14 +56,14 @@ LICENSE = (
 LICENSE_URL = "https://openfontlicense.org"
 VENDOR = "NONE"
 
-# Line metrics. Weft uses 1000 UPM and typo/hhea 875/-281/0. The win
+# Line metrics. Weft 0.1 uses 1000 UPM and typo/hhea 906/-281/0. The win
 # values stay as upstream: they must cover the tallest and deepest glyph
 # (yMax 1294, yMin -263 in ExtraBold) to prevent clipping on Windows.
 METRICS = {
-    "typoAscender": 875,
+    "typoAscender": 906,
     "typoDescender": -281,
     "typoLineGap": 0,
-    "hheaAscender": 875,
+    "hheaAscender": 906,
     "hheaDescender": -281,
     "hheaLineGap": 0,
     "winAscent": 1296,

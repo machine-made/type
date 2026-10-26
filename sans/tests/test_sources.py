@@ -46,10 +46,10 @@ def test_line_metrics(path):
     data = glyphsfmt.loads(path.read_text(encoding="utf-8"))
     for master in data["fontMaster"]:
         params = {p["name"]: p["value"] for p in master["customParameters"]}
-        assert params["typoAscender"] == 875
+        assert params["typoAscender"] == 906
         assert params["typoDescender"] == -281
         assert params["typoLineGap"] == 0
-        assert params["hheaAscender"] == 875
+        assert params["hheaAscender"] == 906
         assert params["hheaDescender"] == -281
         assert params["hheaLineGap"] == 0
 
