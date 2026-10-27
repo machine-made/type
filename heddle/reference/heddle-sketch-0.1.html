@@ -1,0 +1,537 @@
+<title>Shuttle Sketch</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap">
+<style>
+/* Layout: a Swiss poster sheet. Six-column grid, flush-left rag, one red dot; specimens drawn live by the glyph engine. */
+:root{
+  --paper:#F3F3F0; --panel:#E9E9E5; --ink:#111112; --muted:#5A5D60; --rule:#D2D3CF; --grid:rgba(17,17,18,0.06); --red:#E2231A;
+  --sans:"Plus Jakarta Sans", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --step-0:0.8125rem; --step-1:1rem; --step-2:1.25rem; --step-3:1.75rem;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){ --paper:#0F0F10; --panel:#18191A; --ink:#EDEDEA; --muted:#9C9FA2; --rule:#2C2E30; --grid:rgba(237,237,234,0.06); --red:#FF4436; color-scheme:dark }
+}
+:root[data-theme="dark"]{ --paper:#0F0F10; --panel:#18191A; --ink:#EDEDEA; --muted:#9C9FA2; --rule:#2C2E30; --grid:rgba(237,237,234,0.06); --red:#FF4436; color-scheme:dark }
+
+*{box-sizing:border-box}
+body{background:var(--paper);color:var(--ink);font-family:var(--sans);font-size:var(--step-1);line-height:1.55;-webkit-font-smoothing:antialiased}
+.wrap{max-width:1180px;margin:0 auto;padding-left:max(16px, env(safe-area-inset-left, 0px));padding-right:max(16px, env(safe-area-inset-right, 0px));padding-block:24px 64px}
+canvas{display:block;max-width:100%}
+h2{font-size:var(--step-3);line-height:1.15;font-weight:600;letter-spacing:-0.01em;margin:0;text-wrap:balance}
+p{margin:0;max-width:62ch}
+.eyebrow{display:flex;align-items:center;gap:10px;font-size:var(--step-0);font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:var(--muted)}
+.dot{width:10px;height:10px;background:var(--red);border-radius:50%;flex:none}
+
+/* hero: six-column grid lines behind the type */
+.hero{position:relative;display:grid;gap:20px;padding-block:12px 40px;border-bottom:2px solid var(--ink)}
+.hero::before{content:"";position:absolute;inset:0;pointer-events:none;
+  background-image:repeating-linear-gradient(to right, var(--grid) 0 1px, transparent 1px calc(100% / 6));}
+.hero canvas{width:100%;position:relative}
+.hero-meta{position:relative;display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:16px;align-items:end}
+.hero-meta .lede{grid-column:1 / span 3;font-size:var(--step-2);line-height:1.45}
+.hero-meta .facts{grid-column:4 / span 2;font-size:var(--step-0);color:var(--muted);display:grid;gap:2px;font-variant-numeric:tabular-nums}
+.hero-meta .act{grid-column:6;justify-self:end}
+@media (max-width:760px){.hero-meta{grid-template-columns:minmax(0,1fr)}.hero-meta .lede,.hero-meta .facts,.hero-meta .act{grid-column:auto;justify-self:start}}
+
+section{display:grid;gap:22px;padding-block:44px;border-bottom:1px solid var(--rule)}
+.sec-head{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:8px 16px;align-items:end}
+.sec-head .eyebrow{grid-column:1 / -1}
+.sec-head h2{grid-column:1 / span 3}
+.sec-head p{grid-column:4 / span 3;color:var(--muted)}
+@media (max-width:760px){.sec-head{grid-template-columns:minmax(0,1fr)}.sec-head h2,.sec-head p{grid-column:auto}}
+
+button{font:inherit;color:inherit}
+.btn{appearance:none;border:2px solid var(--ink);background:transparent;padding:8px 16px;border-radius:0;font-size:var(--step-0);font-weight:700;letter-spacing:0.04em;cursor:pointer}
+.btn:hover{background:var(--ink);color:var(--paper)}
+:focus-visible{outline:2px solid var(--red);outline-offset:2px}
+
+.play{display:grid;grid-template-columns:270px minmax(0,1fr);gap:28px;align-items:start}
+@media (max-width:860px){.play{grid-template-columns:minmax(0,1fr)}}
+.controls{display:grid;gap:16px;background:var(--panel);padding:18px}
+.field{display:grid;gap:6px}
+.field-top{display:flex;justify-content:space-between;align-items:baseline;gap:8px}
+.label{font-size:var(--step-0);font-weight:700;letter-spacing:0.06em;text-transform:uppercase}
+output{font-variant-numeric:tabular-nums;font-size:var(--step-0);color:var(--muted)}
+textarea{width:100%;resize:vertical;min-height:84px;font:500 0.9375rem/1.45 var(--sans);color:var(--ink);background:var(--paper);border:1px solid var(--rule);padding:10px;border-radius:0}
+input[type=range]{width:100%;accent-color:var(--red)}
+.check{display:flex;gap:8px;align-items:center;font-size:var(--step-0);font-weight:600}
+.check input{accent-color:var(--red);width:16px;height:16px}
+.stage{min-width:0;border:1px solid var(--rule);padding:20px;display:grid}
+.stage canvas{width:100%}
+
+.rows{display:grid}
+.row{display:grid;grid-template-columns:110px minmax(0,1fr);gap:16px;align-items:center;padding-block:8px;border-top:1px solid var(--rule)}
+.row:first-child{border-top:0}
+.row canvas{width:100%}
+.rlab{font-size:var(--step-0);color:var(--muted);font-variant-numeric:tabular-nums}
+.rlab b{display:block;color:var(--ink);font-size:var(--step-2);font-weight:600}
+@media (max-width:560px){.row{grid-template-columns:minmax(0,1fr);gap:4px}}
+
+.posters{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:20px}
+@media (max-width:860px){.posters{grid-template-columns:minmax(0,1fr)}}
+.poster{display:grid;gap:8px;min-width:0}
+.poster canvas{width:100%;box-shadow:0 1px 0 var(--rule)}
+.cap{font-size:var(--step-0);color:var(--muted)}
+
+.tools{display:flex;flex-wrap:wrap;gap:12px 20px;align-items:center}
+.legend{display:flex;flex-wrap:wrap;gap:14px;font-size:0.75rem;color:var(--muted)}
+.legend span{display:inline-flex;gap:6px;align-items:center}
+.sw{width:14px;height:2px;background:var(--red)}
+.sw.m{background:var(--rule)}
+#grid{width:100%}
+
+ul.plain{margin:0;padding:0;list-style:none;display:grid;gap:10px;max-width:72ch}
+ul.plain li{display:grid;grid-template-columns:14px minmax(0,1fr);gap:10px;align-items:baseline}
+ul.plain li::before{content:"";width:8px;height:8px;background:var(--ink);transform:translateY(-1px)}
+.prims{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px}
+@media (max-width:700px){.prims{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.prim{display:grid;gap:6px;min-width:0}
+.prim canvas{width:100%;background:var(--panel)}
+.prim b{font-size:var(--step-0)}
+.prim span{font-size:0.75rem;color:var(--muted)}
+footer{padding-block:28px 0;font-size:var(--step-0);color:var(--muted);display:flex;gap:10px;align-items:center}
+</style>
+
+<main class="wrap">
+  <header class="hero">
+    <div class="eyebrow" style="position:relative"><span class="dot" aria-hidden="true"></span>machine-made/type · Shuttle · sketch 0.1 · 26 October 2026</div>
+    <canvas id="hero" role="img" aria-label="The word Shuttle set in the Shuttle display grotesk, widening from compressed to extended"></canvas>
+    <div class="hero-meta">
+      <p class="lede">A first look at Shuttle, mm's Swiss display grotesk. Every letter is built live from four parts and cut with horizontal lines, by the rules the generator will follow.</p>
+      <div class="facts"><span>Weight 100–900</span><span>Width 70–140</span><span>70 characters</span><span>Superellipse exponent 2.6</span></div>
+      <button class="btn act" id="replay" type="button">Replay</button>
+    </div>
+  </header>
+
+  <section aria-labelledby="play-h">
+    <div class="sec-head">
+      <div class="eyebrow">Playground</div>
+      <h2 id="play-h">Set a headline</h2>
+      <p>Width changes the counters, not the stems, so a compressed Bold and an extended Bold have the same weight on the page.</p>
+    </div>
+    <div class="play">
+      <div class="controls">
+        <div class="field">
+          <label class="label" for="txt">Text</label>
+          <textarea id="txt" spellcheck="false">Made by machines.
+Proven for machines.</textarea>
+        </div>
+        <div class="field">
+          <div class="field-top"><label class="label" for="wght">Weight</label><output id="wghtOut" for="wght">700</output></div>
+          <input type="range" id="wght" min="100" max="900" step="10" value="700">
+        </div>
+        <div class="field">
+          <div class="field-top"><label class="label" for="wdth">Width</label><output id="wdthOut" for="wdth">100</output></div>
+          <input type="range" id="wdth" min="70" max="140" step="1" value="100">
+        </div>
+        <div class="field">
+          <div class="field-top"><label class="label" for="track">Tracking</label><output id="trackOut" for="track">0</output></div>
+          <input type="range" id="track" min="-40" max="120" step="2" value="0">
+        </div>
+        <div class="field">
+          <div class="field-top"><label class="label" for="size">Size</label><output id="sizeOut" for="size">96 px</output></div>
+          <input type="range" id="size" min="24" max="200" step="1" value="96">
+        </div>
+        <label class="check" for="cons"><input type="checkbox" id="cons"> Show construction</label>
+      </div>
+      <div class="stage"><canvas id="playCanvas" role="img" aria-label="Your text set in Shuttle"></canvas></div>
+    </div>
+  </section>
+
+  <section aria-labelledby="parts-h">
+    <div class="sec-head">
+      <div class="eyebrow">Construction</div>
+      <h2 id="parts-h">Four parts and a horizontal cut</h2>
+      <p>No curve is drawn by hand. Rounds are superellipses, diagonals keep their optical weight, and every opening is cut level, which is where the Swiss terminals come from.</p>
+    </div>
+    <div class="prims" id="prims"></div>
+  </section>
+
+  <section aria-labelledby="width-h">
+    <div class="sec-head">
+      <div class="eyebrow">Width axis</div>
+      <h2 id="width-h">Compressed to extended</h2>
+      <p>One family for the narrow column and the wide poster. Bold, width 70 to 140.</p>
+    </div>
+    <div class="rows" id="widthRows"></div>
+  </section>
+
+  <section aria-labelledby="weight-h">
+    <div class="sec-head">
+      <div class="eyebrow">Weight axis</div>
+      <h2 id="weight-h">Hairline to Black</h2>
+      <p>Horizontals stay at 84 percent of the stem at every weight, the small contrast Swiss grotesks carry.</p>
+    </div>
+    <div class="rows" id="weightRows"></div>
+  </section>
+
+  <section aria-labelledby="posters-h">
+    <div class="sec-head">
+      <div class="eyebrow">In use</div>
+      <h2 id="posters-h">Three posters on a six-column grid</h2>
+      <p>Composed by the page from the same engine. Posters stay on paper white in both themes, the way they would be printed.</p>
+    </div>
+    <div class="posters">
+      <figure class="poster" style="margin:0"><canvas id="p1" role="img" aria-label="Poster listing the four families: Weft, Sans, Shuttle, Warp"></canvas><figcaption class="cap">Four families, Bold at width 78</figcaption></figure>
+      <figure class="poster" style="margin:0"><canvas id="p2" role="img" aria-label="Poster with a large compressed 0.1"></canvas><figcaption class="cap">Black at width 70</figcaption></figure>
+      <figure class="poster" style="margin:0"><canvas id="p3" role="img" aria-label="Poster with the word Grotesk set vertically and one red dot"></canvas><figcaption class="cap">Light at width 140, turned on the grid</figcaption></figure>
+    </div>
+  </section>
+
+  <section aria-labelledby="glyphs-h">
+    <div class="sec-head">
+      <div class="eyebrow">Character set</div>
+      <h2 id="glyphs-h">70 characters</h2>
+      <p>Each cell shows the metric lines and, if you turn it on, the parts each letter is built from. The set follows the playground's weight and width.</p>
+    </div>
+    <div class="tools">
+      <label class="check" for="gcons"><input type="checkbox" id="gcons" checked> Show construction</label>
+      <div class="legend"><span><i class="sw"></i>parts and cuts</span><span><i class="sw m"></i>baseline, x-height, cap height, descender</span></div>
+    </div>
+    <canvas id="grid" role="img" aria-label="Every character of the Shuttle sketch with its construction"></canvas>
+  </section>
+
+  <section aria-labelledby="notes-h">
+    <div class="sec-head">
+      <div class="eyebrow">About this sketch</div>
+      <h2 id="notes-h">What it shows, and what it does not yet</h2>
+    </div>
+    <ul class="plain">
+      <li>Curves are superellipses with one exponent, 2.6, so rounds are squarish and the same everywhere. A real cut tunes each bowl.</li>
+      <li>Spacing is one sidebearing that grows with weight. There is no spacing or kerning pass yet.</li>
+      <li>Contrast is one ratio: horizontals are 84 percent of the stem. There are no ink traps and no optical sizes.</li>
+      <li>The ampersand, accents and most symbols are not drawn yet.</li>
+      <li>This page draws with canvas. The font itself will be written by the loom and compiled by fontmake, like Weft.</li>
+    </ul>
+  </section>
+
+  <footer><span class="dot" aria-hidden="true"></span>machine-made/type · Shuttle sketch 0.1 · drawn in the browser, no font file yet</footer>
+</main>
+
+<script>
+/* machine-made Shuttle — sketch 0.1 glyph engine.
+   Font units, y up. Metrics: x-height 520, cap 700, ascender 730, descender -210, em 1000.
+   Every glyph is built from four primitives: rect, ring (superellipse), parallelogram, V.
+   Openings are cut with horizontal clips scoped to one ring, which gives Swiss horizontal terminals. */
+(function(root){
+"use strict";
+const XH=520, CAP=700, ASC=730, DESC=-210, OS=10, N=2.6;
+
+function superellipse(x0,y0,x1,y1,n){
+  const cx=(x0+x1)/2, cy=(y0+y1)/2, rx=(x1-x0)/2, ry=(y1-y0)/2, pts=[];
+  for(let i=0;i<96;i++){const t=i/96*Math.PI*2,c=Math.cos(t),s=Math.sin(t);
+    pts.push([cx+rx*Math.sign(c)*Math.pow(Math.abs(c),2/n), cy+ry*Math.sign(s)*Math.pow(Math.abs(s),2/n)]);}
+  return pts;
+}
+function tools(ctx,p){
+  const S=p.S, H=p.H;
+  const fin=(rule)=>{ctx.fill(rule||'nonzero');if(p.hair){ctx.lineWidth=p.hair;ctx.strokeStyle=ctx.fillStyle;ctx.lineJoin='miter';ctx.stroke();}};
+  const cons=(drawPath)=>{if(!p.cons)return;ctx.save();ctx.strokeStyle=p.cons;ctx.lineWidth=(p.hair||1)*1.1;ctx.beginPath();drawPath();ctx.stroke();ctx.restore();};
+  const trace=pts=>{ctx.moveTo(pts[0][0],pts[0][1]);for(let i=1;i<pts.length;i++)ctx.lineTo(pts[i][0],pts[i][1]);ctx.closePath();};
+  const T={
+    S,H,
+    rect(x0,y0,x1,y1){const r=()=>ctx.rect(Math.min(x0,x1),Math.min(y0,y1),Math.abs(x1-x0),Math.abs(y1-y0));ctx.beginPath();r();fin();cons(r);},
+    // a superellipse ring; cuts are rectangles removed from THIS ring only (horizontal terminals)
+    ring(x0,y0,x1,y1,cuts=[],ts=S,th=H){ctx.save();
+      for(const c of cuts){ctx.beginPath();ctx.rect(-1e4,-1e4,2e4,2e4);
+        ctx.rect(Math.min(c[0],c[2]),Math.min(c[1],c[3]),Math.abs(c[2]-c[0]),Math.abs(c[3]-c[1]));ctx.clip('evenodd');}
+      const both=()=>{trace(superellipse(x0,y0,x1,y1,N));if(x1-x0>2*ts && y1-y0>2*th) trace(superellipse(x0+ts,y0+th,x1-ts,y1-th,N));};
+      ctx.beginPath();both();fin('evenodd');ctx.restore();cons(both);},
+    poly(pts){ctx.beginPath();trace(pts);fin();cons(()=>trace(pts));},
+    // horizontal thickness that keeps a diagonal optically as heavy as a stem
+    dt(dx,dy){return S*0.9*Math.hypot(dx,dy)/Math.abs(dy);},
+    par(xa,ya,xb,yb,t){T.poly([[xa-t/2,ya],[xa+t/2,ya],[xb+t/2,yb],[xb-t/2,yb]]);},
+    vee(x0,x1,yT,yB,t){
+      const xm=(x0+x1)/2, oL=[x0,yT], oR=[x1,yT], bL=[xm-t/2,yB], bR=[xm+t/2,yB], iL=[x0+t,yT], iR=[x1-t,yT];
+      const d1=[bL[0]-oL[0],yB-yT], d2=[bR[0]-oR[0],yB-yT];
+      const det=-d1[0]*d2[1]+d2[0]*d1[1], rx=iR[0]-iL[0], ry=iR[1]-iL[1];
+      const a=(rx*(-d2[1])-(-d2[0])*ry)/det, I=[iL[0]+a*d1[0], iL[1]+a*d1[1]];
+      if(I[1]>yB) T.poly([oL,iL,I,iR,oR,bR,bL]); else T.poly([oL,iL,iR,oR,bR,bL]);
+    },
+    flipX(W,fn){ctx.save();ctx.translate(W,0);ctx.scale(-1,1);fn();ctx.restore();},
+    rot(W,yc,fn){ctx.save();ctx.translate(W/2,yc);ctx.rotate(Math.PI);ctx.translate(-W/2,-yc);fn();ctx.restore();}
+  };
+  return T;
+}
+
+/* ---- shared constructions ---- */
+function arch(g,x0,x1,top,stemTo){ // n-shoulder: upper half of a ring, then the right stem
+  const ry=Math.min((x1-x0)*0.52, top*0.62), y0=top+OS-2*ry, cy=(y0+top+OS)/2;
+  g.ring(x0,y0,x1,top+OS,[[x0-20,y0-20,x1+20,cy]]); g.rect(x1-g.S,stemTo,x1,cy+1);
+}
+function bowlD(g,x0,y0,x1,y1){ // square on the left, round on the right
+  g.ring(x0,y0,x1,y1); g.rect(x0,y0,x0+(x1-x0)/2,y0+g.H); g.rect(x0,y1-g.H,x0+(x1-x0)/2,y1); g.rect(x0,y0,x0+g.S,y1);
+}
+function twoRingS(g,W,top){ // S and s: two stacked rings that share the spine
+  const mid=top*0.48, yL1=mid+g.H, cU=(mid+top+OS)/2, cL=(-OS+yL1)/2;
+  g.ring(W*0.04,mid,W*0.97,top+OS,[[W*0.5,-60,W+20,cU+(top-cU)*0.26]]);
+  g.ring(0,-OS,W,yL1,[[-20,cL*0.72,W*0.5,yL1+20]]);
+}
+function six(g,W){ g.ring(0,-OS,W,CAP*0.64); g.ring(0,-OS,W*1.02,CAP+OS,[[W*0.5,-60,W*1.1,CAP*0.74]]); }
+
+/* ---- glyph table: base width at width 100, and a draw function (g, W) ---- */
+const G={};
+function def(ch,base,fn,opt){G[ch]=Object.assign({base,fn},opt||{});}
+
+// lowercase
+def('o',560,(g,W)=>g.ring(0,-OS,W,XH+OS));
+def('c',520,(g,W)=>g.ring(0,-OS,W,XH+OS,[[W*0.52,XH*0.30,W+20,XH*0.71]]));
+def('e',540,(g,W)=>{const yb=XH*0.44;g.ring(0,-OS,W,XH+OS,[[W*0.5,XH*0.25,W+20,yb]]);g.rect(g.S*0.5,yb,W,yb+g.H);});
+def('n',540,(g,W)=>{g.rect(0,0,g.S,XH);arch(g,0,W,XH,0);});
+def('h',540,(g,W)=>{g.rect(0,0,g.S,ASC);arch(g,0,W,XH,0);});
+def('m',820,(g,W)=>{const m=(W+g.S)/2;g.rect(0,0,g.S,XH);arch(g,0,m,XH,0);arch(g,m-g.S,W,XH,0);});
+def('u',540,(g,W)=>g.rot(W,XH/2,()=>{g.rect(0,0,g.S,XH);arch(g,0,W,XH,0);}));
+const bee=(g,W)=>{g.rect(0,0,g.S,ASC);g.ring(0,-OS,W,XH+OS);};
+def('b',560,bee);
+def('d',560,(g,W)=>g.flipX(W,()=>bee(g,W)));
+def('p',560,(g,W)=>g.rot(W,XH/2,()=>g.flipX(W,()=>bee(g,W))));
+def('q',560,(g,W)=>g.rot(W,XH/2,()=>bee(g,W)));
+def('g',560,(g,W)=>{g.ring(0,-OS+20,W,XH+OS);const rh=170,y0=DESC-OS,cy=y0+rh;
+  g.ring(0,y0,W,y0+2*rh,[[-20,cy,W+20,cy+2*rh+40]]);g.rect(W-g.S,cy-1,W,XH);});
+def('a',520,(g,W)=>{const r=XH*0.36,y1=XH+OS,y0=y1-2*r,cy=y0+r;
+  g.ring(0,y0,W,y1,[[-20,y0-20,W*0.5,cy+r*0.28],[W*0.5,y0-20,W-g.S,cy]]);g.rect(W-g.S,0,W,cy+1);
+  const b1=XH*0.55;g.ring(0,-OS,W-g.S*0.4,b1);g.rect(W-g.S,0,W,b1);});
+def('s',500,(g,W)=>twoRingS(g,W,XH));
+def('i',0,(g,W)=>{g.rect(0,0,g.S,XH);const gap=Math.max(60,g.S*0.55);g.rect(0,XH+gap,g.S,XH+gap+g.S*1.04);},{fixed:true});
+def('j',0,(g,W)=>{const x=W-g.S,y0=DESC-OS,cy=DESC+80;g.ring(0,y0,W,DESC+170,[[-20,cy,W+20,DESC+240]]);g.rect(x,cy-1,W,XH);
+  const gap=Math.max(60,g.S*0.55);g.rect(x,XH+gap,W,XH+gap+g.S*1.04);},{fixed:true,extra:120});
+def('l',0,(g,W)=>g.rect(0,0,g.S,ASC),{fixed:true});
+def('f',330,(g,W)=>{const x=W*0.18,r=Math.min(150,(W-x)/2+10);g.rect(x,0,x+g.S,ASC-r+1);
+  g.ring(x,ASC+OS-2*r,x+2*r+40,ASC+OS,[[x-20,ASC-2*r-20,x+2*r+60,ASC+OS-r]]);g.rect(0,XH-g.H,W,XH);});
+def('t',330,(g,W)=>{const x=W*0.18,r=Math.min(130,(W-x)/2);g.rect(x,r-OS-1,x+g.S,XH+150);
+  g.ring(x,-OS,x+2*r+30,2*r-OS,[[x-20,r-OS,x+2*r+60,2*r+20]]);g.rect(0,XH-g.H,W,XH);});
+def('r',330,(g,W)=>{const ry=XH*0.42;g.ring(0,XH+OS-2*ry,W*1.9,XH+OS,[[-20,-20,W*2,XH+OS-ry],[W,0,W*2,XH+40]]);g.rect(0,0,g.S,XH);});
+def('k',520,(g,W)=>{g.rect(0,0,g.S,ASC);const t=g.dt(W*0.7,XH);g.par(g.S*0.6,XH*0.30,W-t/2,XH,t);g.par(W*0.34,XH*0.52,W-t/2,0,t);});
+def('v',520,(g,W)=>g.vee(0,W,XH,0,g.dt(W/2,XH)));
+def('w',780,(g,W)=>{const t=g.dt(W/4,XH);g.vee(0,W*0.56,XH,0,t);g.vee(W*0.44,W,XH,0,t);});
+def('x',520,(g,W)=>{const t=g.dt(W,XH);g.par(t/2,XH,W-t/2,0,t);g.par(W-t/2,XH,t/2,0,t);});
+def('y',520,(g,W)=>{const t=g.dt(W/2,XH);g.vee(0,W,XH,0,t);const k=(W/2)/XH*(-DESC)*0.85;g.par(W/2,0,W/2-k,DESC+g.H*0.2,t);g.rect(W/2-k-t/2-60,DESC,W/2-k+t/2,DESC+g.H);});
+def('z',480,(g,W)=>{const t=g.dt(W,XH);g.rect(0,XH-g.H,W,XH);g.rect(0,0,W,g.H);g.par(W-t/2,XH-g.H,t/2,g.H,t);});
+
+// uppercase
+def('A',660,(g,W)=>{const t=g.dt(W/2,CAP);g.rot(W,CAP/2,()=>g.vee(0,W,CAP,0,t));g.rect(W*0.18,CAP*0.22,W*0.82,CAP*0.22+g.H);});
+def('B',620,(g,W)=>{bowlD(g,0,CAP*0.48,W*0.9,CAP);bowlD(g,0,0,W,CAP*0.48+g.H);});
+def('C',680,(g,W)=>g.ring(0,-OS,W,CAP+OS,[[W*0.56,CAP*0.31,W+20,CAP*0.69]]));
+def('D',660,(g,W)=>bowlD(g,0,0,W,CAP));
+def('E',560,(g,W)=>{g.rect(0,0,g.S,CAP);g.rect(0,CAP-g.H,W,CAP);g.rect(0,0,W,g.H);g.rect(0,CAP*0.47,W*0.9,CAP*0.47+g.H);});
+def('F',530,(g,W)=>{g.rect(0,0,g.S,CAP);g.rect(0,CAP-g.H,W,CAP);g.rect(0,CAP*0.45,W*0.9,CAP*0.45+g.H);});
+def('G',700,(g,W)=>{g.ring(0,-OS,W,CAP+OS,[[W*0.55,CAP*0.47,W+20,CAP*0.69]]);g.rect(W*0.5,CAP*0.47-g.H,W,CAP*0.47);g.rect(W-g.S,0,W,CAP*0.47);});
+def('H',640,(g,W)=>{g.rect(0,0,g.S,CAP);g.rect(W-g.S,0,W,CAP);g.rect(0,CAP*0.47,W,CAP*0.47+g.H);});
+def('I',0,(g,W)=>g.rect(0,0,g.S,CAP),{fixed:true});
+def('J',520,(g,W)=>{const r=W*0.5,cy=r-OS;g.ring(0,-OS,W,2*r-OS,[[-20,cy,W+20,2*r+20]]);g.rect(W-g.S,cy-1,W,CAP);});
+def('K',640,(g,W)=>{g.rect(0,0,g.S,CAP);const t=g.dt(W,CAP*0.6);g.par(g.S*0.5,CAP*0.28,W-t/2,CAP,t);g.par(W*0.32,CAP*0.5,W-t/2,0,t);});
+def('L',520,(g,W)=>{g.rect(0,0,g.S,CAP);g.rect(0,0,W,g.H);});
+def('M',800,(g,W)=>{g.rect(0,0,g.S,CAP);g.rect(W-g.S,0,W,CAP);g.vee(0,W,CAP,0,g.dt(W/2,CAP)*0.92);});
+def('N',650,(g,W)=>{g.rect(0,0,g.S,CAP);g.rect(W-g.S,0,W,CAP);const t=g.dt(W,CAP);g.poly([[0,CAP],[t,CAP],[W,0],[W-t,0]]);});
+def('O',740,(g,W)=>g.ring(0,-OS,W,CAP+OS));
+def('P',600,(g,W)=>{g.rect(0,0,g.S,CAP);bowlD(g,0,CAP*0.40,W,CAP);});
+def('Q',740,(g,W)=>{g.ring(0,-OS,W,CAP+OS);const t=g.dt(W*0.3,CAP*0.35);g.par(W*0.62,CAP*0.24,W*0.96,-OS-30,t);});
+def('R',630,(g,W)=>{g.rect(0,0,g.S,CAP);bowlD(g,0,CAP*0.42,W*0.97,CAP);const t=g.dt(W*0.5,CAP*0.42);g.par(W*0.5,CAP*0.42+g.H*0.5,W-t/2,0,t);});
+def('S',620,(g,W)=>twoRingS(g,W,CAP));
+def('T',580,(g,W)=>{g.rect(0,CAP-g.H,W,CAP);g.rect(W/2-g.S/2,0,W/2+g.S/2,CAP);});
+def('U',640,(g,W)=>{const r=W*0.48,cy=r-OS;g.ring(0,-OS,W,2*r-OS,[[-20,cy,W+20,2*r+20]]);g.rect(0,cy-1,g.S,CAP);g.rect(W-g.S,cy-1,W,CAP);});
+def('V',640,(g,W)=>g.vee(0,W,CAP,0,g.dt(W/2,CAP)));
+def('W',920,(g,W)=>{const t=g.dt(W/4,CAP);g.vee(0,W*0.56,CAP,0,t);g.vee(W*0.44,W,CAP,0,t);});
+def('X',640,(g,W)=>{const t=g.dt(W,CAP);g.par(t/2,CAP,W-t/2,0,t);g.par(W-t/2,CAP,t/2,0,t);});
+def('Y',620,(g,W)=>{g.vee(0,W,CAP,CAP*0.40,g.dt(W/2,CAP*0.6));g.rect(W/2-g.S/2,0,W/2+g.S/2,CAP*0.44);});
+def('Z',590,(g,W)=>{const t=g.dt(W,CAP);g.rect(0,CAP-g.H,W,CAP);g.rect(0,0,W,g.H);g.par(W-t/2,CAP-g.H,t/2,g.H,t);});
+
+// figures: tabular
+const FW=560;
+def('0',FW,(g,W)=>g.ring(W*0.04,-OS,W*0.96,CAP+OS),{tab:true});
+def('1',FW,(g,W)=>{const x=W*0.55;g.rect(x,0,x+g.S,CAP);g.poly([[x+g.S*0.3,CAP],[x-W*0.34,CAP*0.74],[x-W*0.34,CAP*0.74-g.H],[x+g.S*0.3,CAP-g.H*1.5]]);},{tab:true});
+def('2',FW,(g,W)=>{const r=CAP*0.27,y0=CAP+OS-2*r,cy=y0+r;g.ring(0,y0,W,CAP+OS,[[-20,y0-20,W+20,cy],[-20,cy-1,W*0.4,cy+r*0.25]]);
+  const t=g.dt(W*0.8,cy);g.poly([[W-t,cy],[W,cy],[t*0.9,g.H],[0,g.H]]);g.rect(0,0,W,g.H);g.rect(W-g.S,cy-30,W,cy+1);},{tab:true});
+def('3',FW,(g,W)=>{const m=CAP*0.53,cU=(m-g.H+CAP+OS)/2,cL=(-OS+m)/2;
+  g.ring(W*0.06,m-g.H,W*0.94,CAP+OS,[[-20,m-g.H-20,W*0.45,cU+(CAP-cU)*0.12]]);
+  g.ring(0,-OS,W,m,[[-20,cL*0.65,W*0.45,m+20]]);g.rect(W*0.32,m-g.H,W*0.6,m);},{tab:true});
+def('4',FW,(g,W)=>{const x=W*0.64;g.rect(x,0,x+g.S,CAP);const t=g.dt(x,CAP*0.7);g.poly([[x-t*0.2,CAP],[x+g.S*0.4,CAP],[t*0.7,CAP*0.3],[0,CAP*0.3]]);g.rect(0,CAP*0.24,W,CAP*0.24+g.H);},{tab:true});
+def('5',FW,(g,W)=>{const top=CAP*0.62,cy=top/2;g.ring(0,-OS,W,top+OS,[[-20,cy*0.58,W*0.42,top+40],[-20,cy,W*0.46,top+40]]);
+  g.rect(W*0.06,top+OS-g.H,W*0.5,top+OS);g.rect(W*0.06,top-30,W*0.06+g.S,CAP);g.rect(W*0.06,CAP-g.H,W*0.94,CAP);},{tab:true});
+def('6',FW,six,{tab:true});
+def('7',FW,(g,W)=>{g.rect(0,CAP-g.H,W,CAP);const t=g.dt(W*0.6,CAP);g.par(W-t/2,CAP-g.H,W*0.36,0,t);},{tab:true});
+def('8',FW,(g,W)=>{g.ring(W*0.07,CAP*0.52-g.H,W*0.93,CAP+OS);g.ring(0,-OS,W,CAP*0.52);},{tab:true});
+def('9',FW,(g,W)=>g.rot(W,CAP/2,()=>six(g,W)),{tab:true});
+
+// punctuation
+def('.',0,(g,W)=>g.rect(0,0,g.S*1.06,g.S*1.06),{fixed:true,extra:6});
+def(',',0,(g,W)=>{const d=g.S*1.06;g.rect(0,0,d,d);g.poly([[d*0.25,0],[d,0],[d*0.55,-d*1.1],[d*0.1,-d*1.1]]);},{fixed:true,extra:6});
+def(':',0,(g,W)=>{const d=g.S*1.06;g.rect(0,0,d,d);g.rect(0,XH-d,d,XH);},{fixed:true,extra:6});
+def('!',0,(g,W)=>{const d=g.S*1.06;g.rect(0,0,d,d);g.rect(d*0.04,d+Math.max(60,g.S*0.5),d*0.96,CAP);},{fixed:true,extra:6});
+def("'",0,(g,W)=>g.rect(0,CAP*0.66,g.S,CAP),{fixed:true});
+def('-',300,(g,W)=>g.rect(0,XH*0.42,W,XH*0.42+g.H*1.05));
+def('–',500,(g,W)=>g.rect(0,XH*0.42,W,XH*0.42+g.H));
+def('/',360,(g,W)=>{const t=g.dt(W,CAP+120);g.par(W-t/2,CAP+20,t/2,-100,t);});
+def('&',700,(g,W)=>{g.ring(W*0.08,CAP*0.5,W*0.66,CAP+OS);g.ring(0,-OS,W*0.82,CAP*0.56,[[W*0.6,CAP*0.1,W,CAP*0.6]]);
+  const t=g.dt(W*0.6,CAP*0.5);g.par(W*0.22,CAP*0.6,W-t/2,0,t);g.rect(W*0.6,CAP*0.36,W,CAP*0.36+g.H);});
+def(' ',260,()=>{});
+
+/* ---- public API ---- */
+function params(o){ // o: {wght 100..900, wdth 70..140, track (units), hair, cons}
+  const t=(o.wght-100)/800, S=28+t*(178-28), H=S*0.84;
+  return {S,H,wf:o.wdth/100,track:o.track||0,hair:o.hair||0,cons:o.cons||null};
+}
+function sb(p){return 22+p.S*0.22+p.track;}
+function glyphBox(ch,p){
+  const gl=G[ch]; if(!gl) return null;
+  let W;
+  if(gl.fixed) W=(ch==='j'?p.S+gl.extra:p.S*(ch==='.'||ch===','||ch===':'||ch==='!'?1.06:1));
+  else if(gl.tab) W=gl.base*Math.min(1.25,Math.max(0.8,p.wf)) ;
+  else W=gl.base*p.wf;
+  if(!gl.fixed && !gl.tab) W=Math.max(W, p.S*2.3);
+  return {W, adv:W+2*sb(p)};
+}
+function drawGlyph(ctx,ch,p){ // caller has set transform: origin at left sidebearing, baseline, y up
+  const gl=G[ch]; if(!gl) return;
+  const b=glyphBox(ch,p); const g=tools(ctx,p);
+  ctx.save(); ctx.translate(sb(p),0); gl.fn(g,b.W); ctx.restore();
+}
+const api={G,XH,CAP,ASC,DESC,params,sb,glyphBox,drawGlyph,CHARSET:'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789.,:!\'-–/'};
+if(typeof module!=='undefined') module.exports=api; else root.Shuttle=api;
+})(this);
+
+</script>
+<script>
+(function(){
+"use strict";
+const Sh=window.Shuttle, $=id=>document.getElementById(id);
+const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+const dpr=()=>Math.min(2.5,window.devicePixelRatio||1);
+function css(){const c=getComputedStyle(document.documentElement);const g=n=>c.getPropertyValue(n).trim();
+  return {ink:g('--ink')||'#111112',red:g('--red')||'#E2231A',rule:g('--rule')||'#D2D3CF',muted:g('--muted')||'#5A5D60'};}
+function setCanvas(cv,w,h){const d=dpr();cv.style.width=w+'px';cv.style.height=h+'px';cv.width=Math.max(1,Math.round(w*d));cv.height=Math.max(1,Math.round(h*d));
+  const ctx=cv.getContext('2d');ctx.setTransform(d,0,0,d,0,0);ctx.clearRect(0,0,w,h);return ctx;}
+const innerW=el=>{const cs=getComputedStyle(el);return Math.max(80,el.clientWidth-parseFloat(cs.paddingLeft)-parseFloat(cs.paddingRight));};
+
+function measure(text,o){const p=Sh.params(o),s=o.size/1000;let w=0;for(const ch of text){const b=Sh.glyphBox(ch,p);w+=(b?b.adv:300)*s;}return w;}
+function drawText(ctx,text,o){ // o: x, y (baseline), size, wght, wdth, track, color, cons
+  const s=o.size/1000, p=Sh.params({wght:o.wght,wdth:o.wdth,track:o.track||0,hair:0.9/(s*dpr()),cons:o.cons||null});
+  let pen=o.x; ctx.fillStyle=o.color;
+  for(const ch of text){const b=Sh.glyphBox(ch,p); if(!b){pen+=300*s;continue;}
+    ctx.save();ctx.translate(pen,o.y);ctx.scale(s,-s);ctx.fillStyle=o.color;Sh.drawGlyph(ctx,ch,p);ctx.restore();pen+=b.adv*s;}
+  return pen-o.x;
+}
+function wrap(text,o,maxW){const out=[];for(const para of text.split('\n')){if(!para.trim()){out.push('');continue;}let line='';
+  for(const w of para.split(' ')){const t=line?line+' '+w:w;if(!line||measure(t,o)<=maxW)line=t;else{out.push(line);line=w;}}out.push(line);}return out;}
+const LINE=(size)=>size*1.08, ASCPX=(size)=>size*(Sh.ASC+40)/1000, DESCPX=(size)=>size*(-Sh.DESC+40)/1000;
+
+const state={wght:700,wdth:100,track:0,size:96,cons:false};
+const reduce=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+let heroW=reduce?124:70, anim=0;
+
+function drawHero(){
+  const cv=$('hero'), W=innerW(cv.parentElement), col=css(), txt='Shuttle';
+  const o={wght:820,wdth:heroW,track:-10};
+  const s1=measure(txt,Object.assign({size:1000},o)); const size=Math.min(W*0.98/(s1/1000), 340);
+  const finalW=measure(txt,{size:1000,wght:820,wdth:124,track:-10}); const sizeFixed=Math.min(W*0.98/(finalW/1000),340);
+  const sz=sizeFixed; const h=ASCPX(sz)+DESCPX(sz)*0.5;
+  const ctx=setCanvas(cv,W,h);
+  drawText(ctx,txt,{x:0,y:ASCPX(sz),size:sz,wght:820,wdth:heroW,track:-10,color:col.ink});
+  // the red dot: placed on the grid, top right
+  ctx.fillStyle=col.red;const r=Math.max(8,sz*0.07);ctx.beginPath();ctx.arc(W-r-2,ASCPX(sz)-sz*0.62,r,0,Math.PI*2);ctx.fill();
+}
+function playHero(){
+  if(reduce){heroW=124;drawHero();return;}
+  cancelAnimationFrame(anim);const t0=performance.now(),dur=2200;
+  const step=now=>{const k=clamp((now-t0)/dur,0,1),e=k<0.5?4*k*k*k:1-Math.pow(-2*k+2,3)/2;heroW=70+(124-70)*e;drawHero();if(k<1)anim=requestAnimationFrame(step);};
+  anim=requestAnimationFrame(step);
+}
+function drawPlay(){
+  const cv=$('playCanvas'), W=innerW(cv.parentElement), col=css();
+  const o={size:state.size,wght:state.wght,wdth:state.wdth,track:state.track};
+  const lines=wrap($('txt').value||' ',o,W);
+  const h=ASCPX(state.size)+(lines.length-1)*LINE(state.size)+DESCPX(state.size);
+  const ctx=setCanvas(cv,W,h);
+  lines.forEach((ln,i)=>drawText(ctx,ln,Object.assign({x:0,y:ASCPX(state.size)+i*LINE(state.size),color:col.ink,cons:state.cons?col.red:null},o)));
+}
+function drawRows(boxId,list,make){
+  const box=$(boxId); if(!box.dataset.built){box.innerHTML=list.map(it=>'<div class="row"><div class="rlab"><b>'+it[0]+'</b>'+it[1]+'</div><canvas role="img" aria-label="'+it[2]+'"></canvas></div>').join('');box.dataset.built='1';}
+  const col=css();
+  box.querySelectorAll('.row').forEach((row,i)=>{const cv=row.querySelector('canvas');const W=Math.max(80,cv.parentElement.clientWidth-(window.innerWidth>560?126:0));
+    const o=make(list[i]);const w1=measure(o.text,Object.assign({size:1000},o));const size=Math.min(o.max,W/(w1/1000));
+    const ctx=setCanvas(cv,W,ASCPX(size)+DESCPX(size)*0.4);drawText(ctx,o.text,Object.assign({x:0,y:ASCPX(size),size,color:col.ink},o));});
+}
+const WIDTHS=[[70,'Compressed'],[85,'Condensed'],[100,'Normal'],[115,'Wide'],[130,'Extended'],[140,'Extra extended']];
+const WEIGHTS=[[100,'Hairline'],[250,'Light'],[400,'Regular'],[550,'Medium'],[700,'Bold'],[900,'Black']];
+function drawAxes(){
+  drawRows('widthRows',WIDTHS.map(w=>[w[0],w[1],'Grotesk at width '+w[0]]),it=>({text:'Grotesk 1958',wght:700,wdth:it[0],track:0,max:110}));
+  drawRows('weightRows',WEIGHTS.map(w=>[w[0],w[1],'Hamburgefonstiv at weight '+w[0]]),it=>({text:'Hamburgefonstiv',wght:it[0],wdth:100,track:0,max:96}));
+}
+function drawPrims(){
+  const box=$('prims'), col=css();
+  const items=[['Stem','A rectangle. Stems keep their weight at every width.',g=>{g.rect(180,0,180+g.S,700);g.rect(420,0,420+g.S,700);g.rect(180,330,420+g.S,330+g.H);},'H'],
+    ['Ring','A superellipse, n = 2.6. Inner and outer share the exponent.',g=>g.ring(120,-10,560,710),'O'],
+    ['Diagonal','A parallelogram, widened so it reads as heavy as a stem.',g=>{const t=g.dt(330,700);g.vee(110,580,700,0,t);},'V'],
+    ['Cut','A level clip on one ring: the Swiss terminal.',g=>g.ring(120,-10,540,710,[[340,215,600,485]]),'C']];
+  if(!box.dataset.built){box.innerHTML=items.map(it=>'<div class="prim"><canvas role="img" aria-label="'+it[0]+' part, as in '+it[3]+'"></canvas><b>'+it[0]+'</b><span>'+it[1]+'</span></div>').join('');box.dataset.built='1';}
+  box.querySelectorAll('.prim').forEach((el,i)=>{const cv=el.querySelector('canvas');const W=Math.max(60,cv.parentElement.clientWidth),H=W*0.85;const ctx=setCanvas(cv,W,H);
+    const s=H*0.68/700, d=dpr();const p=Sh.params({wght:600,wdth:100,hair:0.9/(s*d),cons:col.red});
+    ctx.save();ctx.translate((W-680*s)/2,H*0.84);ctx.scale(s,-s);ctx.fillStyle=col.ink;
+    // reuse the engine's drawing tools through a one-off glyph
+    Sh.G['\u0001']={base:0,fn:(g)=>items[i][2](g),fixed:true};Sh.drawGlyph(ctx,'\u0001',p);delete Sh.G['\u0001'];
+    ctx.restore();});
+}
+function drawGrid(){
+  const cv=$('grid'), W=Math.max(120,cv.parentElement.clientWidth), col=css(), cons=$('gcons').checked;
+  const size=W<560?58:78, s=size/1000, cellH=size*1.2;
+  const p0=Sh.params({wght:state.wght,wdth:state.wdth});
+  const chars=[...Sh.CHARSET]; const maxAdv=Math.max(...chars.map(c=>Sh.glyphBox(c,p0).adv))*s;
+  const cw=Math.max(size*0.75,maxAdv)+8, cols=Math.max(3,Math.floor(W/cw)), rows=Math.ceil(chars.length/cols);
+  const ctx=setCanvas(cv,W,rows*cellH);
+  chars.forEach((ch,i)=>{const cx=(i%cols)*cw, cy=Math.floor(i/cols)*cellH, by=cy+size*0.86;
+    ctx.strokeStyle=col.rule;ctx.lineWidth=1;
+    for(const y of [0,Sh.XH,Sh.CAP,Sh.DESC]){const yy=Math.round(by-y*s)+0.5;ctx.beginPath();ctx.moveTo(cx+2,yy);ctx.lineTo(cx+cw-4,yy);ctx.stroke();}
+    const adv=Sh.glyphBox(ch,p0).adv*s;
+    drawText(ctx,ch,{x:cx+(cw-4-adv)/2,y:by,size,wght:state.wght,wdth:state.wdth,track:0,color:col.ink,cons:cons?col.red:null});});
+}
+const PAPER='#F2F1EC', INK='#111112', RED='#E2231A';
+function poster(cv,fn){const W=Math.max(120,cv.parentElement.clientWidth),H=Math.round(W*4/3);const ctx=setCanvas(cv,W,H);ctx.fillStyle=PAPER;ctx.fillRect(0,0,W,H);
+  const m=W*0.07, colW=(W-2*m)/6; ctx.strokeStyle='rgba(17,17,18,0.07)';ctx.lineWidth=1;
+  for(let i=0;i<=6;i++){const x=Math.round(m+i*colW)+0.5;ctx.beginPath();ctx.moveTo(x,m);ctx.lineTo(x,H-m);ctx.stroke();}
+  fn(ctx,W,H,m,colW);}
+function drawPosters(){
+  poster($('p1'),(ctx,W,H,m)=>{
+    drawText(ctx,'machine-made type',{x:m,y:m+W*0.05,size:W*0.05,wght:600,wdth:100,color:INK});
+    const words=['Weft','Sans','Shuttle','Warp'];const o={wght:820,wdth:78,track:-8};
+    const size=Math.min((W-2*m)/(measure('Shuttle',Object.assign({size:1000},o))/1000), H*0.2);
+    words.forEach((w,i)=>drawText(ctx,w,Object.assign({x:m,y:H*0.36+i*size*0.92,size,color:INK},o)));
+    drawText(ctx,'Built by machines.',{x:m,y:H-m-W*0.02,size:W*0.045,wght:400,wdth:100,color:INK});
+    drawText(ctx,'2026',{x:W-m-measure('2026',{size:W*0.045,wght:700,wdth:100}),y:H-m-W*0.02,size:W*0.045,wght:700,wdth:100,color:INK});
+    ctx.fillStyle=RED;ctx.beginPath();ctx.arc(W-m-W*0.06,m+W*0.06,W*0.06,0,Math.PI*2);ctx.fill();
+  });
+  poster($('p2'),(ctx,W,H,m)=>{
+    const o={wght:900,wdth:70,track:-12};const size=(W-2*m)/(measure('0.1',Object.assign({size:1000},o))/1000);
+    drawText(ctx,'0.1',Object.assign({x:m,y:H*0.62,size:Math.min(size,H*0.62),color:INK},o));
+    drawText(ctx,'Shuttle',{x:m,y:H*0.74,size:W*0.09,wght:820,wdth:100,color:INK});
+    drawText(ctx,'Swiss display grotesk',{x:m,y:H*0.74+W*0.08,size:W*0.05,wght:300,wdth:100,color:INK});
+    drawText(ctx,'sketch 26.10.2026',{x:m,y:H-m,size:W*0.04,wght:500,wdth:100,color:INK});
+    ctx.fillStyle=RED;ctx.beginPath();ctx.arc(W-m-W*0.035,H-m-W*0.03,W*0.035,0,Math.PI*2);ctx.fill();
+  });
+  poster($('p3'),(ctx,W,H,m)=>{
+    ctx.fillStyle=RED;ctx.beginPath();ctx.arc(W*0.62,H*0.72,W*0.26,0,Math.PI*2);ctx.fill();
+    const o={wght:300,wdth:140,track:0};const size=Math.min((H-2*m)/(measure('Grotesk',Object.assign({size:1000},o))/1000),W*0.36);
+    ctx.save();ctx.translate(m+size*0.72,H-m);ctx.rotate(-Math.PI/2);drawText(ctx,'Grotesk',Object.assign({x:0,y:0,size,color:INK},o));ctx.restore();
+    const x0=W*0.46, room=W-m-x0, fit=room/(measure('Proven for machines.',{size:1000,wght:300,wdth:100})/1000), ts=Math.min(W*0.05,fit);
+    drawText(ctx,'Made by machines.',{x:x0,y:m+ts*1.2,size:ts,wght:700,wdth:100,color:INK});
+    drawText(ctx,'Proven for machines.',{x:x0,y:m+ts*2.4,size:ts,wght:300,wdth:100,color:INK});
+  });
+}
+function sync(){$('wghtOut').textContent=state.wght;$('wdthOut').textContent=state.wdth;$('trackOut').textContent=state.track;$('sizeOut').textContent=state.size+' px';}
+function drawAll(){drawHero();drawPlay();drawPrims();drawAxes();drawPosters();drawGrid();}
+['wght','wdth','track','size'].forEach(id=>$(id).addEventListener('input',e=>{state[id]=+e.target.value;sync();drawPlay();if(id==='wght'||id==='wdth')drawGrid();}));
+$('txt').addEventListener('input',drawPlay);
+$('cons').addEventListener('change',e=>{state.cons=e.target.checked;drawPlay();});
+$('gcons').addEventListener('change',drawGrid);
+$('replay').addEventListener('click',playHero);
+if(window.innerWidth<640){state.size=52;$('size').value=52;}
+sync();
+let raf=0;const redraw=()=>{cancelAnimationFrame(raf);raf=requestAnimationFrame(drawAll);};
+if('ResizeObserver' in window){let lw=0;new ResizeObserver(en=>{const w=Math.round(en[0].contentRect.width);if(w!==lw){lw=w;redraw();}}).observe(document.querySelector('.wrap'));}else window.addEventListener('resize',redraw);
+if(window.matchMedia){const mq=window.matchMedia('(prefers-color-scheme: dark)');mq.addEventListener?mq.addEventListener('change',redraw):mq.addListener(redraw);}
+new MutationObserver(redraw).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme','class','style']});
+drawAll();playHero();
+if(document.fonts&&document.fonts.ready)document.fonts.ready.then(redraw);
+})();
+</script>

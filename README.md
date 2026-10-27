@@ -1,6 +1,6 @@
 # machine-made type
 
-Two typefaces made by code, free under the SIL Open Font License.
+Three typefaces made by code, free under the SIL Open Font License.
 
 - **machine-made Weft**: a grid-built monospace. Variable font with a
   weight axis (`wght` 100 to 900) and a fragmentation axis (`FRAG` 0
@@ -10,6 +10,11 @@ Two typefaces made by code, free under the SIL Open Font License.
   Weft. Upright and italic, variable weight (`wght` 200 to 800).
   machine-made Sans is based on Plus Jakarta Sans by Gumpita Rahayu,
   Tokotype.
+- **machine-made Heddle**: a Swiss display grotesk for posters,
+  headlines and big figures. Variable font with a weight axis (`wght`
+  100 to 900) and a width axis (`wdth` 70 to 140, Compressed to
+  Extended). Every letter is built from four parts (rect, superellipse
+  ring, parallelogram, V) and level cuts.
 
 Specimen site: <https://machine-made.github.io/type/>
 
@@ -19,9 +24,10 @@ Specimen site: <https://machine-made.github.io/type/>
 | --- | --- | --- |
 | machine-made Weft 0.1 | [weft-v0.1.0](https://github.com/machine-made/type/releases/tag/weft-v0.1.0) | Variable TTF, 9 static TTF and OTF, WOFF2, readability report |
 | machine-made Sans 0.1 | [sans-v0.1.0](https://github.com/machine-made/type/releases/tag/sans-v0.1.0) | 2 variable TTF, 14 static TTF and OTF, WOFF2 |
+| machine-made Heddle 0.1 | [heddle-v0.1.0](https://github.com/machine-made/type/releases/tag/heddle-v0.1.0) | Variable TTF, 11 static TTF, WOFF2 |
 
-The same files are in this repository in `fonts/weft/` and
-`fonts/sans/`. Each release has build provenance attestations: check a
+The same files are in this repository in `fonts/weft/`,
+`fonts/sans/` and `fonts/heddle/`. Each release has build provenance attestations: check a
 file with `gh attestation verify FILE --repo machine-made/type`.
 
 ## machine-made Weft
@@ -42,11 +48,20 @@ set ss02 gives the sharp (Lancip) forms, ss01 the original Plus
 Jakarta Sans forms, ss03 the swirl (Lingkar) forms. Details:
 `sans/README.md` and `sans/RELEASE-NOTES-0.1.md`.
 
+## machine-made Heddle
+
+![Heddle width ladder](proofs/heddle/heddle-width-ladder.png)
+
+Width changes the counters, not the stems. The 70 characters of the
+approved sketch match the sketch engine at every corner of the
+designspace (`proofs/heddle/heddle-sketch-vs-font-charset.png`).
+Details: `heddle/RELEASE-NOTES-0.1.md`.
+
 ## How to build
 
 Needs Python 3.14 and, for the checks, the
 [Fontspector](https://github.com/fonttools/fontspector) 1.9.0 binary.
-Both builds are byte-reproducible: a build on the committed sources
+All builds are byte-reproducible: a build on the committed sources
 gives the committed fonts.
 
 Weft (from `weft/`):
@@ -73,6 +88,19 @@ SANS_UPSTREAM=/tmp/pjs python -m pytest -q sans/tests
 python sans/scripts/proof.py --upstream /tmp/pjs/fonts --weft fonts/weft/ttf/MachineMadeWeft-Regular.ttf
 ```
 
+Heddle (from `heddle/`):
+
+```sh
+cd heddle
+python -m pip install -e ".[test]"
+python -m pytest -q             # generator tests (one needs node)
+scripts/build.sh                # fonts/heddle/{variable,ttf,webfonts}
+scripts/check.sh fontspector    # Fontspector, universal profile
+python tools/proof.py           # proofs/heddle/
+python tools/drift.py           # proofs/heddle/drift.json
+python tools/sketch_compare.py  # sketch engine vs font (needs Playwright and Chromium)
+```
+
 Site (from the repository root):
 
 ```sh
@@ -86,16 +114,18 @@ python site/build.py            # site/_site/
 | --- | --- |
 | `weft/` | Weft generator (`loom/`), tools, tests, brief, notes, `OFL.txt` |
 | `sans/` | Sans sources (fork of Plus Jakarta Sans), scripts, tests, upstream credits, notes, `OFL.txt` |
+| `heddle/` | Heddle generator (`loom/`), tools, tests, sketch reference, brief, notes, `OFL.txt` |
 | `site/` | Specimen site generator, pages and assets |
-| `fonts/weft/`, `fonts/sans/` | Committed build outputs: `variable/`, `ttf/`, `otf/`, `webfonts/` |
-| `proofs/weft/`, `proofs/sans/` | Proof sheets and the Weft readability report |
-| `.github/workflows/` | `weft.yml`, `sans.yml` (checks), `site.yml` (Pages deploy), `release.yml` (releases on tags) |
+| `fonts/weft/`, `fonts/sans/`, `fonts/heddle/` | Committed build outputs: `variable/`, `ttf/`, `otf/` (Weft, Sans), `webfonts/` |
+| `proofs/weft/`, `proofs/sans/`, `proofs/heddle/` | Proof sheets, the Weft readability report, the Heddle sketch comparison and drift report |
+| `.github/workflows/` | `weft.yml`, `sans.yml`, `heddle.yml` (checks), `site.yml` (Pages deploy), `release.yml` (releases on tags) |
 
 ## Licence
 
 - **Fonts**: SIL Open Font License 1.1 with the Reserved Font Name
   "machine-made". Weft: `weft/OFL.txt`. Sans: `sans/OFL.txt`, which
-  also keeps the Plus Jakarta Sans copyright line.
+  also keeps the Plus Jakarta Sans copyright line. Heddle:
+  `heddle/OFL.txt`.
 - **Code** (generators, scripts, tests, CI, site): Apache-2.0, see
   `LICENSE`.
 

@@ -50,6 +50,7 @@ ORG_URL = "https://github.com/machine-made"
 RELEASES = {
     "weft": REPO_URL + "/releases/tag/weft-v0.1.0",
     "sans": REPO_URL + "/releases/tag/sans-v0.1.0",
+    "heddle": REPO_URL + "/releases/tag/heddle-v0.1.0",
 }
 
 # Font files per family, in fonts/<family>/webfonts/. Every role is
@@ -76,7 +77,21 @@ FAMILIES = {
         "licence": ROOT / "sans" / "OFL.txt",
         "planned_axes": {"wght": [200, 400, 800]},
     },
+    "heddle": {
+        "dir": ROOT / "fonts" / "heddle" / "webfonts",
+        "files": {
+            "vf": "MachineMadeHeddle[wdth,wght].woff2",
+            "bold": "MachineMadeHeddle-Bold.woff2",
+        },
+        "licence": ROOT / "heddle" / "OFL.txt",
+        "planned_axes": {"wght": [100, 400, 900], "wdth": [70, 100, 140]},
+    },
 }
+
+# Heddle rows on its page: width names from the STAT table of the font.
+HEDDLE_WEIGHTS = [(100, "Thin"), (200, "ExtraLight"), (300, "Light"), (400, "Regular"),
+                   (500, "Medium"), (600, "SemiBold"), (700, "Bold"), (800, "ExtraBold"),
+                   (900, "Black")]
 
 READABILITY = ROOT / "proofs" / "weft" / "readability.json"
 
@@ -416,7 +431,8 @@ def commits(limit: int = 10) -> list:
 # Templates
 # ---------------------------------------------------------------------------
 
-PAGES = ["index.html", "weft/index.html", "sans/index.html", "download/index.html", "404.html"]
+PAGES = ["index.html", "weft/index.html", "sans/index.html", "heddle/index.html",
+         "download/index.html", "404.html"]
 TOKEN = re.compile(r"\{\{\s*([A-Z0-9_]+)\s*\}\}")
 META = re.compile(r"\A<!--(.*?)-->\s*", re.S)
 
@@ -470,6 +486,31 @@ def sans_waterfall(axis: list, italic: bool) -> str:
     return "\n".join(rows)
 
 
+def stat_widths(font: TTFont) -> list:
+    """Return [(value, name), ...] of the wdth axis values in STAT."""
+    if "STAT" not in font or font["STAT"].table.AxisValueArray is None:
+        return []
+    axes = [a.AxisTag for a in font["STAT"].table.DesignAxisRecord.Axis]
+    out = []
+    for v in font["STAT"].table.AxisValueArray.AxisValue:
+        if hasattr(v, "AxisIndex") and axes[v.AxisIndex] == "wdth":
+            out.append((v.Value, font["name"].getDebugName(v.ValueNameID)))
+    return sorted(out)
+
+
+def heddle_rows(axis: str, values: list, text: str, fixed: str) -> str:
+    """Return <li> rows of Heddle at each value of one axis."""
+    rows = []
+    for v, name in values:
+        settings = f'"{axis}" {v:g}, {fixed}'
+        rows.append(
+            f'<li><span class="row-k"><span class="row-v">{v:g}</span>{html.escape(name)}</span>'
+            f'<span class="row-t heddle" style="font-variation-settings:{html.escape(settings)}">'
+            f"{html.escape(text)}</span></li>"
+        )
+    return "\n".join(rows)
+
+
 def font_face_css(chosen: dict, info: dict) -> str:
     """Return the @font-face rules for the site, with URLs from the CSS file."""
     out = ["/* Made by site/build.py. Do not edit. */"]
@@ -489,6 +530,15 @@ def font_face_css(chosen: dict, info: dict) -> str:
             f"src:url(\"../fonts/sans/{url_path(name)}\") format(\"woff2\");"
             f"font-weight:{sans_w};font-style:{style};font-display:swap}}"
         )
+    sh = info["heddle"]["axes"]
+    sh_w = sh.get("wght") or [400, 400, 400]
+    sh_d = sh.get("wdth") or [100, 100, 100]
+    out.append(
+        "@font-face{font-family:\"mm Heddle\";"
+        f"src:url(\"../fonts/heddle/{url_path(chosen['heddle']['files']['vf'].name)}\") format(\"woff2\");"
+        f"font-weight:{sh_w[0]:g} {sh_w[2]:g};font-stretch:{sh_d[0]:g}% {sh_d[2]:g}%;"
+        "font-style:normal;font-display:swap}"
+    )
     # machine-made Sans 0.1 has the straight forms as the default, so no
     # feature is on. The sharp forms are in ss02.
     out.append(":root{--sans-features:normal}")
@@ -539,9 +589,15 @@ def build(out: Path) -> None:
     weft_font = TTFont(chosen["weft"]["files"]["vf"])
     info["weft"]["glyphs"] = glyph_map(weft_font)
     info["weft"]["commits"] = commits()
+    heddle_font = TTFont(chosen["heddle"]["files"]["vf"])
+    info["heddle"]["glyphs"] = glyph_map(heddle_font)
+    heddle_widths = stat_widths(heddle_font)
+    if not heddle_widths:
+        raise BuildError("The Heddle font has no wdth values in STAT.")
 
     (out / "data" / "weft.json").write_text(json.dumps(info["weft"], ensure_ascii=False, indent=1), encoding="utf-8")
     (out / "data" / "sans.json").write_text(json.dumps(info["sans"], ensure_ascii=False, indent=1), encoding="utf-8")
+    (out / "data" / "heddle.json").write_text(json.dumps(info["heddle"], ensure_ascii=False, indent=1), encoding="utf-8")
     (out / "data" / "readability.json").write_text(json.dumps(report, indent=1), encoding="utf-8")
     (out / "assets" / "fonts.css").write_text(font_face_css(chosen, info), encoding="utf-8")
 
@@ -552,12 +608,21 @@ def build(out: Path) -> None:
 
     weft_axes = info["weft"]["axes"]
     sans_axes = info["sans"]["axes"]
+    heddle_axes = info["heddle"]["axes"]
+    planned_sh = FAMILIES["heddle"]["planned_axes"]
     planned_w = FAMILIES["weft"]["planned_axes"]
     values = {
         "REPO_URL": REPO_URL,
         "ORG_URL": ORG_URL,
         "WEFT_RELEASE": RELEASES["weft"],
         "SANS_RELEASE": RELEASES["sans"],
+        "HEDDLE_RELEASE": RELEASES["heddle"],
+        "HEDDLE_VERSION": html.escape(short_version(info["heddle"])),
+        "HEDDLE_CHAR_COUNT": info["heddle"]["char_count"],
+        "HEDDLE_WGHT_RANGE": fmt_range(heddle_axes.get("wght") or planned_sh["wght"]),
+        "HEDDLE_WDTH_RANGE": fmt_range(heddle_axes.get("wdth") or planned_sh["wdth"]),
+        "HEDDLE_WIDTH_ROWS": heddle_rows("wdth", heddle_widths, "Grotesk 1958", '"wght" 700'),
+        "HEDDLE_WEIGHT_ROWS": heddle_rows("wght", HEDDLE_WEIGHTS, "Hamburgefonstiv", '"wdth" 100'),
         "WORDMARK": wordmark,
         "WEFT_VERSION": html.escape(short_version(info["weft"])),
         "SANS_VERSION": html.escape(short_version(info["sans"])),
@@ -581,7 +646,7 @@ def build(out: Path) -> None:
         depth = rel.count("/")
         root = "../" * depth if depth else "./"
         nav = {f"NAV_{k}": ' aria-current="page"' if meta.get("nav") == k.lower() else ""
-               for k in ("HOME", "WEFT", "SANS", "DOWNLOAD")}
+               for k in ("HOME", "WEFT", "SANS", "HEDDLE", "DOWNLOAD")}
         scripts = "".join(f'<script src="{root}assets/{s.strip()}" defer></script>'
                           for s in meta.get("scripts", "").split(",") if s.strip())
         # The 404 page can open at any depth, so it uses absolute paths.
@@ -606,6 +671,7 @@ def build(out: Path) -> None:
     for fam, sel in chosen.items():
         print(f"  {fam}: {sel['files']['vf'].name}, axes {info[fam]['axes'] or 'none'}")
     print(f"  readability: {len(report['rows'])} FRAG rows from {READABILITY.relative_to(ROOT)}")
+    print(f"  heddle widths: {', '.join(f'{v:g} {n}' for v, n in heddle_widths)}")
 
 
 def main(argv: list[str]) -> int:
