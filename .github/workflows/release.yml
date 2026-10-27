@@ -142,14 +142,25 @@ jobs:
             echo "::error::Run the release from main, not ${GITHUB_REF}."
             exit 1
           fi
-          if git ls-remote --exit-code --tags origin "refs/tags/${RELEASE_TAG}" >/dev/null; then
-            echo "::error::Tag ${RELEASE_TAG} exists already. Use a new version."
+          # A tag that exists already is fine when its commit has the same release files
+          # (fonts/weft weft) as this commit: that is a re-run after a failed upload, and the
+          # release goes onto that tag. Any other change needs a new version.
+          existing="$(git ls-remote --tags origin "refs/tags/${RELEASE_TAG}^{}" "refs/tags/${RELEASE_TAG}" | awk '{print $1}' | tail -n 1)"
+          if [ -n "$existing" ]; then
+            git fetch --quiet --depth=1 origin "$existing"
+            if git diff --quiet "$existing" "$GITHUB_SHA" -- fonts/weft weft; then
+              echo "Tag ${RELEASE_TAG} exists already on ${existing} with the same release files. Re-running the release."
+              exit 0
+            fi
+            echo "::error::Tag ${RELEASE_TAG} exists already on ${existing}, and the release files differ. Use a new version."
             exit 1
           fi
           git tag "$RELEASE_TAG" "$GITHUB_SHA"
           git push origin "refs/tags/${RELEASE_TAG}"
 
       - name: Create the release
+        # gh reads each file argument as a glob, so the brackets of the variable
+        # font names are escaped with a backslash.
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
@@ -157,10 +168,10 @@ jobs:
             --title "machine-made Weft ${VERSION}" \
             --notes-file "weft/RELEASE-NOTES-${VERSION%.*}.md" \
             "$OUT/machine-made-weft-${VERSION}.zip" \
-            "$OUT/MachineMadeWeft[FRAG,wght].woff2" \
+            "$OUT/MachineMadeWeft\[FRAG,wght\].woff2" \
             "$OUT/MachineMadeWeft-Regular.woff2" \
             "$OUT/MachineMadeWeft-Bold.woff2" \
-            "$OUT/MachineMadeWeft[FRAG,wght].ttf" \
+            "$OUT/MachineMadeWeft\[FRAG,wght\].ttf" \
             "$OUT/readability.json" \
             "$OUT/SHA256SUMS"
 
@@ -258,14 +269,25 @@ jobs:
             echo "::error::Run the release from main, not ${GITHUB_REF}."
             exit 1
           fi
-          if git ls-remote --exit-code --tags origin "refs/tags/${RELEASE_TAG}" >/dev/null; then
-            echo "::error::Tag ${RELEASE_TAG} exists already. Use a new version."
+          # A tag that exists already is fine when its commit has the same release files
+          # (fonts/sans sans) as this commit: that is a re-run after a failed upload, and the
+          # release goes onto that tag. Any other change needs a new version.
+          existing="$(git ls-remote --tags origin "refs/tags/${RELEASE_TAG}^{}" "refs/tags/${RELEASE_TAG}" | awk '{print $1}' | tail -n 1)"
+          if [ -n "$existing" ]; then
+            git fetch --quiet --depth=1 origin "$existing"
+            if git diff --quiet "$existing" "$GITHUB_SHA" -- fonts/sans sans; then
+              echo "Tag ${RELEASE_TAG} exists already on ${existing} with the same release files. Re-running the release."
+              exit 0
+            fi
+            echo "::error::Tag ${RELEASE_TAG} exists already on ${existing}, and the release files differ. Use a new version."
             exit 1
           fi
           git tag "$RELEASE_TAG" "$GITHUB_SHA"
           git push origin "refs/tags/${RELEASE_TAG}"
 
       - name: Create the release
+        # gh reads each file argument as a glob, so the brackets of the variable
+        # font names are escaped with a backslash.
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
@@ -273,10 +295,10 @@ jobs:
             --title "machine-made Sans ${VERSION}" \
             --notes-file "sans/RELEASE-NOTES-${VERSION%.*}.md" \
             "$OUT/machine-made-sans-${VERSION}.zip" \
-            "$OUT/MachineMadeSans[wght].woff2" \
-            "$OUT/MachineMadeSans-Italic[wght].woff2" \
-            "$OUT/MachineMadeSans[wght].ttf" \
-            "$OUT/MachineMadeSans-Italic[wght].ttf" \
+            "$OUT/MachineMadeSans\[wght\].woff2" \
+            "$OUT/MachineMadeSans-Italic\[wght\].woff2" \
+            "$OUT/MachineMadeSans\[wght\].ttf" \
+            "$OUT/MachineMadeSans-Italic\[wght\].ttf" \
             "$OUT/SHA256SUMS"
 
   site:
@@ -331,8 +353,17 @@ jobs:
             echo "::error::Run the release from main, not ${GITHUB_REF}."
             exit 1
           fi
-          if git ls-remote --exit-code --tags origin "refs/tags/${RELEASE_TAG}" >/dev/null; then
-            echo "::error::Tag ${RELEASE_TAG} exists already. Use a new version."
+          # A tag that exists already is fine when its commit has the same release files
+          # (site fonts) as this commit: that is a re-run after a failed upload, and the
+          # release goes onto that tag. Any other change needs a new version.
+          existing="$(git ls-remote --tags origin "refs/tags/${RELEASE_TAG}^{}" "refs/tags/${RELEASE_TAG}" | awk '{print $1}' | tail -n 1)"
+          if [ -n "$existing" ]; then
+            git fetch --quiet --depth=1 origin "$existing"
+            if git diff --quiet "$existing" "$GITHUB_SHA" -- site fonts; then
+              echo "Tag ${RELEASE_TAG} exists already on ${existing} with the same release files. Re-running the release."
+              exit 0
+            fi
+            echo "::error::Tag ${RELEASE_TAG} exists already on ${existing}, and the release files differ. Use a new version."
             exit 1
           fi
           git tag "$RELEASE_TAG" "$GITHUB_SHA"
