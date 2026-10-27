@@ -4,21 +4,22 @@ Each family keeps its own changelog:
 
 - machine-made Weft: [`weft/CHANGELOG.md`](weft/CHANGELOG.md)
 - machine-made Sans: [`sans/CHANGELOG.md`](sans/CHANGELOG.md)
-- machine-made Shuttle: [`shuttle/CHANGELOG.md`](shuttle/CHANGELOG.md)
+- machine-made Heddle: [`heddle/CHANGELOG.md`](heddle/CHANGELOG.md)
 
-Release tags: `weft-vX.Y.Z`, `sans-vX.Y.Z`, `shuttle-vX.Y.Z`, `site-vX.Y.Z`.
+Release tags: `weft-vX.Y.Z`, `sans-vX.Y.Z`, `heddle-vX.Y.Z`, `site-vX.Y.Z`.
 
-## 2026-10-27: Shuttle 0.1
+## 2026-10-27: Heddle 0.1
 
-- machine-made Shuttle 0.1.0 (font version 0.100). See
-  `shuttle/CHANGELOG.md`.
-- Add `.github/workflows/shuttle.yml` (tests, build, byte check,
-  interpolation, drift report, Fontspector, proofs) and a `shuttle` job
-  in `release.yml` for `shuttle-v*` tags. `package_release.sh` packs
-  Shuttle.
-- Site: add the Shuttle page (playground with weight and width, width
-  rows, weight rows, glyph map), Shuttle on the home and download
-  pages, and Shuttle in the nav.
+- machine-made Heddle 0.1.0 (font version 0.100). See
+  `heddle/CHANGELOG.md`.
+  Sketched as "Shuttle"; renamed before the release (name clash).
+- Add `.github/workflows/heddle.yml` (tests, build, byte check,
+  interpolation, drift report, Fontspector, proofs) and a `heddle` job
+  in `release.yml` for `heddle-v*` tags. `package_release.sh` packs
+  Heddle.
+- Site: add the Heddle page (playground with weight and width, width
+  rows, weight rows, glyph map), Heddle on the home and download
+  pages, and Heddle in the nav.
 
 ## 2026-10-26: release 0.1
 

@@ -6,30 +6,30 @@
 | House | machine-made |
 | Line | identity |
 | Visibility | public after the 0.1 release (founder approved) |
-| Stage | released 0.1: machine-made Weft 0.1.0, machine-made Sans 0.1.0, specimen site 0.1.0. machine-made Shuttle 0.1 built on `shuttle/v0.1` |
-| Gate now | Shuttle: Jac reviews and merges `shuttle/v0.1`; the founder reviews the proofs and decides on the name (an exact match exists, see `shuttle/BRIEF.md`); then the tags `shuttle-v0.1.0` and a new `site-v*` |
-| Next task | Shuttle 0.2 (see `shuttle/STATUS.md`). Weft: polish (look-alikes l/1, I/1, O/0; heavy accented capitals), width axis, Thread style. Sans 0.2: redraw in the style of Weft and match Weft's x-height (see `sans/STATUS.md`). npm packages for both families. |
+| Stage | released 0.1: machine-made Weft 0.1.0, machine-made Sans 0.1.0, specimen site 0.1.0. machine-made Heddle 0.1 built in PR #4 |
+| Gate now | Heddle: Jac reviews and merges PR #4; the founder reviews the proofs; then the tags `heddle-v0.1.0` and a new `site-v*` |
+| Next task | Heddle 0.2 (see `heddle/STATUS.md`). Weft: polish (look-alikes l/1, I/1, O/0; heavy accented capitals), width axis, Thread style. Sans 0.2: redraw in the style of Weft and match Weft's x-height (see `sans/STATUS.md`). npm packages for both families. |
 | Blocked by | none |
 | Last green CI | none yet (first runs are on the release PR). Local end-to-end run of all steps on 2026-10-26: green |
 | Owner model | to assign |
 
 Family notes: `weft/STATUS.md`, `sans/STATUS.md`,
-`shuttle/STATUS.md`. Changes: `CHANGELOG.md`.
+`heddle/STATUS.md`. Changes: `CHANGELOG.md`.
 
 ## Proven (local run, 2026-10-27)
 
-### Shuttle 0.1
+### Heddle 0.1
 
 - 334 pytest tests pass (one runs the sketch engine in node and
   compares the advances at all 12 masters).
 - The build is byte-reproducible: a fresh build equals the committed
-  `fonts/shuttle/`.
+  `fonts/heddle/`.
 - `fonttools varLib.interpolatable`: no problems on the designspace,
   the 12 master UFOs and the variable font.
 - Fontspector 1.9.0, universal profile: 0 FAIL, 0 ERROR on the
   variable font and 11 static TTF (accepted WARNs in
-  `shuttle/STATUS.md`).
-- The site builds with the Shuttle page; no console errors, no failed
+  `heddle/STATUS.md`).
+- The site builds with the Heddle page; no console errors, no failed
   requests, no horizontal scroll at 360 px.
 
 ## Proven (local run, 2026-10-26)
@@ -100,11 +100,11 @@ Family notes: `weft/STATUS.md`, `sans/STATUS.md`,
   was blocked on the build machine. Confirm on the web page.
 - **Name.** "Wefts" (Overlap Type, 2026) is a near match. Web search
   only, not a register search. See `weft/BRIEF.md`.
-- **Shuttle name.** "Shuttle" by Volcano Type (MyFonts, 2006) is an
-  exact match; "Shuttleblock" (Fort Foundry, 2024) is close. See
-  `shuttle/BRIEF.md`.
-- **Shuttle CI has not run on GitHub.** `shuttle.yml` and the
-  `shuttle` release job ran only as local copies of their steps
+- **Heddle name.** Renamed from "Shuttle" (an exact match existed).
+  No typeface named "Heddle" found; web search only, not a register
+  search. See `heddle/BRIEF.md`.
+- **Heddle CI has not run on GitHub.** `heddle.yml` and the
+  `heddle` release job ran only as local copies of their steps
   (Python 3.13 locally, 3.14 in CI).
 - **Fontspector network checks** (`fontdata_namecheck` and others) do
   not run (`--skip-network`).

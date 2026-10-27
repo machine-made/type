@@ -46,8 +46,8 @@ jobs:
       - name: Check the built site
         run: |
           for f in "fonts/weft/MachineMadeWeft[FRAG,wght].woff2" "fonts/sans/MachineMadeSans[wght].woff2" \
-                   "fonts/sans/MachineMadeSans-Italic[wght].woff2" "fonts/shuttle/MachineMadeShuttle[wdth,wght].woff2" \
-                   data/readability.json data/shuttle.json index.html weft/index.html shuttle/index.html; do
+                   "fonts/sans/MachineMadeSans-Italic[wght].woff2" "fonts/heddle/MachineMadeHeddle[wdth,wght].woff2" \
+                   data/readability.json data/heddle.json index.html weft/index.html heddle/index.html; do
             test -s "site/_site/$f" || { echo "::error::site/_site/$f is missing."; exit 1; }
           done
           python -c 'import json,sys; r=json.load(open("site/_site/data/readability.json")); sys.exit(0 if r.get("rows") else 1)'

@@ -7,7 +7,7 @@ name: release
 # Tag names:
 #   weft-vX.Y.Z     machine-made Weft
 #   sans-vX.Y.Z     machine-made Sans
-#   shuttle-vX.Y.Z  machine-made Shuttle
+#   heddle-vX.Y.Z  machine-made Heddle
 #   site-vX.Y.Z     the specimen site (zip of site/_site; the live deploy is site.yml)
 # Each job builds again from the tagged commit, fails if the build differs
 # from the committed fonts, runs the checks, makes the zip and the single
@@ -18,12 +18,12 @@ on:
     tags:
       - "weft-v*"
       - "sans-v*"
-      - "shuttle-v*"
+      - "heddle-v*"
       - "site-v*"
   workflow_dispatch:
     inputs:
       tag:
-        description: "Tag to make and release: weft-vX.Y.Z, sans-vX.Y.Z, shuttle-vX.Y.Z or site-vX.Y.Z"
+        description: "Tag to make and release: weft-vX.Y.Z, sans-vX.Y.Z, heddle-vX.Y.Z or site-vX.Y.Z"
         required: true
         type: string
 
@@ -303,8 +303,8 @@ jobs:
             "$OUT/MachineMadeSans-Italic\[wght\].ttf" \
             "$OUT/SHA256SUMS"
 
-  shuttle:
-    if: startsWith(inputs.tag || github.ref_name, 'shuttle-v')
+  heddle:
+    if: startsWith(inputs.tag || github.ref_name, 'heddle-v')
     runs-on: ubuntu-24.04
     timeout-minutes: 30
     permissions:
@@ -317,9 +317,9 @@ jobs:
 
       - name: Get the version from the tag
         run: |
-          version="${RELEASE_TAG#shuttle-v}"
+          version="${RELEASE_TAG#heddle-v}"
           if ! [[ "$version" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
-            echo "::error::Tag ${RELEASE_TAG} is not shuttle-vX.Y.Z."
+            echo "::error::Tag ${RELEASE_TAG} is not heddle-vX.Y.Z."
             exit 1
           fi
           echo "VERSION=$version" >> "$GITHUB_ENV"
@@ -330,35 +330,35 @@ jobs:
           python-version: "3.14"
 
       - name: Install dependencies
-        working-directory: shuttle
+        working-directory: heddle
         run: |
           python -m pip install --upgrade pip
           python -m pip install -e ".[test]"
           node --version
 
       - name: Run tests
-        working-directory: shuttle
+        working-directory: heddle
         run: python -m pytest -q
 
       - name: Build fonts
-        working-directory: shuttle
+        working-directory: heddle
         run: scripts/build.sh
 
       - name: Check that the build is the same as the committed fonts
         run: |
-          if [ -n "$(git status --porcelain -- fonts/shuttle)" ]; then
-            git status --short -- fonts/shuttle
-            echo "::error::The build differs from the committed fonts/shuttle. Do not release these files."
+          if [ -n "$(git status --porcelain -- fonts/heddle)" ]; then
+            git status --short -- fonts/heddle
+            echo "::error::The build differs from the committed fonts/heddle. Do not release these files."
             exit 1
           fi
-          echo "The build has the same bytes as the committed fonts/shuttle."
+          echo "The build has the same bytes as the committed fonts/heddle."
 
       - name: Check interpolation (fontTools varLib.interpolatable)
-        working-directory: shuttle
+        working-directory: heddle
         run: |
-          fonttools varLib.interpolatable build/Shuttle.designspace
+          fonttools varLib.interpolatable build/Heddle.designspace
           fonttools varLib.interpolatable build/master/*.ufo
-          fonttools varLib.interpolatable "../fonts/shuttle/variable/MachineMadeShuttle[wdth,wght].ttf"
+          fonttools varLib.interpolatable "../fonts/heddle/variable/MachineMadeHeddle[wdth,wght].ttf"
 
       - name: Install Fontspector
         run: |
@@ -371,17 +371,17 @@ jobs:
           fontspector --version
 
       - name: Check fonts (Fontspector, universal profile)
-        working-directory: shuttle
+        working-directory: heddle
         run: scripts/check.sh fontspector
 
       - name: Make the release files
-        run: .github/scripts/package_release.sh shuttle "$VERSION" "$OUT"
+        run: .github/scripts/package_release.sh heddle "$VERSION" "$OUT"
 
       - name: Attest build provenance
         uses: actions/attest-build-provenance@4d101475d8b20a2381f78447822ac1eab6504dd8 # v4.2.2
         with:
           subject-path: |
-            ${{ env.OUT }}/machine-made-shuttle-*.zip
+            ${{ env.OUT }}/machine-made-heddle-*.zip
             ${{ env.OUT }}/*.woff2
             ${{ env.OUT }}/*.ttf
 
@@ -393,12 +393,12 @@ jobs:
             exit 1
           fi
           # A tag that exists already is fine when its commit has the same release files
-          # (fonts/shuttle shuttle) as this commit: that is a re-run after a failed upload, and the
+          # (fonts/heddle heddle) as this commit: that is a re-run after a failed upload, and the
           # release goes onto that tag. Any other change needs a new version.
           existing="$(git ls-remote --tags origin "refs/tags/${RELEASE_TAG}^{}" "refs/tags/${RELEASE_TAG}" | awk '{print $1}' | tail -n 1)"
           if [ -n "$existing" ]; then
             git fetch --quiet --depth=1 origin "$existing"
-            if git diff --quiet "$existing" "$GITHUB_SHA" -- fonts/shuttle shuttle; then
+            if git diff --quiet "$existing" "$GITHUB_SHA" -- fonts/heddle heddle; then
               echo "Tag ${RELEASE_TAG} exists already on ${existing} with the same release files. Re-running the release."
               exit 0
             fi
@@ -415,13 +415,13 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           gh release create "$RELEASE_TAG" --verify-tag \
-            --title "machine-made Shuttle ${VERSION}" \
-            --notes-file "shuttle/RELEASE-NOTES-${VERSION%.*}.md" \
-            "$OUT/machine-made-shuttle-${VERSION}.zip" \
-            "$OUT/MachineMadeShuttle\[wdth,wght\].woff2" \
-            "$OUT/MachineMadeShuttle-Regular.woff2" \
-            "$OUT/MachineMadeShuttle-Bold.woff2" \
-            "$OUT/MachineMadeShuttle\[wdth,wght\].ttf" \
+            --title "machine-made Heddle ${VERSION}" \
+            --notes-file "heddle/RELEASE-NOTES-${VERSION%.*}.md" \
+            "$OUT/machine-made-heddle-${VERSION}.zip" \
+            "$OUT/MachineMadeHeddle\[wdth,wght\].woff2" \
+            "$OUT/MachineMadeHeddle-Regular.woff2" \
+            "$OUT/MachineMadeHeddle-Bold.woff2" \
+            "$OUT/MachineMadeHeddle\[wdth,wght\].ttf" \
             "$OUT/SHA256SUMS"
 
   site:

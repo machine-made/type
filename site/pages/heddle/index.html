@@ -1,0 +1,132 @@
+<!--
+title: machine-made Heddle: a Swiss display grotesk
+description: machine-made Heddle 0.1. A Swiss display grotesk built from four parts and level cuts, with a weight axis and a width axis. Free under the SIL Open Font License.
+nav: heddle
+class: page-heddle
+preload: heddle,sans
+scripts: heddle.js
+-->
+<section class="wrap page-hero" aria-labelledby="heddle-h">
+  <p class="eyebrow"><span class="dot" aria-hidden="true"></span>Display grotesk · {{HEDDLE_CHAR_COUNT}} characters · {{HEDDLE_VERSION}}</p>
+  <h1 id="heddle-h" class="heddle-title"><span class="nb">machine-made</span> Heddle</h1>
+  <p class="lede">A Swiss display grotesk for posters, headlines, wordmarks and big figures. Every letter is built from four parts, and every opening is a level cut. Two axes: weight {{HEDDLE_WGHT_RANGE}} and width {{HEDDLE_WDTH_RANGE}}.</p>
+</section>
+
+<section class="wrap band" id="play" aria-labelledby="play-h">
+  <div class="sec-head">
+    <p class="eyebrow">Playground</p>
+    <h2 id="play-h">Set a headline</h2>
+    <p class="intro">Width changes the counters, not the stems. A Compressed Bold and an Extended Bold have the same weight on the page.</p>
+  </div>
+  <div class="play">
+    <div class="controls">
+      <div class="field">
+        <label class="label" for="txt">Text</label>
+        <textarea id="txt" spellcheck="false" rows="3">Made by machines.
+Proven for machines.</textarea>
+      </div>
+      <div class="field" id="wght-field">
+        <div class="field-top"><label class="label" for="wght">Weight</label><output id="wght-out" for="wght">700</output></div>
+        <input type="range" id="wght" min="100" max="900" step="1" value="700">
+      </div>
+      <div class="field" id="wdth-field">
+        <div class="field-top"><label class="label" for="wdth">Width</label><output id="wdth-out" for="wdth">100</output></div>
+        <input type="range" id="wdth" min="70" max="140" step="1" value="100">
+      </div>
+      <p class="axis-missing" id="axes-missing" hidden>This build of the font has no variable axes.</p>
+      <div class="field">
+        <div class="field-top"><label class="label" for="size">Size</label><output id="size-out" for="size">96 px</output></div>
+        <input type="range" id="size" min="24" max="240" step="1" value="96">
+      </div>
+    </div>
+    <div class="stage">
+      <p class="stage-text heddle" id="stage-text" aria-live="off">Made by machines.
+Proven for machines.</p>
+    </div>
+  </div>
+</section>
+
+<section class="wrap band" id="widths" aria-labelledby="widths-h">
+  <div class="sec-head">
+    <p class="eyebrow">Width axis</p>
+    <h2 id="widths-h">Compressed to Extended</h2>
+    <p class="intro">One family for the narrow column and the wide poster. Bold, width {{HEDDLE_WDTH_RANGE}}.</p>
+  </div>
+  <ul class="rows">
+{{HEDDLE_WIDTH_ROWS}}
+  </ul>
+</section>
+
+<section class="wrap band" id="weights" aria-labelledby="weights-h">
+  <div class="sec-head">
+    <p class="eyebrow">Weight axis</p>
+    <h2 id="weights-h">Thin to Black</h2>
+    <p class="intro">Horizontals stay at 84 percent of the stem at every weight: the small contrast of a Swiss grotesk.</p>
+  </div>
+  <ul class="rows rows-tight">
+{{HEDDLE_WEIGHT_ROWS}}
+  </ul>
+</section>
+
+<section class="wrap band" id="parts" aria-labelledby="parts-h">
+  <div class="sec-head">
+    <p class="eyebrow">Construction</p>
+    <h2 id="parts-h">Four parts and a level cut</h2>
+    <p class="intro">No curve is drawn by hand. Rounds are superellipses with one exponent, 2.6. Diagonals keep their optical weight. Each opening is a level cut through one ring, which is where the Swiss terminals come from.</p>
+  </div>
+  <ul class="parts">
+    <li><span class="part-glyph heddle" aria-hidden="true">H</span><span class="part-name">Stem</span><span class="part-text">A rectangle. Stems keep their weight at every width.</span></li>
+    <li><span class="part-glyph heddle" aria-hidden="true">O</span><span class="part-name">Ring</span><span class="part-text">A superellipse, n = 2.6. Inner and outer share the exponent.</span></li>
+    <li><span class="part-glyph heddle" aria-hidden="true">V</span><span class="part-name">Diagonal</span><span class="part-text">A parallelogram or a V, widened so it reads as heavy as a stem.</span></li>
+    <li><span class="part-glyph heddle" aria-hidden="true">C</span><span class="part-name">Cut</span><span class="part-text">A level cut on one ring: the horizontal terminal.</span></li>
+  </ul>
+</section>
+
+<section class="wrap band" id="glyphs" aria-labelledby="glyphs-h">
+  <div class="sec-head">
+    <p class="eyebrow">Character set</p>
+    <h2 id="glyphs-h"><span id="glyph-count">{{HEDDLE_CHAR_COUNT}}</span> characters</h2>
+    <p class="intro">Read from the font's character map when the site is built. Select a character to see it large. The figures are tabular.</p>
+  </div>
+  <div class="glyph-wrap">
+    <div class="glyph-detail" id="glyph-detail" aria-live="polite">
+      <p class="glyph-big heddle" id="glyph-big">a</p>
+      <dl class="glyph-meta">
+        <div><dt>Character</dt><dd id="glyph-name">Latin Small Letter A</dd></div>
+        <div><dt>Unicode</dt><dd id="glyph-u">U+0061</dd></div>
+        <div><dt>Glyph</dt><dd id="glyph-g">a</dd></div>
+      </dl>
+    </div>
+    <div class="glyph-map" id="glyph-map"><p class="muted">Loading the character map.</p></div>
+  </div>
+</section>
+
+<section class="wrap band" id="made" aria-labelledby="made-h">
+  <div class="sec-head">
+    <p class="eyebrow">Made by machines</p>
+    <h2 id="made-h">From a sketch to a font</h2>
+    <p class="intro">Agents write the generator, the tests and the CI. People set the goals and review the proofs.</p>
+  </div>
+  <div class="cards">
+    <article class="card">
+      <h3>The loom</h3>
+      <p>A Python generator. It ports the approved sketch engine, builds every glyph from the four parts, and writes 12 UFO masters (weight × width) with the same points in each. fontmake compiles them. No outline comes from another font.</p>
+      <p><a href="{{REPO_URL}}/tree/main/heddle/loom">Read the loom</a></p>
+    </article>
+    <article class="card">
+      <h3>Proofs</h3>
+      <p>The sketch engine and the font are rendered side by side at the corners of the designspace. A drift report measures every glyph between the masters.</p>
+      <p><a href="{{REPO_URL}}/tree/main/proofs/heddle">See the proofs</a></p>
+    </article>
+    <article class="card">
+      <h3>CI</h3>
+      <p>Every pull request runs the tests, builds the fonts, checks that the build matches the committed files byte for byte, and runs Fontspector. GitHub Actions are pinned to commit SHAs.</p>
+      <p><a href="{{REPO_URL}}/actions">See the CI runs</a></p>
+    </article>
+  </div>
+</section>
+
+<section class="wrap band cta" aria-labelledby="get-heddle-h">
+  <h2 id="get-heddle-h">Get Heddle 0.1</h2>
+  <p><a class="btn" href="{{HEDDLE_RELEASE}}">Download from GitHub</a> <a class="btn btn-ghost" href="../download/#heddle">Install and @font-face</a></p>
+</section>
