@@ -60,9 +60,10 @@ TEXT_OPSZ = 10
 DISPLAY_OPSZ = 60
 
 # Bold: stem +59.5 % (84 -> 134 units at opsz 72), hairline +30 %
-# (contrast 11.3 instead of 9), serifs +30 % thick (serifw 0.82) and
-# 20 % shorter, skeleton 6 % wider so that the counters stay open.
-BOLD = dict(stem=134, contrast=11.3, serifw=0.82, serif=0.8, width=1.06)
+# (contrast 11.3 instead of 9), serifs +30 % thick (serifw 0.82) and as
+# long as the Regular's (serif 0.65 of the bold stem), skeleton 6 % wider
+# so that the counters stay open.
+BOLD = dict(stem=134, contrast=11.3, serifw=0.82, serif=0.65, width=1.06)
 
 
 @dataclass(frozen=True)
@@ -155,6 +156,7 @@ class Drawn:
     top: float          # height where a top mark sits
     ymax: float
     sweep: object = None
+    dx: float = 0.0
 
 
 def table_def(key: str, ital: bool):
@@ -181,6 +183,11 @@ def drawn(style_key: str, name: str) -> Drawn:
         return notdef(p)
     d = table_def(gl.key, p.ital)
     mods = variant_mods(gl, p)
+    if p.ital and d.cap and gl.key not in GI:
+        # Italic capitals without their own form are the roman ones,
+        # slanted, with unbracketed serifs (as in Didone italics).
+        mods = dict(mods)
+        mods["p"] = {**mods.get("p", {}), "bk": 0}
     sw = E.compose(d, p, mods)
     adv, dx = sw.adv, sw.dx
     if gl.variant is None and E.is_greek_lower(gl.key):
@@ -203,7 +210,7 @@ def drawn(style_key: str, name: str) -> Drawn:
     c = band_center(sw, top * 0.2, top * 0.8)
     if c is None:
         c = (sw.xmin + sw.xmax) / 2
-    return Drawn(contours, adv, c + dx, sw.yc, sw.sl, top, sw.ymax, sw)
+    return Drawn(contours, adv, c + dx, sw.yc, sw.sl, top, sw.ymax, sw, dx)
 
 
 def notdef(p: E.Params) -> Drawn:
@@ -322,6 +329,15 @@ def set_info(font: ufoLib2.Font, st: Style) -> None:
     info.openTypeHheaAscender = TYPO_ASCENDER
     info.openTypeHheaDescender = TYPO_DESCENDER
     info.openTypeHheaLineGap = 0
+    full = f"{st.family} {st.style}"
+    if len(full) > 32:
+        # "machine-made Warp Display Regular" is 33 characters: the full
+        # name elides "Regular", as many families do.
+        full = st.family
+        info.openTypeNameRecords = [
+            {"nameID": 4, "platformID": 3, "encodingID": 1, "languageID": 0x409, "string": full},
+        ]
+    assert len(full) <= 32
     font.lib["public.postscriptNames"] = {}
     font.lib["com.github.googlei18n.ufo2ft.featureWriters"] = [
         {"class": "KernFeatureWriter"},
