@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Make the release files for one family or for the site.
-# Usage: .github/scripts/package_release.sh weft|sans|site VERSION OUT_DIR
+# Usage: .github/scripts/package_release.sh weft|sans|shuttle|site VERSION OUT_DIR
 #   VERSION is the version from the tag, for example 0.1.0.
 #   OUT_DIR receives the zip file and the single files to attach.
 # Run from the repository root, after the build and the checks.
@@ -8,7 +8,7 @@
 # workflow writes it with weft/tools/readability.py --gate).
 set -euo pipefail
 
-fam="${1:?family: weft, sans or site}"
+fam="${1:?family: weft, sans, shuttle or site}"
 version="${2:?version, for example 0.1.0}"
 out="${3:?output folder}"
 mkdir -p "$out"
@@ -104,6 +104,37 @@ case "$fam" in
        "fonts/sans/variable/MachineMadeSans[wght].ttf" \
        "fonts/sans/variable/MachineMadeSans-Italic[wght].ttf" "$out/"
     ;;
+  shuttle)
+    name="machine-made-shuttle-${version}"
+    need "fonts/shuttle/variable/MachineMadeShuttle[wdth,wght].ttf" \
+         "fonts/shuttle/webfonts/MachineMadeShuttle[wdth,wght].woff2" \
+         "fonts/shuttle/webfonts/MachineMadeShuttle-Regular.woff2" \
+         "fonts/shuttle/webfonts/MachineMadeShuttle-Bold.woff2" \
+         shuttle/OFL.txt "shuttle/RELEASE-NOTES-${notes_version}.md"
+    mkdir -p "$stage/$name"
+    cp -r fonts/shuttle/variable fonts/shuttle/ttf fonts/shuttle/webfonts "$stage/$name/"
+    cp shuttle/OFL.txt "$stage/$name/OFL.txt"
+    cp "shuttle/RELEASE-NOTES-${notes_version}.md" "$stage/$name/RELEASE-NOTES.md"
+    {
+      echo "# machine-made Shuttle ${version}"
+      echo
+      echo "A Swiss display grotesk made by code. Axes: wght 100 to 900, wdth 70 to 140."
+      echo
+      echo "- variable/: the variable font (TTF)"
+      echo "- ttf/: nine static weights at width 100, Compressed Bold and Extended Bold"
+      echo "- webfonts/: WOFF2 for the web (variable, Regular, Bold)"
+      echo "- RELEASE-NOTES.md: what is in this release"
+      echo
+      echo "Licence: SIL Open Font License 1.1, Reserved Font Name \"machine-made\" (OFL.txt)."
+      echo "Source: https://github.com/machine-made/type"
+      echo "Specimen: https://machine-made.github.io/type/shuttle/"
+    } > "$stage/$name/README.md"
+    make_zip "$stage" "$out/$name.zip"
+    cp "fonts/shuttle/webfonts/MachineMadeShuttle[wdth,wght].woff2" \
+       fonts/shuttle/webfonts/MachineMadeShuttle-Regular.woff2 \
+       fonts/shuttle/webfonts/MachineMadeShuttle-Bold.woff2 \
+       "fonts/shuttle/variable/MachineMadeShuttle[wdth,wght].ttf" "$out/"
+    ;;
   site)
     name="machine-made-type-site-${version}"
     need site/_site/index.html site/_site/data/readability.json
@@ -112,7 +143,7 @@ case "$fam" in
     make_zip "$stage" "$out/$name.zip"
     ;;
   *)
-    echo "error: unknown family $fam (use weft, sans or site)." >&2
+    echo "error: unknown family $fam (use weft, sans, shuttle or site)." >&2
     exit 1
     ;;
 esac

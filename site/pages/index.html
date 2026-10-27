@@ -1,19 +1,19 @@
 <!--
-title: machine-made type: Weft and Sans
-description: machine-made Weft, a grid-built variable monospace, and machine-made Sans, a reading sans. Version 0.1, free under the SIL Open Font License.
+title: machine-made type: Weft, Sans and Shuttle
+description: machine-made Weft, a grid-built variable monospace, machine-made Sans, a reading sans, and machine-made Shuttle, a Swiss display grotesk. Version 0.1, free under the SIL Open Font License.
 nav: home
 class: page-home
-preload: weft,sans
+preload: weft,sans,shuttle
 -->
 <section class="hero wrap" aria-labelledby="home-h">
   <p class="eyebrow"><span class="dot" aria-hidden="true"></span>machine-made/type · version 0.1</p>
   <h1 id="home-h" class="visually-hidden">machine-made type</h1>
   <div class="hero-mark">{{WORDMARK}}</div>
   <p class="hero-line">Made by machines. Proven for machines.</p>
-  <p class="lede">Two typeface families, built and checked by code. Free to use under the SIL Open Font License.</p>
+  <p class="lede">Three typeface families, built and checked by code. Free to use under the SIL Open Font License.</p>
 </section>
 
-<section class="wrap families" aria-label="The two families">
+<section class="wrap families" aria-label="The three families">
   <article class="fam fam-weft">
     <header class="fam-head">
       <p class="eyebrow">Monospace · variable · wght {{WEFT_WGHT_RANGE}} · FRAG {{WEFT_FRAG_RANGE}}</p>
@@ -33,6 +33,15 @@ preload: weft,sans
     <p class="fam-text sans">Every result is checked by another machine.</p>
     <p>A reading sans based on Plus Jakarta Sans. Straight forms are the default, and the sharp forms are one stylistic set away, so it sits next to Weft.</p>
     <p class="fam-links"><a class="btn" href="sans/">See Sans</a> <a class="btn btn-ghost" href="{{SANS_RELEASE}}">Get Sans 0.1</a></p>
+  </article>
+  <article class="fam fam-shuttle">
+    <header class="fam-head">
+      <p class="eyebrow">Display grotesk · variable · wght {{SHUTTLE_WGHT_RANGE}} · wdth {{SHUTTLE_WDTH_RANGE}}</p>
+      <h2><a href="shuttle/">machine-made Shuttle</a></h2>
+    </header>
+    <p class="fam-sample shuttle" aria-hidden="true">Grotesk 1958</p>
+    <p>A Swiss display grotesk for posters, headlines and big figures. Every letter is built from four parts and level cuts. A width axis runs from Compressed to Extended.</p>
+    <p class="fam-links"><a class="btn" href="shuttle/">See Shuttle</a> <a class="btn btn-ghost" href="{{SHUTTLE_RELEASE}}">Get Shuttle 0.1</a></p>
   </article>
 </section>
 
@@ -65,6 +74,7 @@ python tools/proof.py</code></pre>
     <li><span class="fact-k">Licence</span><span class="fact-v">Fonts: SIL OFL 1.1. Code: Apache-2.0.</span></li>
     <li><span class="fact-k">Weft</span><span class="fact-v">Variable font (wght and FRAG), static Regular and Bold. TTF and WOFF2.</span></li>
     <li><span class="fact-k">Sans</span><span class="fact-v">Variable font (wght), upright and italic. TTF and WOFF2.</span></li>
+    <li><span class="fact-k">Shuttle</span><span class="fact-v">Variable font (wght and wdth), 11 static weights and widths. TTF and WOFF2.</span></li>
     <li><span class="fact-k">Made by</span><span class="fact-v">Agents write the code and the commits. CI builds and checks the fonts.</span></li>
     <li><span class="fact-k">Source</span><span class="fact-v"><a href="{{REPO_URL}}">github.com/machine-made/type</a></span></li>
   </ul>

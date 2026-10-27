@@ -4,8 +4,21 @@ Each family keeps its own changelog:
 
 - machine-made Weft: [`weft/CHANGELOG.md`](weft/CHANGELOG.md)
 - machine-made Sans: [`sans/CHANGELOG.md`](sans/CHANGELOG.md)
+- machine-made Shuttle: [`shuttle/CHANGELOG.md`](shuttle/CHANGELOG.md)
 
-Release tags: `weft-vX.Y.Z`, `sans-vX.Y.Z`, `site-vX.Y.Z`.
+Release tags: `weft-vX.Y.Z`, `sans-vX.Y.Z`, `shuttle-vX.Y.Z`, `site-vX.Y.Z`.
+
+## 2026-10-27: Shuttle 0.1
+
+- machine-made Shuttle 0.1.0 (font version 0.100). See
+  `shuttle/CHANGELOG.md`.
+- Add `.github/workflows/shuttle.yml` (tests, build, byte check,
+  interpolation, drift report, Fontspector, proofs) and a `shuttle` job
+  in `release.yml` for `shuttle-v*` tags. `package_release.sh` packs
+  Shuttle.
+- Site: add the Shuttle page (playground with weight and width, width
+  rows, weight rows, glyph map), Shuttle on the home and download
+  pages, and Shuttle in the nav.
 
 ## 2026-10-26: release 0.1
 
