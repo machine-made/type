@@ -1,0 +1,2077 @@
+{
+ "note": "For every glyph and a set of locations between the masters, the tool takes the outline that the glyph table draws directly at that location (loom.build.direct_outline) and the outline that the variable font interpolates from the masters (loom.build.interpolated, the same model as fontTools varLib). It removes overlaps from both and measures:",
+ "summary": {
+  "locations": [
+   [
+    250,
+    85
+   ],
+   [
+    250,
+    120
+   ],
+   [
+    550,
+    85
+   ],
+   [
+    550,
+    120
+   ],
+   [
+    800,
+    85
+   ],
+   [
+    800,
+    120
+   ],
+   [
+    250,
+    100
+   ],
+   [
+    550,
+    100
+   ],
+   [
+    800,
+    100
+   ],
+   [
+    100,
+    85
+   ],
+   [
+    400,
+    85
+   ],
+   [
+    700,
+    85
+   ],
+   [
+    900,
+    85
+   ],
+   [
+    100,
+    120
+   ],
+   [
+    400,
+    120
+   ],
+   [
+    700,
+    120
+   ],
+   [
+    900,
+    120
+   ],
+   [
+    300,
+    70
+   ],
+   [
+    500,
+    100
+   ],
+   [
+    600,
+    140
+   ],
+   [
+    850,
+    70
+   ]
+  ],
+  "max_shape": 0.1111,
+  "max_shape_sketch_glyphs": 0.1111,
+  "max_advance": 38.8,
+  "max_advance_sketch_glyphs": 35.3,
+  "median_shape": 0.0
+ },
+ "worst_shape": {
+  "J": {
+   "shape": 0.1111,
+   "shape_at": [
+    900,
+    85
+   ],
+   "advance": 22.7,
+   "advance_at": [
+    900,
+    85
+   ]
+  },
+  "hyphen": {
+   "shape": 0.0873,
+   "shape_at": [
+    550,
+    85
+   ],
+   "advance": 30.6,
+   "advance_at": [
+    550,
+    85
+   ]
+  },
+  "otilde": {
+   "shape": 0.066,
+   "shape_at": [
+    800,
+    85
+   ],
+   "advance": 38.8,
+   "advance_at": [
+    800,
+    85
+   ]
+  },
+  "z": {
+   "shape": 0.0646,
+   "shape_at": [
+    900,
+    85
+   ],
+   "advance": 35.3,
+   "advance_at": [
+    900,
+    85
+   ]
+  },
+  "endash": {
+   "shape": 0.0546,
+   "shape_at": [
+    900,
+    85
+   ],
+   "advance": 29.7,
+   "advance_at": [
+    900,
+    85
+   ]
+  },
+  "s": {
+   "shape": 0.0544,
+   "shape_at": [
+    900,
+    85
+   ],
+   "advance": 29.7,
+   "advance_at": [
+    900,
+    85
+   ]
+  },
+  "adieresis": {
+   "shape": 0.0519,
+   "shape_at": [
+    900,
+    85
+   ],
+   "advance": 27.2,
+   "advance_at": [
+    900,
+    85
+   ]
+  },
+  "ydieresis": {
+   "shape": 0.0502,
+   "shape_at": [
+    900,
+    85
+   ],
+   "advance": 27.2,
+   "advance_at": [
+    900,
+    85
+   ]
+  },
+  "atilde": {
+   "shape": 0.0495,
+   "shape_at": [
+    700,
+    85
+   ],
+   "advance": 35.2,
+   "advance_at": [
+    700,
+    85
+   ]
+  },
+  "ntilde": {
+   "shape": 0.049,
+   "shape_at": [
+    700,
+    85
+   ],
+   "advance": 28.8,
+   "advance_at": [
+    800,
+    85
+   ]
+  },
+  "a": {
+   "shape": 0.0424,
+   "shape_at": [
+    900,
+    85
+   ],
+   "advance": 22.7,
+   "advance_at": [
+    900,
+    85
+   ]
+  },
+  "udieresis": {
+   "shape": 0.0387,
+   "shape_at": [
+    900,
+    85
+   ],
+   "advance": 20.2,
+   "advance_at": [
+    900,
+    85
+   ]
+  }
+ },
+ "glyphs": {
+  ".notdef": {
+   "shape": 0.0,
+   "shape_at": null,
+   "advance": 0.3,
+   "advance_at": [
+    800,
+    100
+   ]
+  },
+  "exclam": {
+   "shape": 0.0,
+   "shape_at": null,
+   "advance": 0.4,
+   "advance_at": [
+    400,
+    85
+   ]
+  },
+  "quotedbl": {
+   "shape": 0.0,
+   "shape_at": null,
+   "advance": 0.5,
+   "advance_at": [
+    400,
+    85
+   ]
+  },
+  "numbersign": {
+   "shape": 0.0,
+   "shape_at": null,
+   "advance": 0.5,
+   "advance_at": [
+    100,
+    85
+   ]
+  },
+  "dollar": {
+   "shape": 0.0,
+   "shape_at": null,
+   "advance": 0.3,
+   "advance_at": [
+    100,
+    85
+   ]
+  },
+  "percent": {
+   "shape": 0.0,
+   "shape_at": null,
+   "advance": 0.4,
+   "advance_at": [
+    600,
+    140
+   ]
+  },
+  "ampersand": {
+   "shape": 0.0001,
+   "shape_at": [
+    550,
+    85
+   ],
+   "advance": 0.4,
+   "advance_at": [
+    850,
+    70
+   ]
+  },
+  "quotesingle": {
+   "shape": 0.0,
+   "shape_at": null,
+   "advance": 0.3,
+   "advance_at": [
+    250,
+    85
+   ]
+  },
+  "parenleft": {
+   "shape": 0.0,
+   "shape_at": null,
+   "advance": 0.3,
+   "advance_at": [
+    250,
+    100
+   ]
+  },
+  "parenright": {
+   "shape": 0.0,
+   "shape_at": null,
+   "advance": 0.3,
+   "advance_at": [
+    250,
+    100
+   ]
+  },
+  "asterisk": {
+   "shape": 0.0,
+   "shape_at": null,
+   "advance": 0.4,
+   "advance_at": [
+    300,
+    70
+   ]
+  },
+  "plus": {
+   "shape": 0.0,
+   "shape_at": null,
+   "advance": 0.3,
+   "advance_at": [
+    100,
+    85
+   ]
+  },
+  "comma": {
+   "shape": 0.0,
+   "shape_at": null,
+   "advance": 0.4,
+   "advance_at": [
+    400,
+    85
+   ]
+  },
+  "hyphen": {
+   "shape": 0.0873,
+   "shape_at": [
+    550,
+    85
+   ],
+   "advance": 30.6,
+   "advance_at": [
+    550,
+    85
+   ]
+  },
+  "period": {
+   "shape": 0.0,
+   "shape_at": null,
+   "advance": 0.4,
+   "advance_at": [
+    400,
+    85
+   ]
+  },
+  "slash": {
+   "shape": 0.0352,
+   "shape_at": [
+    900,
+    120
+   ],
+   "advance": 24.7,
+   "advance_at": [
+    900,
+    120
+   ]
+  },
+  "zero": {
+   "shape": 0.0,
+   "shape_at": null,
+   "advance": 0.3,
+   "advance_at": [
+    100,
+    85
+   ]
+  },
+  "one": {
+   "shape": 0.0,
+   "shape_at": null,
+   "advance": 0.3,
+   "advance_at": [
+    100,
+    85
+   ]
+  },
+  "two": {
+   "shape": 0.0,
+   "shape_at": null,
+   "advance": 0.3,
+   "advance_at": [
+    100,
+    85
+   ]
+  },
+  "three": {
+   "shape": 0.0,
+   "shape_at": null,
+   "advance": 0.3,
+   "advance_at": [
+    100,
+    85
+   ]
+  },
+  "four": {
+   "shape": 0.0,
+   "shape_at": null,
+   "advance": 0.3,
+   "advance_at": [
+    100,
+    85
+   ]
+  },
+  "five": {
+   "shape": 0.0,
+   "shape_at": null,
+   "advance": 0.3,
+   "advance_at": [
+    100,
+    85
+   ]
+  },
+  "six": {
+   "shape": 0.0,
+   "shape_at": null,
+   "advance": 0.3,
+   "advance_at": [
+    100,
+    85
+   ]
+  },
+  "seven": {
+   "shape": 0.0,
+   "shape_at": null,
+   "advance": 0.3,
+   "advance_at": [
+    100,
+    85
+   ]
+  },
+  "eight": {
+   "shape": 0.0,
+   "shape_at": null,
+   "advance": 0.3,
+   "advance_at": [
+    100,
+    85
+   ]
+  },
+  "nine": {
+   "shape": 0.0,
+   "shape_at": null,
+   "advance": 0.3,
+   "advance_at": [
+    100,
+    85
+   ]
+  },
+  "colon": {
+   "shape": 0.0,
+   "shape_at": null,
+   "advance": 0.4,
+   "advance_at": [
+    400,
+    85
+   ]
+  },
+  "semicolon": {
+   "shape": 0.0,
+   "shape_at": null,
+   "advance": 0.4,
+   "advance_at": [
+    400,
+    85
+   ]
+  },
+  "less": {
+   "shape": 0.0,
+   "shape_at": null,
+   "advance": 0.3,
+   "advance_at": [
+    100,
+    85
+   ]
+  },
+  "equal": {
+   "shape": 0.0,
+   "shape_at": null,
+   "advance": 0.3,
+   "advance_at": [
+    100,
+    85
+   ]
+  },
+  "greater": {
+   "shape": 0.0,
+   "shape_at": null,
+   "advance": 0.3,
+   "advance_at": [
+    100,
+    85
+   ]
+  },
+  "question": {
+   "shape": 0.0046,
+   "shape_at": [
+    800,
+    85
+   ],
+   "advance": 0.3,
+   "advance_at": [
+    100,
+    120
+   ]
+  },
+  "at": {
+   "shape": 0.0,
+   "shape_at": null,
+   "advance": 0.3,
+   "advance_at": [
+    100,
+    85
+   ]
+  },
+  "A": {
+   "shape": 0.0,
+   "shape_at": null,
+   "advance": 0.3,
+   "advance_at": [
+    100,
+    85
+   ]
+  },
+  "B": {
+   "shape": 0.0,
+   "shape_at": null,
+   "advance": 0.3,
+   "advance_at": [
+    100,
+    85
+   ]
+  },
+  "C": {
+   "shape": 0.0,
+   "shape_at": null,
+   "advance": 0.3,
+   "advance_at": [
+    100,
+    85
+   ]
+  },
+  "D": {
+   "shape": 0.0,
+   "shape_at": null,
+   "advance": 0.3,
+   "advance_at": [
+    100,
+    85
+   ]
+  },
+  "E": {
+   "shape": 0.0156,
+   "shape_at": [
+    850,
+    70
+   ],
+   "advance": 13.3,
+   "advance_at": [
+    850,
+    70
+   ]
+  },
+  "F": {
+   "shape": 0.0173,
+   "shape_at": [
+    900,
+    85
+   ],
+   "advance": 19.2,
+   "advance_at": [
+    900,
+    85
+   ]
+  },
+  "G": {
+   "shape": 0.0,
+   "shape_at": null,
+   "advance": 0.3,
+   "advance_at": [
+    100,
+    85
+   ]
+  },
+  "H": {
+   "shape": 0.0,
+   "shape_at": null,
+   "advance": 0.3,
+   "advance_at": [
+    100,
+    85
+   ]
+  },
+  "I": {
+   "shape": 0.0,
+   "shape_at": null,
+   "advance": 0.3,
+   "advance_at": [
+    250,
+    85
+   ]
+  },
+  "J": {
+   "shape": 0.1111,
+   "shape_at": [
+    900,
+    85
+   ],
+   "advance": 22.7,
+   "advance_at": [
+    900,
+    85
+   ]
+  },
+  "K": {
+   "shape": 0.0,
+   "shape_at": null,
+   "advance": 0.3,
+   "advance_at": [
+    100,
+    85
+   ]
+  },
+  "L": {
+   "shape": 0.0138,
+   "shape_at": [
+    900,
+    85
+   ],
+   "advance": 22.7,
+   "advance_at": [
+    900,
+    85
+   ]
+  },
+  "M": {
+   "shape": 0.0,
+   "shape_at": null,
+   "advance": 0.3,
+   "advance_at": [
+    100,
+    85
+   ]
+  },
+  "N": {
+   "shape": 0.0,
+   "shape_at": null,
+   "advance": 0.3,
+   "advance_at": [
+    100,
+    85
+   ]
+  },
+  "O": {
+   "shape": 0.0,
+   "shape_at": null,
+   "advance": 0.3,
+   "advance_at": [
+    100,
+    85
+   ]
+  },
+  "P": {
+   "shape": 0.0,
+   "shape_at": null,
+   "advance": 0.3,
+   "advance_at": [
+    100,
+    85
+   ]
+  },
+  "Q": {
+   "shape": 0.0,
+   "shape_at": null,
+   "advance": 0.3,
+   "advance_at": [
+    100,
+    85
+   ]
+  },
+  "R": {
+   "shape": 0.0,
+   "shape_at": null,
+   "advance": 0.3,
+   "advance_at": [
+    100,
+    85
+   ]
+  },
+  "S": {
+   "shape": 0.0,
+   "shape_at": null,
+   "advance": 0.3,
+   "advance_at": [
+    100,
+    85
+   ]
+  },
+  "T": {
+   "shape": 0.0,
+   "shape_at": null,
+   "advance": 2.8,
+   "advance_at": [
+    850,
+    70
+   ]
+  },
+  "U": {
+   "shape": 0.0,
+   "shape_at": null,
+   "advance": 0.3,
+   "advance_at": [
+    100,
+    85
+   ]
+  },
+  "V": {
+   "shape": 0.0,
+   "shape_at": null,
+   "advance": 0.3,
+   "advance_at": [
+    100,
+    85
+   ]
+  },
+  "W": {
+   "shape": 0.0002,
+   "shape_at": [
+    900,
+    85
+   ],
+   "advance": 0.3,
+   "advance_at": [
+    100,
+    85
+   ]
+  },
+  "X": {
+   "shape": 0.0,
+   "shape_at": null,
+   "advance": 0.3,
+   "advance_at": [
+    100,
+    85
+   ]
+  },
+  "Y": {
+   "shape": 0.0,
+   "shape_at": null,
+   "advance": 0.3,
+   "advance_at": [
+    100,
+    85
+   ]
+  },
+  "Z": {
+   "shape": 0.0,
+   "shape_at": null,
+   "advance": 0.3,
+   "advance_at": [
+    100,
+    85
+   ]
+  },
+  "bracketleft": {
+   "shape": 0.0,
+   "shape_at": null,
+   "advance": 0.4,
+   "advance_at": [
+    800,
+    100
+   ]
+  },
+  "backslash": {
+   "shape": 0.0,
+   "shape_at": null,
+   "advance": 0.4,
+   "advance_at": [
+    300,
+    70
+   ]
+  },
+  "bracketright": {
+   "shape": 0.0,
+   "shape_at": null,
+   "advance": 0.4,
+   "advance_at": [
+    800,
+    100
+   ]
+  },
+  "asciicircum": {
+   "shape": 0.0,
+   "shape_at": null,
+   "advance": 0.3,
+   "advance_at": [
+    100,
+    85
+   ]
+  },
+  "underscore": {
+   "shape": 0.0,
+   "shape_at": null,
+   "advance": 0.3,
+   "advance_at": [
+    100,
+    120
+   ]
+  },
+  "grave": {
+   "shape": 0.0,
+   "shape_at": null,
+   "advance": 0.3,
+   "advance_at": [
+    400,
+    85
+   ]
+  },
+  "a": {
+   "shape": 0.0424,
+   "shape_at": [
+    900,
+    85
+   ],
+   "advance": 22.7,
+   "advance_at": [
+    900,
+    85
+   ]
+  },
+  "b": {
+   "shape": 0.008,
+   "shape_at": [
+    850,
+    70
+   ],
+   "advance": 13.3,
+   "advance_at": [
+    850,
+    70
+   ]
+  },
+  "c": {
+   "shape": 0.0131,
+   "shape_at": [
+    900,
+    85
+   ],
+   "advance": 22.7,
+   "advance_at": [
+    900,
+    85
+   ]
+  },
+  "d": {
+   "shape": 0.0335,
+   "shape_at": [
+    850,
+    70
+   ],
+   "advance": 13.3,
+   "advance_at": [
+    850,
+    70
+   ]
+  },
+  "e": {
+   "shape": 0.0085,
+   "shape_at": [
+    900,
+    85
+   ],
+   "advance": 15.7,
+   "advance_at": [
+    900,
+    85
+   ]
+  },
+  "f": {
+   "shape": 0.027,
+   "shape_at": [
+    550,
+    85
+   ],
+   "advance": 26.3,
+   "advance_at": [
+    900,
+    120
+   ]
+  },
+  "g": {
+   "shape": 0.0237,
+   "shape_at": [
+    850,
+    70
+   ],
+   "advance": 13.3,
+   "advance_at": [
+    850,
+    70
+   ]
+  },
+  "h": {
+   "shape": 0.0265,
+   "shape_at": [
+    850,
+    70
+   ],
+   "advance": 15.7,
+   "advance_at": [
+    900,
+    85
+   ]
+  },
+  "i": {
+   "shape": 0.0,
+   "shape_at": null,
+   "advance": 0.3,
+   "advance_at": [
+    250,
+    85
+   ]
+  },
+  "j": {
+   "shape": 0.0,
+   "shape_at": null,
+   "advance": 0.3,
+   "advance_at": [
+    250,
+    85
+   ]
+  },
+  "k": {
+   "shape": 0.0099,
+   "shape_at": [
+    900,
+    85
+   ],
+   "advance": 22.7,
+   "advance_at": [
+    900,
+    85
+   ]
+  },
+  "l": {
+   "shape": 0.0,
+   "shape_at": null,
+   "advance": 0.3,
+   "advance_at": [
+    250,
+    85
+   ]
+  },
+  "m": {
+   "shape": 0.0,
+   "shape_at": null,
+   "advance": 0.3,
+   "advance_at": [
+    100,
+    85
+   ]
+  },
+  "n": {
+   "shape": 0.0317,
+   "shape_at": [
+    850,
+    70
+   ],
+   "advance": 15.7,
+   "advance_at": [
+    900,
+    85
+   ]
+  },
+  "o": {
+   "shape": 0.0103,
+   "shape_at": [
+    850,
+    70
+   ],
+   "advance": 13.3,
+   "advance_at": [
+    850,
+    70
+   ]
+  },
+  "p": {
+   "shape": 0.0079,
+   "shape_at": [
+    850,
+    70
+   ],
+   "advance": 13.3,
+   "advance_at": [
+    850,
+    70
+   ]
+  },
+  "q": {
+   "shape": 0.0336,
+   "shape_at": [
+    850,
+    70
+   ],
+   "advance": 13.3,
+   "advance_at": [
+    850,
+    70
+   ]
+  },
+  "r": {
+   "shape": 0.0221,
+   "shape_at": [
+    900,
+    120
+   ],
+   "advance": 26.3,
+   "advance_at": [
+    900,
+    120
+   ]
+  },
+  "s": {
+   "shape": 0.0544,
+   "shape_at": [
+    900,
+    85
+   ],
+   "advance": 29.7,
+   "advance_at": [
+    900,
+    85
+   ]
+  },
+  "t": {
+   "shape": 0.0175,
+   "shape_at": [
+    900,
+    120
+   ],
+   "advance": 26.3,
+   "advance_at": [
+    900,
+    120
+   ]
+  },
+  "u": {
+   "shape": 0.0378,
+   "shape_at": [
+    850,
+    70
+   ],
+   "advance": 15.7,
+   "advance_at": [
+    900,
+    85
+   ]
+  },
+  "v": {
+   "shape": 0.0351,
+   "shape_at": [
+    900,
+    85
+   ],
+   "advance": 22.7,
+   "advance_at": [
+    900,
+    85
+   ]
+  },
+  "w": {
+   "shape": 0.0,
+   "shape_at": null,
+   "advance": 0.3,
+   "advance_at": [
+    100,
+    85
+   ]
+  },
+  "x": {
+   "shape": 0.0255,
+   "shape_at": [
+    900,
+    85
+   ],
+   "advance": 22.7,
+   "advance_at": [
+    900,
+    85
+   ]
+  },
+  "y": {
+   "shape": 0.0266,
+   "shape_at": [
+    900,
+    85
+   ],
+   "advance": 22.7,
+   "advance_at": [
+    900,
+    85
+   ]
+  },
+  "z": {
+   "shape": 0.0646,
+   "shape_at": [
+    900,
+    85
+   ],
+   "advance": 35.3,
+   "advance_at": [
+    900,
+    85
+   ]
+  },
+  "braceleft": {
+   "shape": 0.0,
+   "shape_at": null,
+   "advance": 0.4,
+   "advance_at": [
+    800,
+    100
+   ]
+  },
+  "bar": {
+   "shape": 0.0,
+   "shape_at": null,
+   "advance": 0.3,
+   "advance_at": [
+    250,
+    85
+   ]
+  },
+  "braceright": {
+   "shape": 0.0,
+   "shape_at": null,
+   "advance": 0.4,
+   "advance_at": [
+    800,
+    100
+   ]
+  },
+  "asciitilde": {
+   "shape": 0.0,
+   "shape_at": null,
+   "advance": 0.3,
+   "advance_at": [
+    100,
+    85
+   ]
+  },
+  "exclamdown": {
+   "shape": 0.0,
+   "shape_at": null,
+   "advance": 0.4,
+   "advance_at": [
+    400,
+    85
+   ]
+  },
+  "copyright": {
+   "shape": 0.0,
+   "shape_at": null,
+   "advance": 0.3,
+   "advance_at": [
+    600,
+    140
+   ]
+  },
+  "guillemotleft": {
+   "shape": 0.0,
+   "shape_at": null,
+   "advance": 0.3,
+   "advance_at": [
+    900,
+    85
+   ]
+  },
+  "registered": {
+   "shape": 0.0,
+   "shape_at": null,
+   "advance": 0.3,
+   "advance_at": [
+    600,
+    140
+   ]
+  },
+  "degree": {
+   "shape": 0.0,
+   "shape_at": null,
+   "advance": 0.4,
+   "advance_at": [
+    700,
+    85
+   ]
+  },
+  "periodcentered": {
+   "shape": 0.0,
+   "shape_at": null,
+   "advance": 0.4,
+   "advance_at": [
+    400,
+    85
+   ]
+  },
+  "guillemotright": {
+   "shape": 0.0,
+   "shape_at": null,
+   "advance": 0.3,
+   "advance_at": [
+    900,
+    85
+   ]
+  },
+  "questiondown": {
+   "shape": 0.005,
+   "shape_at": [
+    800,
+    85
+   ],
+   "advance": 0.3,
+   "advance_at": [
+    100,
+    120
+   ]
+  },
+  "AE": {
+   "shape": 0.0,
+   "shape_at": null,
+   "advance": 0.3,
+   "advance_at": [
+    100,
+    85
+   ]
+  },
+  "Eth": {
+   "shape": 0.0,
+   "shape_at": null,
+   "advance": 0.3,
+   "advance_at": [
+    100,
+    85
+   ]
+  },
+  "Oslash": {
+   "shape": 0.0,
+   "shape_at": null,
+   "advance": 0.3,
+   "advance_at": [
+    100,
+    85
+   ]
+  },
+  "Thorn": {
+   "shape": 0.0,
+   "shape_at": null,
+   "advance": 0.3,
+   "advance_at": [
+    100,
+    85
+   ]
+  },
+  "germandbls": {
+   "shape": 0.0,
+   "shape_at": null,
+   "advance": 0.3,
+   "advance_at": [
+    700,
+    85
+   ]
+  },
+  "ae": {
+   "shape": 0.0022,
+   "shape_at": [
+    800,
+    120
+   ],
+   "advance": 0.3,
+   "advance_at": [
+    100,
+    85
+   ]
+  },
+  "eth": {
+   "shape": 0.0,
+   "shape_at": null,
+   "advance": 0.3,
+   "advance_at": [
+    850,
+    70
+   ]
+  },
+  "oslash": {
+   "shape": 0.0,
+   "shape_at": null,
+   "advance": 0.3,
+   "advance_at": [
+    850,
+    70
+   ]
+  },
+  "thorn": {
+   "shape": 0.0,
+   "shape_at": null,
+   "advance": 0.3,
+   "advance_at": [
+    850,
+    70
+   ]
+  },
+  "dotlessi": {
+   "shape": 0.0,
+   "shape_at": null,
+   "advance": 0.3,
+   "advance_at": [
+    250,
+    85
+   ]
+  },
+  "OE": {
+   "shape": 0.0,
+   "shape_at": null,
+   "advance": 0.3,
+   "advance_at": [
+    100,
+    85
+   ]
+  },
+  "oe": {
+   "shape": 0.0,
+   "shape_at": null,
+   "advance": 0.3,
+   "advance_at": [
+    100,
+    85
+   ]
+  },
+  "endash": {
+   "shape": 0.0546,
+   "shape_at": [
+    900,
+    85
+   ],
+   "advance": 29.7,
+   "advance_at": [
+    900,
+    85
+   ]
+  },
+  "emdash": {
+   "shape": 0.0,
+   "shape_at": null,
+   "advance": 0.3,
+   "advance_at": [
+    100,
+    85
+   ]
+  },
+  "quoteleft": {
+   "shape": 0.0,
+   "shape_at": null,
+   "advance": 0.4,
+   "advance_at": [
+    400,
+    85
+   ]
+  },
+  "quoteright": {
+   "shape": 0.0,
+   "shape_at": null,
+   "advance": 0.4,
+   "advance_at": [
+    400,
+    85
+   ]
+  },
+  "quotesinglbase": {
+   "shape": 0.0,
+   "shape_at": null,
+   "advance": 0.4,
+   "advance_at": [
+    400,
+    85
+   ]
+  },
+  "quotedblleft": {
+   "shape": 0.0,
+   "shape_at": null,
+   "advance": 0.4,
+   "advance_at": [
+    900,
+    85
+   ]
+  },
+  "quotedblright": {
+   "shape": 0.0,
+   "shape_at": null,
+   "advance": 0.4,
+   "advance_at": [
+    900,
+    85
+   ]
+  },
+  "quotedblbase": {
+   "shape": 0.0,
+   "shape_at": null,
+   "advance": 0.4,
+   "advance_at": [
+    900,
+    85
+   ]
+  },
+  "bullet": {
+   "shape": 0.0,
+   "shape_at": null,
+   "advance": 0.4,
+   "advance_at": [
+    700,
+    85
+   ]
+  },
+  "ellipsis": {
+   "shape": 0.0,
+   "shape_at": null,
+   "advance": 0.2,
+   "advance_at": [
+    900,
+    85
+   ]
+  },
+  "guilsinglleft": {
+   "shape": 0.0,
+   "shape_at": null,
+   "advance": 0.4,
+   "advance_at": [
+    100,
+    85
+   ]
+  },
+  "guilsinglright": {
+   "shape": 0.0,
+   "shape_at": null,
+   "advance": 0.4,
+   "advance_at": [
+    100,
+    85
+   ]
+  },
+  "Euro": {
+   "shape": 0.0,
+   "shape_at": null,
+   "advance": 0.3,
+   "advance_at": [
+    100,
+    85
+   ]
+  },
+  "rupeeIndian": {
+   "shape": 0.0,
+   "shape_at": null,
+   "advance": 0.3,
+   "advance_at": [
+    100,
+    85
+   ]
+  },
+  "Agrave": {
+   "shape": 0.0,
+   "shape_at": null,
+   "advance": 0.3,
+   "advance_at": [
+    100,
+    85
+   ]
+  },
+  "Aacute": {
+   "shape": 0.0,
+   "shape_at": null,
+   "advance": 0.3,
+   "advance_at": [
+    100,
+    85
+   ]
+  },
+  "Acircumflex": {
+   "shape": 0.0,
+   "shape_at": null,
+   "advance": 0.3,
+   "advance_at": [
+    100,
+    85
+   ]
+  },
+  "Atilde": {
+   "shape": 0.003,
+   "shape_at": [
+    900,
+    85
+   ],
+   "advance": 19.2,
+   "advance_at": [
+    900,
+    85
+   ]
+  },
+  "Adieresis": {
+   "shape": 0.0,
+   "shape_at": null,
+   "advance": 0.3,
+   "advance_at": [
+    100,
+    85
+   ]
+  },
+  "Aring": {
+   "shape": 0.0,
+   "shape_at": null,
+   "advance": 0.3,
+   "advance_at": [
+    100,
+    85
+   ]
+  },
+  "Ccedilla": {
+   "shape": 0.0,
+   "shape_at": null,
+   "advance": 0.3,
+   "advance_at": [
+    100,
+    85
+   ]
+  },
+  "Egrave": {
+   "shape": 0.0139,
+   "shape_at": [
+    850,
+    70
+   ],
+   "advance": 13.3,
+   "advance_at": [
+    850,
+    70
+   ]
+  },
+  "Eacute": {
+   "shape": 0.0139,
+   "shape_at": [
+    850,
+    70
+   ],
+   "advance": 13.3,
+   "advance_at": [
+    850,
+    70
+   ]
+  },
+  "Ecircumflex": {
+   "shape": 0.0131,
+   "shape_at": [
+    850,
+    70
+   ],
+   "advance": 13.3,
+   "advance_at": [
+    850,
+    70
+   ]
+  },
+  "Edieresis": {
+   "shape": 0.0104,
+   "shape_at": [
+    850,
+    70
+   ],
+   "advance": 14.6,
+   "advance_at": [
+    850,
+    70
+   ]
+  },
+  "Igrave": {
+   "shape": 0.0,
+   "shape_at": null,
+   "advance": 0.4,
+   "advance_at": [
+    400,
+    85
+   ]
+  },
+  "Iacute": {
+   "shape": 0.0,
+   "shape_at": null,
+   "advance": 0.4,
+   "advance_at": [
+    400,
+    85
+   ]
+  },
+  "Icircumflex": {
+   "shape": 0.0,
+   "shape_at": null,
+   "advance": 0.5,
+   "advance_at": [
+    900,
+    85
+   ]
+  },
+  "Idieresis": {
+   "shape": 0.0,
+   "shape_at": null,
+   "advance": 0.4,
+   "advance_at": [
+    400,
+    85
+   ]
+  },
+  "Ntilde": {
+   "shape": 0.0214,
+   "shape_at": [
+    900,
+    85
+   ],
+   "advance": 22.7,
+   "advance_at": [
+    900,
+    85
+   ]
+  },
+  "Ograve": {
+   "shape": 0.0,
+   "shape_at": null,
+   "advance": 0.3,
+   "advance_at": [
+    100,
+    85
+   ]
+  },
+  "Oacute": {
+   "shape": 0.0,
+   "shape_at": null,
+   "advance": 0.3,
+   "advance_at": [
+    100,
+    85
+   ]
+  },
+  "Ocircumflex": {
+   "shape": 0.0,
+   "shape_at": null,
+   "advance": 0.3,
+   "advance_at": [
+    100,
+    85
+   ]
+  },
+  "Otilde": {
+   "shape": 0.0,
+   "shape_at": null,
+   "advance": 0.3,
+   "advance_at": [
+    100,
+    85
+   ]
+  },
+  "Odieresis": {
+   "shape": 0.0,
+   "shape_at": null,
+   "advance": 0.3,
+   "advance_at": [
+    100,
+    85
+   ]
+  },
+  "Ugrave": {
+   "shape": 0.0,
+   "shape_at": null,
+   "advance": 0.3,
+   "advance_at": [
+    100,
+    85
+   ]
+  },
+  "Uacute": {
+   "shape": 0.0,
+   "shape_at": null,
+   "advance": 0.3,
+   "advance_at": [
+    100,
+    85
+   ]
+  },
+  "Ucircumflex": {
+   "shape": 0.0,
+   "shape_at": null,
+   "advance": 0.3,
+   "advance_at": [
+    100,
+    85
+   ]
+  },
+  "Udieresis": {
+   "shape": 0.0,
+   "shape_at": null,
+   "advance": 0.3,
+   "advance_at": [
+    100,
+    85
+   ]
+  },
+  "Yacute": {
+   "shape": 0.0,
+   "shape_at": null,
+   "advance": 0.3,
+   "advance_at": [
+    100,
+    85
+   ]
+  },
+  "agrave": {
+   "shape": 0.0357,
+   "shape_at": [
+    900,
+    85
+   ],
+   "advance": 22.7,
+   "advance_at": [
+    900,
+    85
+   ]
+  },
+  "aacute": {
+   "shape": 0.0357,
+   "shape_at": [
+    900,
+    85
+   ],
+   "advance": 22.7,
+   "advance_at": [
+    900,
+    85
+   ]
+  },
+  "acircumflex": {
+   "shape": 0.0324,
+   "shape_at": [
+    900,
+    85
+   ],
+   "advance": 22.7,
+   "advance_at": [
+    900,
+    85
+   ]
+  },
+  "atilde": {
+   "shape": 0.0495,
+   "shape_at": [
+    700,
+    85
+   ],
+   "advance": 35.2,
+   "advance_at": [
+    700,
+    85
+   ]
+  },
+  "adieresis": {
+   "shape": 0.0519,
+   "shape_at": [
+    900,
+    85
+   ],
+   "advance": 27.2,
+   "advance_at": [
+    900,
+    85
+   ]
+  },
+  "aring": {
+   "shape": 0.0325,
+   "shape_at": [
+    900,
+    85
+   ],
+   "advance": 22.7,
+   "advance_at": [
+    900,
+    85
+   ]
+  },
+  "ccedilla": {
+   "shape": 0.018,
+   "shape_at": [
+    900,
+    85
+   ],
+   "advance": 22.7,
+   "advance_at": [
+    900,
+    85
+   ]
+  },
+  "egrave": {
+   "shape": 0.0072,
+   "shape_at": [
+    900,
+    85
+   ],
+   "advance": 15.7,
+   "advance_at": [
+    900,
+    85
+   ]
+  },
+  "eacute": {
+   "shape": 0.0072,
+   "shape_at": [
+    900,
+    85
+   ],
+   "advance": 15.7,
+   "advance_at": [
+    900,
+    85
+   ]
+  },
+  "ecircumflex": {
+   "shape": 0.0065,
+   "shape_at": [
+    900,
+    85
+   ],
+   "advance": 15.7,
+   "advance_at": [
+    900,
+    85
+   ]
+  },
+  "edieresis": {
+   "shape": 0.0165,
+   "shape_at": [
+    900,
+    85
+   ],
+   "advance": 20.2,
+   "advance_at": [
+    900,
+    85
+   ]
+  },
+  "igrave": {
+   "shape": 0.0,
+   "shape_at": null,
+   "advance": 0.5,
+   "advance_at": [
+    900,
+    85
+   ]
+  },
+  "iacute": {
+   "shape": 0.0,
+   "shape_at": null,
+   "advance": 0.5,
+   "advance_at": [
+    900,
+    85
+   ]
+  },
+  "icircumflex": {
+   "shape": 0.0,
+   "shape_at": null,
+   "advance": 0.3,
+   "advance_at": [
+    700,
+    85
+   ]
+  },
+  "idieresis": {
+   "shape": 0.0,
+   "shape_at": null,
+   "advance": 0.4,
+   "advance_at": [
+    400,
+    85
+   ]
+  },
+  "ntilde": {
+   "shape": 0.049,
+   "shape_at": [
+    700,
+    85
+   ],
+   "advance": 28.8,
+   "advance_at": [
+    800,
+    85
+   ]
+  },
+  "ograve": {
+   "shape": 0.0086,
+   "shape_at": [
+    850,
+    70
+   ],
+   "advance": 13.3,
+   "advance_at": [
+    850,
+    70
+   ]
+  },
+  "oacute": {
+   "shape": 0.0086,
+   "shape_at": [
+    850,
+    70
+   ],
+   "advance": 13.3,
+   "advance_at": [
+    850,
+    70
+   ]
+  },
+  "ocircumflex": {
+   "shape": 0.0077,
+   "shape_at": [
+    850,
+    70
+   ],
+   "advance": 13.3,
+   "advance_at": [
+    850,
+    70
+   ]
+  },
+  "otilde": {
+   "shape": 0.066,
+   "shape_at": [
+    800,
+    85
+   ],
+   "advance": 38.8,
+   "advance_at": [
+    800,
+    85
+   ]
+  },
+  "odieresis": {
+   "shape": 0.0123,
+   "shape_at": [
+    850,
+    70
+   ],
+   "advance": 14.6,
+   "advance_at": [
+    850,
+    70
+   ]
+  },
+  "ugrave": {
+   "shape": 0.0319,
+   "shape_at": [
+    850,
+    70
+   ],
+   "advance": 15.7,
+   "advance_at": [
+    900,
+    85
+   ]
+  },
+  "uacute": {
+   "shape": 0.0319,
+   "shape_at": [
+    850,
+    70
+   ],
+   "advance": 15.7,
+   "advance_at": [
+    900,
+    85
+   ]
+  },
+  "ucircumflex": {
+   "shape": 0.0288,
+   "shape_at": [
+    850,
+    70
+   ],
+   "advance": 15.7,
+   "advance_at": [
+    900,
+    85
+   ]
+  },
+  "udieresis": {
+   "shape": 0.0387,
+   "shape_at": [
+    900,
+    85
+   ],
+   "advance": 20.2,
+   "advance_at": [
+    900,
+    85
+   ]
+  },
+  "yacute": {
+   "shape": 0.0226,
+   "shape_at": [
+    900,
+    85
+   ],
+   "advance": 22.7,
+   "advance_at": [
+    900,
+    85
+   ]
+  },
+  "ydieresis": {
+   "shape": 0.0502,
+   "shape_at": [
+    900,
+    85
+   ],
+   "advance": 27.2,
+   "advance_at": [
+    900,
+    85
+   ]
+  },
+  "Ydieresis": {
+   "shape": 0.0,
+   "shape_at": null,
+   "advance": 0.3,
+   "advance_at": [
+    100,
+    85
+   ]
+  }
+ }
+}

@@ -4,7 +4,7 @@ Usage:
     python -m loom.build [--out build]
 
 Writes:
-    build/master/Shuttle-w{W}-d{D}.ufo   12 masters (wght 100, 400, 700, 900 x wdth 70, 100, 140)
+    build/master/Shuttle-wWWW-dDDD.ufo   12 masters (wght 100, 400, 700, 900 x wdth 70, 100, 140)
     build/Shuttle.designspace            axes wght 100-900, wdth 70-140, 13 named instances
     build/static/MachineMadeShuttle-{Style}.ufo   statics, overlaps removed
 
@@ -39,6 +39,7 @@ from ufoLib2.objects import Component
 
 from loom import glyphs as G
 from loom import kerning as K
+from loom import raster as R
 from loom.geom import Canvas, signed_area
 
 FAMILY = "machine-made Shuttle"
@@ -98,7 +99,9 @@ def ps_style(wght: float, wdth: float) -> str:
 
 
 def master_name(wght: float, wdth: float) -> str:
-    return f"Shuttle-w{int(wght)}-d{int(wdth)}"
+    """Zero-padded, so that a sorted file list is in designspace order
+    (varLib.interpolatable compares neighbours in the order it gets)."""
+    return f"Shuttle-w{int(wght):03d}-d{int(wdth):03d}"
 
 
 # ------------------------------------------------------------- outlines
@@ -312,6 +315,23 @@ def master_outline(name: str, wght: float, wdth: float) -> tuple[list, float]:
     return [[(rnd(x), rnd(y), on) for x, y, on in c] for c in cs], rnd(adv)
 
 
+def direct_outline(name: str, wght: float, wdth: float) -> tuple[list, float]:
+    """Return (decomposed contours, advance) straight from the glyph table.
+
+    No masters and no rounding: what the engine draws at this location.
+    tools/drift.py compares this with `interpolated`.
+    """
+    if name in G.COMPOSITES:
+        comps, adv = composite(name, wght, wdth)
+        out = []
+        for base, dx, dy in comps:
+            cs, _ = drawn(base, wght, wdth)
+            out += [[(x + dx, y + dy, on) for x, y, on in c] for c in cs]
+        return out, adv
+    cs, adv = drawn(name, wght, wdth)
+    return [list(c) for c in cs], adv
+
+
 def interpolated(name: str, wght: float, wdth: float) -> tuple[list, float]:
     """Return (contours, advance) of a glyph at any location, from the masters."""
     parts = scalars(wght, wdth)
@@ -357,6 +377,39 @@ def union(contours) -> pathops.Path:
     return path
 
 
+def groups(contours) -> list[list]:
+    """Split loom contours into primitives: a ring outer with its counter."""
+    out = []
+    for c in contours:
+        if signed_area(c) < 0 and out:
+            out[-1].append(c)
+        else:
+            out.append([c])
+    return out
+
+
+def robust_union(contours, reference=None) -> pathops.Path:
+    """Return the union of loom contours, checked against a nonzero fill.
+
+    pathops can drop a piece where two curves nearly coincide (the two
+    rings of S at the spine). When the result differs from the nonzero
+    fill of the raw contours, move each primitive by a tiny step (0.001
+    unit times its index; rounding removes it) and try again. Stop when
+    that fails too.
+    """
+    ref = R.nonzero_mask(contours) if reference is None else reference
+    path = union(contours)
+    if R.mismatch(ref, R.path_mask(path)) == 0:
+        return path
+    for eps in (1e-3, 1e-2):
+        moved = [[(x + eps * k, y + 0.7 * eps * k, on) for x, y, on in c]
+                 for k, grp in enumerate(groups(contours)) for c in grp]
+        path = union(moved)
+        if R.mismatch(ref, R.path_mask(path)) == 0:
+            return path
+    raise SystemExit("Overlap removal failed; the union differs from the nonzero fill.")
+
+
 class _RoundPen:
     """A pen that rounds every point before it reaches the target pen."""
 
@@ -393,11 +446,19 @@ def build_static(wght: float, wdth: float) -> ufoLib2.Font:
         contours, adv = interpolated(name, wght, wdth)
         g.width = rnd(adv)
         if contours:
-            path = union(contours)
-            # Rounding can make a new overlap: simplify again after it.
+            ref = R.nonzero_mask(contours)
+            path = robust_union(contours, ref)
+            # Rounding can make a new overlap: simplify again after it,
+            # unless pathops gets that wrong (then keep the rounded path).
+            rounded = pathops.Path()
+            path.draw(_RoundPen(rounded.getPen()))
             tmp = pathops.Path()
-            path.draw(_RoundPen(tmp.getPen()))
+            rounded.draw(tmp.getPen())
             tmp.simplify(fix_winding=True, keep_starting_points=False, clockwise=False)
+            if R.mismatch(ref, R.path_mask(tmp)) != 0:
+                tmp = rounded
+                if R.mismatch(ref, R.path_mask(tmp)) != 0:
+                    raise SystemExit(f"Glyph {name!r}: rounding after overlap removal changed the shape.")
             tmp.draw(_RoundPen(g.getPen()))
     set_unicodes(font)
     font.groups.update(K.groups())

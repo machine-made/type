@@ -94,7 +94,21 @@ class Glyph:
             return self.stem_width(p)
         if self.kind == "tab":
             return self.base * tab_factor(p.wf)
-        return max(self.base * p.wf, self.floor * p.S)
+        if self.sketch:
+            # The sketch rule: counters scale with the width, with a floor.
+            return max(self.base * p.wf, self.floor * p.S)
+        # Glyphs new in 0.1: W = A * wf + B * S. This is linear in both
+        # axes, so the variable font gives it exactly at every location
+        # (a max() floor would bend between masters). A and B keep the
+        # sketch rule at Regular width 100 and at Black width 70.
+        a, b = self.linear_width()
+        return a * p.wf + b * p.S
+
+    def linear_width(self) -> tuple[float, float]:
+        s_reg, s_black, wf_min = Params(400, 100).S, Params(900, 70).S, 0.7
+        target = max(self.base * wf_min, self.floor * s_black)
+        b = max(0.0, (target - self.base * wf_min) / (s_black - wf_min * s_reg))
+        return self.base - b * s_reg, b
 
 
 GLYPHS: dict[str, Glyph] = {}
@@ -1267,7 +1281,7 @@ def _notdef(g, W):
     g.add(reverse(polygon([(s, s), (W - s, s), (W - s, CAP - s), (s, CAP - s)])))
 
 
-@glyph("space", (0x20, 0xA0), 260)
+@sketch("space", (0x20, 0xA0), 260)
 def _space(g, W):
     pass
 
@@ -1320,8 +1334,8 @@ def _accent(g, kind, case, cx):
         g.rect(cx + gap / 2, base_y, cx + gap / 2 + d, base_y + d)
     elif kind == "tilde":
         ts, tt = S * 0.62, H * 0.55
-        th = (tt + 30 + 0.06 * S) if case == "lc" else (tt + 24 + 0.05 * S)
-        w = 3.8 * ts + 70
+        th = (tt + 20 + 0.04 * S) if case == "lc" else (tt + 16 + 0.03 * S)
+        w = 5.0 * th + 0.4 * ts
         _tilde_shape(g, cx, base_y + th, w, th, ts, tt)
     elif kind == "ring":
         d = (150 + 0.9 * S) if case == "lc" else (130 + 0.8 * S)
