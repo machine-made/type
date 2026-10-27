@@ -12,6 +12,8 @@
   --sans: "mm Sans", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
   --mono: "mm Weft", ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
   --heddle: "mm Heddle", "Helvetica Neue", Arial, sans-serif;
+  --warp: "mm Warp", Georgia, "Times New Roman", serif;
+  --warp-display: "mm Warp Display", "mm Warp", Georgia, serif;
   --step-0: 0.8125rem;
   --step-1: 1rem;
   --step-2: 1.25rem;
@@ -77,6 +79,7 @@ main:focus { outline: none; }
 .weft { font-family: var(--mono); font-feature-settings: normal; }
 .sans { font-family: var(--sans); }
 .heddle { font-family: var(--heddle); font-feature-settings: normal; }
+.warp { font-family: var(--warp); font-feature-settings: normal; }
 
 /* Header */
 .site-head { border-bottom: 1px solid var(--rule); }
@@ -323,6 +326,114 @@ input[type=range] { width: 100%; accent-color: var(--red); margin: 4px 0; min-he
   .parts li:nth-child(n+3) { border-top: 1px solid var(--rule); }
 }
 .heddle-dl-title { font-family: var(--heddle); font-weight: 700; letter-spacing: 0; }
+
+/* Warp: a journal frontispiece, after the approved sketch page. Ivory
+   paper, hairline rules, small capitals, one deep ink blue. Set in Warp. */
+.page-warp {
+  --paper: #F7F2E6;
+  --panel: #EFE8D8;
+  --ink: #1B1712;
+  --muted: #6E6556;
+  --rule: #D8CEBA;
+  --accent: #1E3466;
+}
+@media (prefers-color-scheme: dark) {
+  .page-warp {
+    --paper: #15120E;
+    --panel: #1D1914;
+    --ink: #ECE4D2;
+    --muted: #A39985;
+    --rule: #3A332A;
+    --accent: #AFBEE6;
+  }
+}
+.page-warp main { font-family: var(--warp); font-size: 1.0625rem; line-height: 1.5; }
+.page-warp main h2, .page-warp main h3 { font-family: var(--warp-display); font-weight: 400; letter-spacing: 0; }
+.page-warp main h2 { font-size: clamp(1.75rem, 1.3rem + 1.8vw, 2.5rem); }
+.page-warp main h3 { font-size: 1.375rem; }
+.page-warp main code { font-size: 0.8em; color: var(--muted); }
+.page-warp :focus-visible { outline-color: var(--accent); }
+.page-warp .btn { background: var(--ink); border-color: var(--ink); color: var(--paper); font-family: var(--warp); font-variant-caps: all-small-caps; letter-spacing: 0.08em; font-size: 1.0625rem; padding: 8px 18px; }
+.page-warp .btn:hover, .page-warp .btn-ghost { background: transparent; color: var(--ink); }
+.page-warp .btn-ghost:hover { background: var(--ink); color: var(--paper); }
+.warp-sc { font-variant-caps: all-small-caps; letter-spacing: 0.12em; color: var(--muted); max-width: none; font-variant-numeric: oldstyle-nums; }
+.warp-hero { display: grid; justify-items: center; text-align: center; gap: 10px; padding-block: 44px 52px; border-bottom: 1px solid var(--rule); }
+.warp-title { font-family: var(--warp-display); font-weight: 400; font-size: clamp(5rem, 2rem + 16vw, 13rem); line-height: 0.9; letter-spacing: 0; margin-top: 8px; }
+.warp-rule { display: block; width: 72px; height: 1px; background: var(--accent); margin-block: 14px 6px; }
+.warp-sub { font-family: var(--warp-display); font-style: italic; font-size: clamp(1.375rem, 1rem + 1.6vw, 2.125rem); line-height: 1.2; max-width: none; }
+.warp-ornament { font-size: clamp(1.5rem, 1.1rem + 1.6vw, 2.25rem); font-style: italic; margin-block: 6px; max-width: none; }
+.warp-ornament sup { font-size: 0.6em; }
+.warp-lede { font-size: clamp(1.125rem, 1rem + 0.5vw, 1.3125rem); line-height: 1.5; max-width: 34em; }
+.warp-band { display: grid; gap: 28px; padding-block: 52px; border-bottom: 1px solid var(--rule); }
+.warp-sh { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); gap: 10px 24px; align-items: start; }
+.warp-num { grid-column: 1 / span 3; padding-top: 10px; font-variant-caps: all-small-caps; letter-spacing: 0.12em; color: var(--accent); font-size: 1.125rem; }
+.warp-ttl { grid-column: 4 / span 9; display: grid; gap: 10px; }
+.warp-intro { color: var(--muted); font-style: italic; }
+.warp-body { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); gap: 24px; }
+.warp-main { grid-column: 4 / span 9; min-width: 0; display: grid; gap: 18px; }
+@media (max-width: 760px) {
+  .warp-sh, .warp-body { grid-template-columns: minmax(0, 1fr); }
+  .warp-num, .warp-ttl, .warp-main { grid-column: auto; }
+  .warp-num { padding-top: 0; }
+}
+.warp-play { display: grid; grid-template-columns: 260px minmax(0, 1fr); gap: 36px; align-items: start; }
+@media (max-width: 860px) { .warp-play { grid-template-columns: minmax(0, 1fr); } }
+.warp-controls { display: grid; gap: 16px; padding: 16px 0; border-top: 1px solid var(--ink); border-bottom: 1px solid var(--rule); }
+.warp-field { display: grid; gap: 4px; }
+.warp-field-top { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; }
+.warp-label, .warp-check { font-variant-caps: all-small-caps; letter-spacing: 0.12em; color: var(--muted); font-size: 1.0625rem; }
+.warp-seg { display: flex; flex-wrap: wrap; gap: 4px 14px; }
+.warp-seg button { appearance: none; border: 0; background: none; padding: 2px 0; font: inherit; font-variant-caps: all-small-caps; letter-spacing: 0.1em; color: var(--muted); cursor: pointer; border-bottom: 1px solid transparent; min-height: 32px; }
+.warp-seg button[aria-pressed="true"] { color: var(--ink); border-bottom-color: var(--accent); }
+.page-warp textarea { font: 1rem/1.45 var(--warp); background: transparent; border: 0; border-bottom: 1px solid var(--rule); border-radius: 0; padding: 4px 0 8px; min-height: 64px; }
+.page-warp textarea:focus-visible { outline: none; border-bottom-color: var(--accent); }
+.page-warp input[type=range], .page-warp input[type=checkbox] { accent-color: var(--accent); }
+.warp-checks { display: grid; gap: 6px; }
+.warp-check { display: flex; gap: 8px; align-items: center; }
+.warp-check input { width: 16px; height: 16px; margin: 0; }
+.warp-stage { min-width: 0; padding-block: 12px; border-top: 1px solid var(--rule); border-bottom: 1px solid var(--rule); min-height: 200px; overflow: hidden; }
+.warp-stage-text { font-size: 64px; line-height: 1.12; white-space: pre-wrap; overflow-wrap: anywhere; max-width: none; margin: 0; }
+.w-regular { font-family: var(--warp); font-weight: 400; font-style: normal; }
+.w-italic { font-family: var(--warp); font-weight: 400; font-style: italic; }
+.w-bold { font-family: var(--warp); font-weight: 700; font-style: normal; }
+.w-bolditalic { font-family: var(--warp); font-weight: 700; font-style: italic; }
+.w-display { font-family: var(--warp-display); font-weight: 400; font-style: normal; }
+.warp-paper.w-bolditalic { font-style: normal; }
+.warp-paper.w-bolditalic i { font-style: italic; }
+.warp-paper.w-italic i { font-style: normal; }
+.warp-p { max-width: 36em; hyphens: auto; font-variant-numeric: oldstyle-nums proportional-nums; }
+.warp-p-l { font-size: 1.125rem; line-height: 1.55; }
+.warp-p-s { font-size: 0.9375rem; line-height: 1.5; }
+.warp-p sup, .warp-p sub { font-size: 0.7em; line-height: 0; }
+.warp-scl { font-variant-caps: small-caps; letter-spacing: 0.04em; }
+.warp-rows { display: grid; }
+.warp-row { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); gap: 6px 24px; align-items: baseline; padding-block: 14px; border-top: 1px solid var(--rule); }
+.warp-row:first-child { border-top: 0; }
+.warp-rl { grid-column: 1 / span 3; min-width: 0; font-variant-caps: all-small-caps; letter-spacing: 0.1em; color: var(--muted); }
+.warp-rl code { font-variant-caps: normal; letter-spacing: 0; display: block; }
+.warp-rc { grid-column: 4 / span 9; min-width: 0; overflow-wrap: anywhere; }
+@media (max-width: 760px) {
+  .warp-row { grid-template-columns: minmax(0, 1fr); }
+  .warp-rl, .warp-rc { grid-column: auto; }
+}
+.warp-big { font-size: clamp(1.75rem, 1rem + 3vw, 3.25rem); line-height: 1.15; letter-spacing: 0.01em; }
+.warp-mid { font-size: clamp(1.375rem, 1rem + 1.5vw, 2.25rem); line-height: 1.25; }
+.warp-tnum { font-variant-numeric: lining-nums tabular-nums; }
+.warp-onum { font-variant-numeric: oldstyle-nums; }
+.warp-pnum { font-variant-numeric: lining-nums proportional-nums; }
+.warp-smcp { font-variant-caps: small-caps; }
+.warp-c2sc { font-variant-caps: all-small-caps; letter-spacing: 0.06em; }
+.page-warp .glyph-grid button, .page-warp .glyph-big { font-family: var(--warp); }
+.page-warp .glyph-grid button { font-size: 30px; }
+.page-warp .glyph-group h3 { font-family: var(--warp); font-variant-caps: all-small-caps; text-transform: none; letter-spacing: 0.12em; font-size: 1.0625rem; font-weight: 400; }
+.page-warp .glyph-meta { font-size: 0.9375rem; }
+.page-warp .card h3 { font-family: var(--warp-display); }
+.warp-cta { justify-items: center; text-align: center; }
+.warp-dl-title { font-family: var(--warp-display); font-weight: 400; letter-spacing: 0; }
+.fam-sample.warp { font-family: var(--warp-display); letter-spacing: 0; }
+.fam-text.warp { font-family: var(--warp); font-style: italic; }
+.fam-warp { grid-column: 1 / -1; border-top: 1px solid var(--rule); }
+.fam + .fam.fam-warp { border-left: 0; }
 
 /* Download */
 .page-download h3 { margin-top: 6px; }

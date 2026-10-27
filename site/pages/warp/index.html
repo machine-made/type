@@ -1,0 +1,160 @@
+<!--
+title: machine-made Warp: a Modern serif for science
+description: machine-made Warp 0.1. A Modern serif for papers and maths, drawn by a pen model in code: Regular, Italic, Bold, Bold Italic and Display. Greek, maths symbols, small capitals, old-style figures. Free under the SIL Open Font License.
+nav: warp
+class: page-warp
+preload: warp
+scripts: warp.js
+-->
+<section class="wrap warp-hero" aria-labelledby="warp-h">
+  <p class="warp-sc">machine-made type</p>
+  <h1 id="warp-h" class="warp-title"><span class="visually-hidden">machine-made </span>Warp</h1>
+  <span class="warp-rule" aria-hidden="true"></span>
+  <p class="warp-sub">A Modern serif for science, drawn by a pen</p>
+  <p class="warp-sc">{{WARP_VERSION}} · {{WARP_CHAR_COUNT}} characters · six styles</p>
+  <p class="warp-ornament" aria-label="The Gaussian integral: the integral of e to the minus x squared, dx, equals the square root of pi.">∫ e<sup>−x²</sup> dx = √π</p>
+  <p class="warp-lede">Warp is the fourth machine-made typeface: a Modern with vertical stress, for papers and maths. No outline is drawn by hand. Every letter is a few centre-lines swept by one level pen, and its hairlines, serifs and teardrops all come out of that pen.</p>
+</section>
+
+<section class="wrap warp-band" id="play" aria-labelledby="play-h">
+  <div class="warp-sh">
+    <p class="warp-num">i.</p>
+    <div class="warp-ttl">
+      <h2 id="play-h">Set a line</h2>
+      <p class="warp-intro">Four styles for text at optical size 10, and Display for titles at optical size 60. The switch also sets the paragraph below.</p>
+    </div>
+  </div>
+  <div class="warp-play">
+    <div class="warp-controls">
+      <div class="warp-field">
+        <span class="warp-label" id="style-l">Style</span>
+        <div class="warp-seg" role="group" aria-labelledby="style-l">
+          <button type="button" data-style="regular" aria-pressed="true">Regular</button>
+          <button type="button" data-style="italic" aria-pressed="false">Italic</button>
+          <button type="button" data-style="bold" aria-pressed="false">Bold</button>
+          <button type="button" data-style="bolditalic" aria-pressed="false">Bold Italic</button>
+          <button type="button" data-style="display" aria-pressed="false">Display</button>
+        </div>
+      </div>
+      <div class="warp-field">
+        <label class="warp-label" for="txt">Text</label>
+        <textarea id="txt" spellcheck="false" rows="3">Draw resonance in viscous threads, 1972</textarea>
+      </div>
+      <div class="warp-field">
+        <div class="warp-field-top"><label class="warp-label" for="size">Size</label><output id="size-out" for="size">64 px</output></div>
+        <input type="range" id="size" min="12" max="160" step="1" value="64">
+      </div>
+      <div class="warp-checks">
+        <label class="warp-check"><input type="checkbox" id="onum"> Old-style figures</label>
+        <label class="warp-check"><input type="checkbox" id="smcp"> Small capitals</label>
+      </div>
+    </div>
+    <div class="warp-stage">
+      <p class="warp-stage-text" id="stage-text" aria-live="off">Draw resonance in viscous threads, 1972</p>
+    </div>
+  </div>
+</section>
+
+<section class="wrap warp-band" id="paper" aria-labelledby="paper-h">
+  <div class="warp-sh">
+    <p class="warp-num">ii.</p>
+    <div class="warp-ttl">
+      <h2 id="paper-h">A paragraph from a paper</h2>
+      <p class="warp-intro">Set at 18 px and at 15 px, with old-style figures in the text and the italic for terms.</p>
+    </div>
+  </div>
+  <div class="warp-body">
+    <div class="warp-main warp-paper" id="paper-text">
+      <p class="warp-p warp-p-l"><span class="warp-scl">Abstract.</span> We study the drawing of a thin viscous thread from a heated preform. When the draw ratio exceeds a critical value near 20.2, the steady state loses stability through a Hopf bifurcation and the radius of the fibre oscillates, a regime known as <i>draw resonance</i>. Writing the axial velocity as <i>u</i>(<i>x</i>, <i>t</i>) = <i>U</i>(<i>x</i>) + <i>ε</i> <i>u</i>′(<i>x</i>) e<sup><i>λt</i></sup>, we obtain a linear eigenvalue problem for <i>λ</i>, whose spectrum we compute by Chebyshev collocation on 128 points.</p>
+      <p class="warp-p warp-p-s">The leading mode depends only weakly on the capillary number <i>Ca</i>; inertia and cooling, not surface tension, set the threshold. Above it, the amplitude grows as (<i>D</i> − <i>D</i><sub>c</sub>)<sup>1/2</sup>, which is the signature of a supercritical bifurcation (<span class="warp-scl">Fig. 3</span>, <span class="warp-scl">Table 1</span>). The same scaling holds for drawn glass fibres and for polymer films at Reynolds numbers below 10<sup>−3</sup>.</p>
+    </div>
+  </div>
+</section>
+
+<section class="wrap warp-band" id="greek" aria-labelledby="greek-h">
+  <div class="warp-sh">
+    <p class="warp-num">iii.</p>
+    <div class="warp-ttl">
+      <h2 id="greek-h">Greek</h2>
+      <p class="warp-intro">All 24 capitals, 24 lowercase and the final sigma. Single pen movements, no slab serifs on the lowercase. The capitals that look like Latin ones are the Latin ones.</p>
+    </div>
+  </div>
+  <div class="warp-rows">
+    <div class="warp-row"><span class="warp-rl">Capitals</span><span class="warp-rc warp-big">ΑΒΓΔΕΖΗΘΙΚΛΜΝΞΟΠΡΣΤΥΦΧΨΩ</span></div>
+    <div class="warp-row"><span class="warp-rl">Lowercase</span><span class="warp-rc warp-big">αβγδεζηθικλμνξοπρσςτυφχψω</span></div>
+    <div class="warp-row"><span class="warp-rl">Italic</span><span class="warp-rc warp-big"><i>αβγδεζηθικλμνξοπρσςτυφχψω</i></span></div>
+    <div class="warp-row"><span class="warp-rl">Next to Latin</span><span class="warp-rc warp-big">aα oο uυ vν nη pρ wω</span></div>
+    <div class="warp-row"><span class="warp-rl">Maths</span><span class="warp-rc warp-mid">∂<i>u</i>/∂<i>t</i> + (<i>u</i> · ∇)<i>u</i> = −∇<i>p</i>/<i>ρ</i> + <i>ν</i>∇²<i>u</i> &nbsp; ∑ ∏ ∫ √ ∞ ≤ ≥ ≈ ≡ ∝ ∈ ∉ ⊂ ⊆ ∪ ∩ ∀ ∃ ∅ → ↔</span></div>
+  </div>
+</section>
+
+<section class="wrap warp-band" id="figures" aria-labelledby="figures-h">
+  <div class="warp-sh">
+    <p class="warp-num">iv.</p>
+    <div class="warp-ttl">
+      <h2 id="figures-h">Figures and small capitals</h2>
+      <p class="warp-intro">The default figures are lining and tabular, for tables and papers. Old-style figures are one feature away, as in the sketch. Small capitals are real small capitals: drawn at 1.1 times the x-height, with heavier hairlines.</p>
+    </div>
+  </div>
+  <div class="warp-rows">
+    <div class="warp-row"><span class="warp-rl">Lining, tabular <code>default</code></span><span class="warp-rc warp-mid warp-tnum">0123456789 · 1,204.25 · 2026</span></div>
+    <div class="warp-row"><span class="warp-rl">Old-style <code>onum</code></span><span class="warp-rc warp-mid warp-onum">0123456789 · 1,204.25 · 2026</span></div>
+    <div class="warp-row"><span class="warp-rl">Lining, proportional <code>pnum</code></span><span class="warp-rc warp-mid warp-pnum">0123456789 · 1,204.25 · 2026</span></div>
+    <div class="warp-row"><span class="warp-rl">Small capitals <code>smcp</code></span><span class="warp-rc warp-mid warp-smcp">Figure 3 and Table 1 in Section 4</span></div>
+    <div class="warp-row"><span class="warp-rl">All small capitals <code>c2sc</code></span><span class="warp-rc warp-mid warp-c2sc">NASA, ESA AND CERN</span></div>
+    <div class="warp-row"><span class="warp-rl">Ligatures <code>liga</code></span><span class="warp-rc warp-mid">fibre, flow, effect, office, baffle</span></div>
+  </div>
+</section>
+
+<section class="wrap warp-band" id="glyphs" aria-labelledby="glyphs-h">
+  <div class="warp-sh">
+    <p class="warp-num">v.</p>
+    <div class="warp-ttl">
+      <h2 id="glyphs-h"><span id="glyph-count">{{WARP_CHAR_COUNT}}</span> characters</h2>
+      <p class="warp-intro">Read from the font's character map when the site is built. Select a character to see it large. {{WARP_GLYPH_COUNT}} glyphs in all, with the small capitals, the four figure styles and the ligatures.</p>
+    </div>
+  </div>
+  <div class="glyph-wrap">
+    <div class="glyph-detail" id="glyph-detail" aria-live="polite">
+      <p class="glyph-big warp-glyph" id="glyph-big">a</p>
+      <dl class="glyph-meta">
+        <div><dt>Character</dt><dd id="glyph-name">Latin Small Letter A</dd></div>
+        <div><dt>Unicode</dt><dd id="glyph-u">U+0061</dd></div>
+        <div><dt>Glyph</dt><dd id="glyph-g">a</dd></div>
+      </dl>
+    </div>
+    <div class="glyph-map" id="glyph-map"><p class="muted">Loading the character map.</p></div>
+  </div>
+</section>
+
+<section class="wrap warp-band" id="made" aria-labelledby="made-h">
+  <div class="warp-sh">
+    <p class="warp-num">vi.</p>
+    <div class="warp-ttl">
+      <h2 id="made-h">From a sketch to a font</h2>
+      <p class="warp-intro">Agents write the generator, the tests and the CI. People set the goals and review the proofs.</p>
+    </div>
+  </div>
+  <div class="cards warp-cards">
+    <article class="card">
+      <h3>The pen</h3>
+      <p>A Python port of the approved sketch engine. Each stroke is a centre-line with a pressure per node; a level nib sweeps it. skia-pathops joins the sweep and the loom fits it with a few cubic curves. No outline comes from another font.</p>
+      <p><a href="{{REPO_URL}}/tree/main/warp/loom">Read the loom</a></p>
+    </article>
+    <article class="card">
+      <h3>Proofs</h3>
+      <p>The sketch engine and the font overlaid for every style; every glyph compared with its pen sweep; equations set by the sketch's maths setter with the font's glyphs; an OCR test against DejaVu Serif.</p>
+      <p><a href="{{REPO_URL}}/tree/main/proofs/warp">See the proofs</a></p>
+    </article>
+    <article class="card">
+      <h3>Next</h3>
+      <p>0.2 adds the OpenType MATH table: stretchy delimiters, radicals and big operators drawn by the pen at each size. 0.3 makes Warp a variable font with weight and optical size axes.</p>
+      <p><a href="{{REPO_URL}}/blob/main/warp/STATUS.md">Read the status</a></p>
+    </article>
+  </div>
+</section>
+
+<section class="wrap warp-band warp-cta" aria-labelledby="get-warp-h">
+  <h2 id="get-warp-h">Get Warp 0.1</h2>
+  <p><a class="btn" href="{{WARP_RELEASE}}">Download from GitHub</a> <a class="btn btn-ghost" href="../download/#warp">Install and @font-face</a></p>
+</section>

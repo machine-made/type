@@ -1,6 +1,6 @@
 <!--
-title: machine-made type: Weft, Sans and Heddle
-description: machine-made Weft, a grid-built variable monospace, machine-made Sans, a reading sans, and machine-made Heddle, a Swiss display grotesk. Version 0.1, free under the SIL Open Font License.
+title: machine-made type: Weft, Sans, Heddle and Warp
+description: machine-made Weft, a grid-built variable monospace, machine-made Sans, a reading sans, machine-made Heddle, a Swiss display grotesk, and machine-made Warp, a Modern serif for science. Version 0.1, free under the SIL Open Font License.
 nav: home
 class: page-home
 preload: weft,sans,heddle
@@ -10,10 +10,10 @@ preload: weft,sans,heddle
   <h1 id="home-h" class="visually-hidden">machine-made type</h1>
   <div class="hero-mark">{{WORDMARK}}</div>
   <p class="hero-line">Made by machines. Proven for machines.</p>
-  <p class="lede">Three typeface families, built and checked by code. Free to use under the SIL Open Font License.</p>
+  <p class="lede">Four typeface families, built and checked by code. Free to use under the SIL Open Font License.</p>
 </section>
 
-<section class="wrap families" aria-label="The three families">
+<section class="wrap families" aria-label="The four families">
   <article class="fam fam-weft">
     <header class="fam-head">
       <p class="eyebrow">Monospace · variable · wght {{WEFT_WGHT_RANGE}} · FRAG {{WEFT_FRAG_RANGE}}</p>
@@ -42,6 +42,16 @@ preload: weft,sans,heddle
     <p class="fam-sample heddle" aria-hidden="true">Grotesk 1958</p>
     <p>A Swiss display grotesk for posters, headlines and big figures. Every letter is built from four parts and level cuts. A width axis runs from Compressed to Extended.</p>
     <p class="fam-links"><a class="btn" href="heddle/">See Heddle</a> <a class="btn btn-ghost" href="{{HEDDLE_RELEASE}}">Get Heddle 0.1</a></p>
+  </article>
+  <article class="fam fam-warp">
+    <header class="fam-head">
+      <p class="eyebrow">Modern serif · Regular, Italic, Bold, Bold Italic · Display</p>
+      <h2><a href="warp/">machine-made Warp</a></h2>
+    </header>
+    <p class="fam-sample warp" aria-hidden="true">Warp αβγ ∂∫</p>
+    <p class="fam-text warp">Drawn by a pen, for papers and maths.</p>
+    <p>A Modern serif with vertical stress. Every letter is a few centre-lines swept by one level pen. Full basic Greek, maths symbols, small capitals and old-style figures.</p>
+    <p class="fam-links"><a class="btn" href="warp/">See Warp</a> <a class="btn btn-ghost" href="{{WARP_RELEASE}}">Get Warp 0.1</a></p>
   </article>
 </section>
 
@@ -75,6 +85,7 @@ python tools/proof.py</code></pre>
     <li><span class="fact-k">Weft</span><span class="fact-v">Variable font (wght and FRAG), static Regular and Bold. TTF and WOFF2.</span></li>
     <li><span class="fact-k">Sans</span><span class="fact-v">Variable font (wght), upright and italic. TTF and WOFF2.</span></li>
     <li><span class="fact-k">Heddle</span><span class="fact-v">Variable font (wght and wdth), 11 static weights and widths. TTF and WOFF2.</span></li>
+    <li><span class="fact-k">Warp</span><span class="fact-v">Six static fonts: Regular, Italic, Bold, Bold Italic for text, and Display Regular and Italic. TTF, OTF and WOFF2.</span></li>
     <li><span class="fact-k">Made by</span><span class="fact-v">Agents write the code and the commits. CI builds and checks the fonts.</span></li>
     <li><span class="fact-k">Source</span><span class="fact-v"><a href="{{REPO_URL}}">github.com/machine-made/type</a></span></li>
   </ul>

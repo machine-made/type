@@ -1,6 +1,6 @@
 # machine-made type
 
-Three typefaces made by code, free under the SIL Open Font License.
+Four typefaces made by code, free under the SIL Open Font License.
 
 - **machine-made Weft**: a grid-built monospace. Variable font with a
   weight axis (`wght` 100 to 900) and a fragmentation axis (`FRAG` 0
@@ -15,6 +15,11 @@ Three typefaces made by code, free under the SIL Open Font License.
   100 to 900) and a width axis (`wdth` 70 to 140, Compressed to
   Extended). Every letter is built from four parts (rect, superellipse
   ring, parallelogram, V) and level cuts.
+- **machine-made Warp**: a Modern serif for science, drawn by a pen
+  model: a level nib sweeps a few centre-lines per letter. Regular,
+  Italic, Bold and Bold Italic for text, and **machine-made Warp
+  Display** (Regular, Italic) for titles. Full basic Greek, maths
+  symbols, small capitals, old-style and lining figures.
 
 Specimen site: <https://machine-made.github.io/type/>
 
@@ -25,9 +30,10 @@ Specimen site: <https://machine-made.github.io/type/>
 | machine-made Weft 0.1 | [weft-v0.1.0](https://github.com/machine-made/type/releases/tag/weft-v0.1.0) | Variable TTF, 9 static TTF and OTF, WOFF2, readability report |
 | machine-made Sans 0.1 | [sans-v0.1.0](https://github.com/machine-made/type/releases/tag/sans-v0.1.0) | 2 variable TTF, 14 static TTF and OTF, WOFF2 |
 | machine-made Heddle 0.1 | [heddle-v0.1.0](https://github.com/machine-made/type/releases/tag/heddle-v0.1.0) | Variable TTF, 11 static TTF, WOFF2 |
+| machine-made Warp 0.1 | [warp-v0.1.0](https://github.com/machine-made/type/releases/tag/warp-v0.1.0) | 6 static TTF and OTF (text and Display), WOFF2, readability report |
 
 The same files are in this repository in `fonts/weft/`,
-`fonts/sans/` and `fonts/heddle/`. Each release has build provenance attestations: check a
+`fonts/sans/`, `fonts/heddle/` and `fonts/warp/`. Each release has build provenance attestations: check a
 file with `gh attestation verify FILE --repo machine-made/type`.
 
 ## machine-made Weft
@@ -56,6 +62,19 @@ Width changes the counters, not the stems. The 70 characters of the
 approved sketch match the sketch engine at every corner of the
 designspace (`proofs/heddle/heddle-sketch-vs-font-charset.png`).
 Details: `heddle/RELEASE-NOTES-0.1.md`.
+
+## machine-made Warp
+
+![Warp equations](proofs/warp/warp-equations.png)
+
+Every letter is a few centre-lines with a pressure per node, swept by
+one level nib; the vertical stress, hairlines, serifs and teardrops
+come out of the pen. The font matches the approved sketch engine
+(`proofs/warp/warp-sketch-vs-font-regular.png`), every glyph matches
+its pen sweep (`proofs/warp/fidelity.json`), and an OCR gate compares
+it with DejaVu Serif (`proofs/warp/readability.json`). Statics in 0.1;
+the MATH table is planned for 0.2 and the variable font for 0.3.
+Details: `warp/RELEASE-NOTES-0.1.md`.
 
 ## How to build
 
@@ -101,6 +120,19 @@ python tools/drift.py           # proofs/heddle/drift.json
 python tools/sketch_compare.py  # sketch engine vs font (needs Playwright and Chromium)
 ```
 
+Warp (from `warp/`):
+
+```sh
+cd warp
+python -m pip install -e ".[test]"
+python -m pytest -q             # generator tests (some need node)
+scripts/build.sh                # fonts/warp/{ttf,otf,webfonts}
+scripts/check.sh fontspector    # Fontspector, universal profile
+python tools/fidelity.py --gate     # outlines against the pen sweep
+python tools/readability.py --gate  # OCR gate (needs tesseract-ocr, fonts-dejavu-core)
+python tools/proof.py           # proofs/warp/ (needs node)
+```
+
 Site (from the repository root):
 
 ```sh
@@ -115,17 +147,18 @@ python site/build.py            # site/_site/
 | `weft/` | Weft generator (`loom/`), tools, tests, brief, notes, `OFL.txt` |
 | `sans/` | Sans sources (fork of Plus Jakarta Sans), scripts, tests, upstream credits, notes, `OFL.txt` |
 | `heddle/` | Heddle generator (`loom/`), tools, tests, sketch reference, brief, notes, `OFL.txt` |
+| `warp/` | Warp generator (`loom/`), tools, tests, sketch reference, brief, notes, `OFL.txt` |
 | `site/` | Specimen site generator, pages and assets |
-| `fonts/weft/`, `fonts/sans/`, `fonts/heddle/` | Committed build outputs: `variable/`, `ttf/`, `otf/` (Weft, Sans), `webfonts/` |
-| `proofs/weft/`, `proofs/sans/`, `proofs/heddle/` | Proof sheets, the Weft readability report, the Heddle sketch comparison and drift report |
-| `.github/workflows/` | `weft.yml`, `sans.yml`, `heddle.yml` (checks), `site.yml` (Pages deploy), `release.yml` (releases on tags) |
+| `fonts/weft/`, `fonts/sans/`, `fonts/heddle/`, `fonts/warp/` | Committed build outputs: `variable/`, `ttf/`, `otf/` (Weft, Sans, Warp), `webfonts/` |
+| `proofs/weft/`, `proofs/sans/`, `proofs/heddle/`, `proofs/warp/` | Proof sheets, the Weft and Warp readability reports, the Heddle and Warp sketch comparisons, the Heddle drift report, the Warp fidelity report |
+| `.github/workflows/` | `weft.yml`, `sans.yml`, `heddle.yml`, `warp.yml` (checks), `site.yml` (Pages deploy), `release.yml` (releases on tags) |
 
 ## Licence
 
 - **Fonts**: SIL Open Font License 1.1 with the Reserved Font Name
   "machine-made". Weft: `weft/OFL.txt`. Sans: `sans/OFL.txt`, which
   also keeps the Plus Jakarta Sans copyright line. Heddle:
-  `heddle/OFL.txt`.
+  `heddle/OFL.txt`. Warp: `warp/OFL.txt`.
 - **Code** (generators, scripts, tests, CI, site): Apache-2.0, see
   `LICENSE`.
 
