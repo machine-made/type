@@ -51,12 +51,16 @@ def master_pairs() -> list[tuple[int, int]]:
     return list(itertools.combinations(range(n), 2))
 
 
-def problems(gp: pieces.GlyphPlan, to_font, extra_dy=None) -> list[dict]:
-    """Return the interpolatable problems of one glyph plan."""
+def problems(gp: pieces.GlyphPlan, to_font, extra_dy=None, contours=None) -> list[dict]:
+    """Return the interpolatable problems of one glyph plan.
+
+    contours(gp, w, frag) returns the master contours (default: the plain
+    pieces; the build passes its own function for accents that scale).
+    """
     locs = [(w, f) for w in pieces.W_MASTERS for f in pieces.F_MASTERS]
     sets = []
     for w, f in locs:
-        cs = pieces.glyph_contours(gp, w, f)
+        cs = (contours or pieces.glyph_contours)(gp, w, f)
         dy = extra_dy(w) if extra_dy else 0.0
         sets.append(_GlyphSet({gp.name: _Glyph(
             [[to_font((x, y + dy)) for x, y in c] for c in cs])}))
@@ -69,7 +73,7 @@ def problems(gp: pieces.GlyphPlan, to_font, extra_dy=None) -> list[dict]:
     return out
 
 
-def make_clean(gp: pieces.GlyphPlan, to_font, max_attempts: int = 24) -> int:
+def make_clean(gp: pieces.GlyphPlan, to_font, max_attempts: int = 24, contours=None) -> int:
     """Choose drift values that pass the check. Return the attempt used.
 
     Raise ValueError if no attempt passes.
@@ -79,6 +83,6 @@ def make_clean(gp: pieces.GlyphPlan, to_font, max_attempts: int = 24) -> int:
             raise ValueError(f"Glyph {gp.name!r}: no drift plan passes the interpolation check.")
         if attempt:
             pieces.reroll_drift(gp, attempt)
-        if not problems(gp, to_font):
+        if not problems(gp, to_font, contours=contours):
             return attempt
     raise AssertionError("not reached")

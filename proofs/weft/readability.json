@@ -8,7 +8,7 @@
     24
   ],
   "upscale": 3,
-  "lookalike_text": "5mlg8 I8clO 0dcZr 98nrI Ol0Bg l8n|5\n1l|n| mcr5g S29rn 8OI95 c91Sl 99l9S\nn209r 01ZS2 1mS52 B1|m5 d92IO |9B9Z\nIIr82 mcSB8 In555 1I0gB mcBc| lr|SZ\n2ZlrI d25Id 2ZdO0 l9I0r 92|2| Ignl5\nS0I|5 g5ln0 S0nlg 5lIcZ Bm8mS 90g1B\nlgm|8 S5S19 |9ng5 8d|nB BgBSl 9g88d\nI9gl2 O|08r ||9Ol O2ZB0 nlrdr 051dl",
+  "lookalike_text": "5mlg8 Iq8cl O0dcZ rq98n rIOl0 Bglq8\nn|5q1 l|n|m cr5gS 29rn8 OI95c 91Sl9\nq9l9S n209r 01ZS2 1mS52 B1|m5 qd92I\nOq|9B 9ZIIr 82mcS B8qIn 5551I 0gBmc\nBqc|l r|SZ2 ZlrId 25Id2 ZdO0l 9Iq0r\n92|2| Ignql 5S0I| 5g5ln 0S0nl g5lIc\nZBmq8 mS90g 1Blgm |8S5S 19|9n g58d|\nnBBgB Sl9g8 8dI9g ql2O| 08r|| 9OlO2",
   "weft": {
     "font": "machine-made Weft (variable, wght 400)",
     "paragraph": {
@@ -16,70 +16,90 @@
         "cer_by_px": {
           "16": 0.0034,
           "20": 0.0,
+          "24": 0.0069
+        },
+        "cer_mean": 0.0034
+      },
+      "FRAG 8": {
+        "cer_by_px": {
+          "16": 0.0,
+          "20": 0.0,
           "24": 0.0034
         },
-        "cer_mean": 0.0023
+        "cer_mean": 0.0011
       },
       "FRAG 15": {
         "cer_by_px": {
           "16": 0.0034,
           "20": 0.0,
-          "24": 0.0
+          "24": 0.0034
         },
-        "cer_mean": 0.0011
+        "cer_mean": 0.0023
       },
       "FRAG 50": {
         "cer_by_px": {
-          "16": 0.0552,
-          "20": 0.0207,
-          "24": 0.031
+          "16": 0.0517,
+          "20": 0.0138,
+          "24": 0.0138
         },
-        "cer_mean": 0.0356
+        "cer_mean": 0.0264
       },
       "FRAG 100": {
         "cer_by_px": {
-          "16": 0.3621,
+          "16": 0.3793,
           "20": 0.4172,
-          "24": 0.4552
+          "24": 0.6241
         },
-        "cer_mean": 0.4115
+        "cer_mean": 0.4735
       }
     },
     "lookalikes": {
       "FRAG 0": {
         "cer_by_px": {
-          "20": 0.1417,
-          "24": 0.1167,
-          "32": 0.1125
+          "20": 0.0833,
+          "24": 0.0625,
+          "32": 0.0667
         },
-        "cer": 0.1236,
+        "cer": 0.0708,
         "confusions": {
-          "O->0": 11,
-          "l->1": 11,
-          "0->O": 10,
-          "I->1": 8,
-          "other": 4,
-          "l->I": 3,
-          "5->S": 1,
-          "|->l": 1
+          "other": 11,
+          "O->0": 5,
+          "I->1": 5,
+          "l->1": 4,
+          "0->O": 4,
+          "I->l": 1
+        }
+      },
+      "FRAG 8": {
+        "cer_by_px": {
+          "20": 0.0875,
+          "24": 0.075,
+          "32": 0.075
+        },
+        "cer": 0.0792,
+        "confusions": {
+          "other": 12,
+          "l->1": 8,
+          "O->0": 6,
+          "I->1": 5,
+          "0->O": 4,
+          "I->l": 1
         }
       },
       "FRAG 15": {
         "cer_by_px": {
-          "20": 0.1542,
-          "24": 0.1292,
-          "32": 0.1083
+          "20": 0.0833,
+          "24": 0.0708,
+          "32": 0.0792
         },
-        "cer": 0.1306,
+        "cer": 0.0778,
         "confusions": {
-          "l->1": 16,
-          "O->0": 12,
-          "0->O": 11,
-          "I->1": 10,
-          "other": 6,
-          "l->I": 3,
-          "|->1": 1,
-          "1->l": 1
+          "other": 9,
+          "l->1": 7,
+          "O->0": 6,
+          "I->1": 4,
+          "0->O": 3,
+          "I->l": 1
         }
       }
     }
@@ -99,17 +119,19 @@
     "lookalikes": {
       "static": {
         "cer_by_px": {
-          "20": 0.0833,
-          "24": 0.0667,
-          "32": 0.075
+          "20": 0.0917,
+          "24": 0.0875,
+          "32": 0.0833
         },
-        "cer": 0.075,
+        "cer": 0.0875,
         "confusions": {
           "0->O": 19,
-          "O->0": 12,
-          "l->1": 8,
-          "I->1": 4,
+          "O->0": 9,
+          "l->1": 6,
+          "q->g": 3,
+          "I->1": 3,
           "1->l": 1,
+          "I->l": 1,
           "other": 1
         }
       }
@@ -117,51 +139,79 @@
   },
   "gate": {
     "margin": 0.02,
-    "lookalike_margin": 0.06,
+    "lookalike_margin": 0.0,
     "frag15_margin": 0.02,
     "reference_paragraph_cer": 0.0046,
-    "reference_lookalike_cer": 0.075,
+    "reference_lookalike_cer": 0.0875,
     "checks": [
       {
         "frag": 0,
+        "test": "paragraph",
+        "cer": 0.0034,
+        "limit": 0.0246,
+        "pass": true
+      },
+      {
+        "frag": 0,
+        "test": "lookalikes",
+        "cer": 0.0708,
+        "limit": 0.0875,
+        "pass": true
+      },
+      {
+        "frag": 8,
+        "test": "paragraph",
+        "cer": 0.0011,
+        "limit": 0.0246,
+        "pass": true
+      },
+      {
+        "frag": 8,
+        "test": "lookalikes",
+        "cer": 0.0792,
+        "limit": 0.0875,
+        "pass": true
+      },
+      {
+        "frag": 15,
         "test": "paragraph",
         "cer": 0.0023,
         "limit": 0.0246,
         "pass": true
       },
       {
-        "frag": 0,
+        "frag": 15,
         "test": "lookalikes",
-        "cer": 0.1236,
-        "limit": 0.135,
+        "cer": 0.0778,
+        "limit": 0.0875,
         "pass": true
       },
       {
-        "frag": 15,
-        "test": "paragraph",
+        "frag": 8,
+        "test": "paragraph vs FRAG 0",
         "cer": 0.0011,
-        "limit": 0.0246,
+        "limit": 0.0234,
         "pass": true
       },
       {
-        "frag": 15,
-        "test": "lookalikes",
-        "cer": 0.1306,
-        "limit": 0.135,
+        "frag": 8,
+        "test": "lookalikes vs FRAG 0",
+        "cer": 0.0792,
+        "limit": 0.0908,
         "pass": true
       },
       {
         "frag": 15,
         "test": "paragraph vs FRAG 0",
-        "cer": 0.0011,
-        "limit": 0.0223,
+        "cer": 0.0023,
+        "limit": 0.0234,
         "pass": true
       },
       {
         "frag": 15,
         "test": "lookalikes vs FRAG 0",
-        "cer": 0.1306,
-        "limit": 0.1436,
+        "cer": 0.0778,
+        "limit": 0.0908,
         "pass": true
       }
     ],
