@@ -51,6 +51,7 @@ RELEASES = {
     "weft": REPO_URL + "/releases/tag/weft-v0.1.0",
     "sans": REPO_URL + "/releases/tag/sans-v0.1.0",
     "heddle": REPO_URL + "/releases/tag/heddle-v0.1.0",
+    "warp": REPO_URL + "/releases/tag/warp-v0.1.0",
 }
 
 # Font files per family, in fonts/<family>/webfonts/. Every role is
@@ -85,6 +86,21 @@ FAMILIES = {
         },
         "licence": ROOT / "heddle" / "OFL.txt",
         "planned_axes": {"wght": [100, 400, 900], "wdth": [70, 100, 140]},
+    },
+    # Warp 0.1 is six static fonts; "vf" is the Regular (the pages read
+    # its character map). The variable font is planned for 0.3.
+    "warp": {
+        "dir": ROOT / "fonts" / "warp" / "webfonts",
+        "files": {
+            "vf": "MachineMadeWarp-Regular.woff2",
+            "italic": "MachineMadeWarp-Italic.woff2",
+            "bold": "MachineMadeWarp-Bold.woff2",
+            "bolditalic": "MachineMadeWarp-BoldItalic.woff2",
+            "display": "MachineMadeWarpDisplay-Regular.woff2",
+            "displayitalic": "MachineMadeWarpDisplay-Italic.woff2",
+        },
+        "licence": ROOT / "warp" / "OFL.txt",
+        "planned_axes": {},
     },
 }
 
@@ -165,6 +181,8 @@ def stylistic_sets(font: TTFont) -> dict:
 def char_group(cp: int) -> str:
     ch = chr(cp)
     cat = unicodedata.category(ch)
+    if 0x370 <= cp <= 0x3FF:
+        return "Greek"
     if cp < 0x80:
         if cat == "Lu":
             return "Uppercase"
@@ -181,7 +199,7 @@ def char_group(cp: int) -> str:
 
 
 GROUP_ORDER = ["Uppercase", "Lowercase", "Figures", "Punctuation and symbols",
-               "Accented and other letters", "Other figures", "Other symbols"]
+               "Accented and other letters", "Greek", "Other figures", "Other symbols"]
 
 
 def glyph_map(font: TTFont) -> list:
@@ -432,7 +450,7 @@ def commits(limit: int = 10) -> list:
 # ---------------------------------------------------------------------------
 
 PAGES = ["index.html", "weft/index.html", "sans/index.html", "heddle/index.html",
-         "download/index.html", "404.html"]
+         "warp/index.html", "download/index.html", "404.html"]
 TOKEN = re.compile(r"\{\{\s*([A-Z0-9_]+)\s*\}\}")
 META = re.compile(r"\A<!--(.*?)-->\s*", re.S)
 
@@ -539,6 +557,19 @@ def font_face_css(chosen: dict, info: dict) -> str:
         f"font-weight:{sh_w[0]:g} {sh_w[2]:g};font-stretch:{sh_d[0]:g}% {sh_d[2]:g}%;"
         "font-style:normal;font-display:swap}"
     )
+    # Warp: six static fonts in two families. Text: Regular, Italic, Bold,
+    # Bold Italic (opsz 10). Display: Regular, Italic (opsz 60).
+    wf = chosen["warp"]["files"]
+    for fam_name, role, weight, style in (
+        ("mm Warp", "vf", 400, "normal"), ("mm Warp", "italic", 400, "italic"),
+        ("mm Warp", "bold", 700, "normal"), ("mm Warp", "bolditalic", 700, "italic"),
+        ("mm Warp Display", "display", 400, "normal"), ("mm Warp Display", "displayitalic", 400, "italic"),
+    ):
+        out.append(
+            f"@font-face{{font-family:\"{fam_name}\";"
+            f"src:url(\"../fonts/warp/{url_path(wf[role].name)}\") format(\"woff2\");"
+            f"font-weight:{weight};font-style:{style};font-display:swap}}"
+        )
     # machine-made Sans 0.1 has the straight forms as the default, so no
     # feature is on. The sharp forms are in ss02.
     out.append(":root{--sans-features:normal}")
@@ -591,6 +622,9 @@ def build(out: Path) -> None:
     info["weft"]["commits"] = commits()
     heddle_font = TTFont(chosen["heddle"]["files"]["vf"])
     info["heddle"]["glyphs"] = glyph_map(heddle_font)
+    warp_font = TTFont(chosen["warp"]["files"]["vf"])
+    info["warp"]["glyphs"] = glyph_map(warp_font)
+    info["warp"]["styles"] = {role: "fonts/warp/" + url_path(p.name) for role, p in chosen["warp"]["files"].items()}
     heddle_widths = stat_widths(heddle_font)
     if not heddle_widths:
         raise BuildError("The Heddle font has no wdth values in STAT.")
@@ -598,6 +632,7 @@ def build(out: Path) -> None:
     (out / "data" / "weft.json").write_text(json.dumps(info["weft"], ensure_ascii=False, indent=1), encoding="utf-8")
     (out / "data" / "sans.json").write_text(json.dumps(info["sans"], ensure_ascii=False, indent=1), encoding="utf-8")
     (out / "data" / "heddle.json").write_text(json.dumps(info["heddle"], ensure_ascii=False, indent=1), encoding="utf-8")
+    (out / "data" / "warp.json").write_text(json.dumps(info["warp"], ensure_ascii=False, indent=1), encoding="utf-8")
     (out / "data" / "readability.json").write_text(json.dumps(report, indent=1), encoding="utf-8")
     (out / "assets" / "fonts.css").write_text(font_face_css(chosen, info), encoding="utf-8")
 
@@ -617,6 +652,10 @@ def build(out: Path) -> None:
         "WEFT_RELEASE": RELEASES["weft"],
         "SANS_RELEASE": RELEASES["sans"],
         "HEDDLE_RELEASE": RELEASES["heddle"],
+        "WARP_RELEASE": RELEASES["warp"],
+        "WARP_VERSION": html.escape(short_version(info["warp"])),
+        "WARP_CHAR_COUNT": info["warp"]["char_count"],
+        "WARP_GLYPH_COUNT": info["warp"]["glyph_count"],
         "HEDDLE_VERSION": html.escape(short_version(info["heddle"])),
         "HEDDLE_CHAR_COUNT": info["heddle"]["char_count"],
         "HEDDLE_WGHT_RANGE": fmt_range(heddle_axes.get("wght") or planned_sh["wght"]),
@@ -646,7 +685,7 @@ def build(out: Path) -> None:
         depth = rel.count("/")
         root = "../" * depth if depth else "./"
         nav = {f"NAV_{k}": ' aria-current="page"' if meta.get("nav") == k.lower() else ""
-               for k in ("HOME", "WEFT", "SANS", "HEDDLE", "DOWNLOAD")}
+               for k in ("HOME", "WEFT", "SANS", "HEDDLE", "WARP", "DOWNLOAD")}
         scripts = "".join(f'<script src="{root}assets/{s.strip()}" defer></script>'
                           for s in meta.get("scripts", "").split(",") if s.strip())
         # The 404 page can open at any depth, so it uses absolute paths.
@@ -672,6 +711,7 @@ def build(out: Path) -> None:
         print(f"  {fam}: {sel['files']['vf'].name}, axes {info[fam]['axes'] or 'none'}")
     print(f"  readability: {len(report['rows'])} FRAG rows from {READABILITY.relative_to(ROOT)}")
     print(f"  heddle widths: {', '.join(f'{v:g} {n}' for v, n in heddle_widths)}")
+    print(f"  warp: {len(chosen['warp']['files'])} styles, {info['warp']['char_count']} characters")
 
 
 def main(argv: list[str]) -> int:

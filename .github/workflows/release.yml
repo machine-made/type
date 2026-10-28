@@ -8,6 +8,7 @@ name: release
 #   weft-vX.Y.Z     machine-made Weft
 #   sans-vX.Y.Z     machine-made Sans
 #   heddle-vX.Y.Z  machine-made Heddle
+#   warp-vX.Y.Z     machine-made Warp and machine-made Warp Display
 #   site-vX.Y.Z     the specimen site (zip of site/_site; the live deploy is site.yml)
 # Each job builds again from the tagged commit, fails if the build differs
 # from the committed fonts, runs the checks, makes the zip and the single
@@ -19,11 +20,12 @@ on:
       - "weft-v*"
       - "sans-v*"
       - "heddle-v*"
+      - "warp-v*"
       - "site-v*"
   workflow_dispatch:
     inputs:
       tag:
-        description: "Tag to make and release: weft-vX.Y.Z, sans-vX.Y.Z, heddle-vX.Y.Z or site-vX.Y.Z"
+        description: "Tag to make and release: weft-vX.Y.Z, sans-vX.Y.Z, heddle-vX.Y.Z, warp-vX.Y.Z or site-vX.Y.Z"
         required: true
         type: string
 
@@ -422,6 +424,143 @@ jobs:
             "$OUT/MachineMadeHeddle-Regular.woff2" \
             "$OUT/MachineMadeHeddle-Bold.woff2" \
             "$OUT/MachineMadeHeddle\[wdth,wght\].ttf" \
+            "$OUT/SHA256SUMS"
+
+  warp:
+    if: startsWith(inputs.tag || github.ref_name, 'warp-v')
+    runs-on: ubuntu-24.04
+    timeout-minutes: 40
+    permissions:
+      contents: write
+      id-token: write
+      attestations: write
+    steps:
+      - name: Check out
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Get the version from the tag
+        run: |
+          version="${RELEASE_TAG#warp-v}"
+          if ! [[ "$version" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "::error::Tag ${RELEASE_TAG} is not warp-vX.Y.Z."
+            exit 1
+          fi
+          echo "VERSION=$version" >> "$GITHUB_ENV"
+
+      - name: Set up Python
+        uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
+        with:
+          python-version: "3.14"
+
+      - name: Install dependencies
+        working-directory: warp
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends tesseract-ocr tesseract-ocr-eng fonts-dejavu-core
+          tesseract --version
+          python -m pip install --upgrade pip
+          python -m pip install -e ".[test]"
+          node --version
+
+      - name: Run tests
+        working-directory: warp
+        run: python -m pytest -q
+
+      - name: Build fonts
+        working-directory: warp
+        run: scripts/build.sh
+
+      - name: Check that the build is the same as the committed fonts
+        run: |
+          if [ -n "$(git status --porcelain -- fonts/warp)" ]; then
+            git status --short -- fonts/warp
+            echo "::error::The build differs from the committed fonts/warp. Do not release these files."
+            exit 1
+          fi
+          echo "The build has the same bytes as the committed fonts/warp."
+
+      - name: Check the outlines against the pen sweep
+        working-directory: warp
+        run: python tools/fidelity.py --gate --out "$RUNNER_TEMP/fidelity.json"
+
+      - name: Install Fontspector
+        run: |
+          name="fontspector-${FONTSPECTOR_VERSION}-x86_64-unknown-linux-gnu"
+          curl -sSfL -o "$RUNNER_TEMP/fontspector.tar.gz" \
+            "https://github.com/fonttools/fontspector/releases/download/fontspector-v${FONTSPECTOR_VERSION}/${name}.tar.gz"
+          echo "${FONTSPECTOR_SHA256}  $RUNNER_TEMP/fontspector.tar.gz" | sha256sum --check
+          tar xzf "$RUNNER_TEMP/fontspector.tar.gz" -C "$RUNNER_TEMP"
+          sudo install -m 755 "$RUNNER_TEMP/${name}/fontspector" /usr/local/bin/fontspector
+          fontspector --version
+
+      - name: Check fonts (Fontspector, universal profile)
+        working-directory: warp
+        run: scripts/check.sh fontspector
+
+      - name: Readability gate (Tesseract OCR)
+        working-directory: warp
+        run: |
+          mkdir -p "$OUT"
+          python tools/readability.py --gate --out "$OUT/readability.json"
+
+      - name: Make the release files
+        run: .github/scripts/package_release.sh warp "$VERSION" "$OUT"
+
+      - name: Attest build provenance
+        uses: actions/attest-build-provenance@4d101475d8b20a2381f78447822ac1eab6504dd8 # v4.2.2
+        with:
+          subject-path: |
+            ${{ env.OUT }}/machine-made-warp-*.zip
+            ${{ env.OUT }}/*.woff2
+            ${{ env.OUT }}/*.ttf
+            ${{ env.OUT }}/readability.json
+
+      - name: Make and push the tag (manual run only)
+        if: github.event_name == 'workflow_dispatch'
+        run: |
+          if [ "$GITHUB_REF" != "refs/heads/main" ]; then
+            echo "::error::Run the release from main, not ${GITHUB_REF}."
+            exit 1
+          fi
+          # A tag that exists already is fine when its commit has the same release files
+          # (fonts/warp warp) as this commit: that is a re-run after a failed upload, and the
+          # release goes onto that tag. Any other change needs a new version.
+          existing="$(git ls-remote --tags origin "refs/tags/${RELEASE_TAG}^{}" "refs/tags/${RELEASE_TAG}" | awk '{print $1}' | tail -n 1)"
+          if [ -n "$existing" ]; then
+            git fetch --quiet --depth=1 origin "$existing"
+            if git diff --quiet "$existing" "$GITHUB_SHA" -- fonts/warp warp; then
+              echo "Tag ${RELEASE_TAG} exists already on ${existing} with the same release files. Re-running the release."
+              exit 0
+            fi
+            echo "::error::Tag ${RELEASE_TAG} exists already on ${existing}, and the release files differ. Use a new version."
+            exit 1
+          fi
+          git tag "$RELEASE_TAG" "$GITHUB_SHA"
+          git push origin "refs/tags/${RELEASE_TAG}"
+
+      - name: Create the release
+        # gh reads each file argument as a glob. The Warp file names have no
+        # brackets; any bracket in a future name must be escaped (\[ \]).
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "$RELEASE_TAG" --verify-tag \
+            --title "machine-made Warp ${VERSION}" \
+            --notes-file "warp/RELEASE-NOTES-${VERSION%.*}.md" \
+            "$OUT/machine-made-warp-${VERSION}.zip" \
+            "$OUT/MachineMadeWarp-Regular.woff2" \
+            "$OUT/MachineMadeWarp-Italic.woff2" \
+            "$OUT/MachineMadeWarp-Bold.woff2" \
+            "$OUT/MachineMadeWarp-BoldItalic.woff2" \
+            "$OUT/MachineMadeWarpDisplay-Regular.woff2" \
+            "$OUT/MachineMadeWarpDisplay-Italic.woff2" \
+            "$OUT/MachineMadeWarp-Regular.ttf" \
+            "$OUT/MachineMadeWarp-Italic.ttf" \
+            "$OUT/MachineMadeWarp-Bold.ttf" \
+            "$OUT/MachineMadeWarp-BoldItalic.ttf" \
+            "$OUT/MachineMadeWarpDisplay-Regular.ttf" \
+            "$OUT/MachineMadeWarpDisplay-Italic.ttf" \
+            "$OUT/readability.json" \
             "$OUT/SHA256SUMS"
 
   site:

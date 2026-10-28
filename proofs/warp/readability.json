@@ -1,0 +1,69 @@
+{
+  "about": "OCR character error rate (CER). Lower is better. See warp/tools/readability.py.",
+  "tesseract": "tesseract 5.3.4",
+  "paragraph": "We study the drawing of a thin viscous thread from a heated preform. When the draw ratio exceeds a critical value near 20.2, the steady state loses stability through a Hopf bifurcation and the radius of the fibre oscillates, a regime known as draw resonance. Writing the axial velocity as a base flow plus a small perturbation, we obtain a linear eigenvalue problem, whose spectrum we compute by Chebyshev collocation on 128 points. The leading mode depends only weakly on the capillary number; inertia and cooling, not surface tension, set the threshold.",
+  "sizes_px": [
+    10,
+    12,
+    14
+  ],
+  "upscale": 3,
+  "warp": {
+    "font": "machine-made Warp 0.1 (text, opsz 10)",
+    "Regular": {
+      "cer_by_px": {
+        "10": 0.0342,
+        "12": 0.0198,
+        "14": 0.0162
+      },
+      "cer_mean": 0.0234
+    },
+    "Italic": {
+      "cer_by_px": {
+        "10": 0.0486,
+        "12": 0.0036,
+        "14": 0.0054
+      },
+      "cer_mean": 0.0192
+    }
+  },
+  "reference": {
+    "font": "DejaVu Serif (Book, Italic)",
+    "Regular": {
+      "cer_by_px": {
+        "10": 0.0,
+        "12": 0.0,
+        "14": 0.0036
+      },
+      "cer_mean": 0.0012
+    },
+    "Italic": {
+      "cer_by_px": {
+        "10": 0.0,
+        "12": 0.0,
+        "14": 0.0
+      },
+      "cer_mean": 0.0
+    }
+  },
+  "gate": {
+    "margin": 0.03,
+    "checks": [
+      {
+        "style": "Regular",
+        "cer": 0.0234,
+        "reference_cer": 0.0012,
+        "limit": 0.0312,
+        "pass": true
+      },
+      {
+        "style": "Italic",
+        "cer": 0.0192,
+        "reference_cer": 0.0,
+        "limit": 0.03,
+        "pass": true
+      }
+    ],
+    "pass": true
+  }
+}

@@ -6,17 +6,34 @@
 | House | machine-made |
 | Line | identity |
 | Visibility | public after the 0.1 release (founder approved) |
-| Stage | released 0.1: machine-made Weft 0.1.0, machine-made Sans 0.1.0, specimen site 0.1.0. machine-made Heddle 0.1 built in PR #4 |
-| Gate now | Heddle: Jac reviews and merges PR #4; the founder reviews the proofs; then the tags `heddle-v0.1.0` and a new `site-v*` |
-| Next task | Heddle 0.2 (see `heddle/STATUS.md`). Weft: polish (look-alikes l/1, I/1, O/0; heavy accented capitals), width axis, Thread style. Sans 0.2: redraw in the style of Weft and match Weft's x-height (see `sans/STATUS.md`). npm packages for both families. |
+| Stage | released 0.1: machine-made Weft 0.1.0, machine-made Sans 0.1.0, specimen site 0.1.0, machine-made Heddle 0.1.0. machine-made Warp 0.1 built on branch `warp/v0.1` |
+| Gate now | Warp: Jac reviews the PR from `warp/v0.1`; the founder reviews the proofs; then the tags `warp-v0.1.0` and a new `site-v*` |
+| Next task | Warp 0.2: the OpenType MATH table; Warp 0.3: the variable font (see `warp/STATUS.md`). Heddle 0.2 (see `heddle/STATUS.md`). Weft: polish (look-alikes l/1, I/1, O/0; heavy accented capitals), width axis, Thread style. Sans 0.2: redraw in the style of Weft and match Weft's x-height (see `sans/STATUS.md`). npm packages for both families. |
 | Blocked by | none |
 | Last green CI | none yet (first runs are on the release PR). Local end-to-end run of all steps on 2026-10-26: green |
 | Owner model | to assign |
 
 Family notes: `weft/STATUS.md`, `sans/STATUS.md`,
-`heddle/STATUS.md`. Changes: `CHANGELOG.md`.
+`heddle/STATUS.md`, `warp/STATUS.md`. Changes: `CHANGELOG.md`.
 
 ## Proven (local run, 2026-10-27)
+
+### Warp 0.1
+
+- 44 pytest tests pass (one runs the sketch engine in node and compares
+  advances and ink bounds with the port).
+- The build is byte-reproducible: a fresh build equals the committed
+  `fonts/warp/`.
+- Fontspector 1.9.0, universal profile: 0 FAIL, 0 ERROR on 6 TTF and 6
+  OTF (accepted WARNs in `warp/STATUS.md`).
+- Every glyph matches its pen sweep within 5 % of the ink
+  (`proofs/warp/fidelity.json`; largest 4.7 %).
+- OCR gate (Tesseract 5.3.4, 10/12/14 px): Regular CER 2.3 %, Italic
+  1.9 %; DejaVu Serif 0.1 % and 0 %. Gate (reference plus 3 points)
+  passes. See `warp/STATUS.md`, "Readability".
+- The site builds with the Warp page; no console errors, no failed or
+  external requests, no horizontal scroll at 360 px; all six Warp
+  styles load.
 
 ### Heddle 0.1
 
@@ -106,5 +123,11 @@ Family notes: `weft/STATUS.md`, `sans/STATUS.md`,
 - **Heddle CI has not run on GitHub.** `heddle.yml` and the
   `heddle` release job ran only as local copies of their steps
   (Python 3.13 locally, 3.14 in CI).
+- **Warp name.** Several display faces are named "Warp" (Intellecta
+  Design 2007, Tilt Warp). Warp ships only as "machine-made Warp" and
+  "machine-made Warp Display". Web search only. See `warp/BRIEF.md`.
+- **Warp CI has not run on GitHub.** `warp.yml` and the `warp` release
+  job ran only as local copies of their steps (Python 3.13 locally,
+  3.14 in CI). The OCR numbers can move with another Tesseract build.
 - **Fontspector network checks** (`fontdata_namecheck` and others) do
   not run (`--skip-network`).

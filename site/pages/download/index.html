@@ -1,6 +1,6 @@
 <!--
 title: Download and install machine-made type
-description: Download machine-made Weft 0.1, machine-made Sans 0.1 and machine-made Heddle 0.1 from GitHub, copy the @font-face CSS, and read the licence.
+description: Download machine-made Weft 0.1, machine-made Sans 0.1, machine-made Heddle 0.1 and machine-made Warp 0.1 from GitHub, copy the @font-face CSS, and read the licence.
 nav: download
 class: page-download
 preload: sans
@@ -106,6 +106,64 @@ h1, .poster {
 }</code></pre>
   </div>
   <p class="note">Heddle is a display face: use it at 24 px and up. For a static font, use <code>MachineMadeHeddle-Regular.woff2</code> with <code>font-weight: 400</code>, and <code>MachineMadeHeddle-Bold.woff2</code> with <code>font-weight: 700</code>.</p>
+</section>
+
+<section class="wrap band" id="warp" aria-labelledby="dl-warp-h">
+  <div class="sec-head">
+    <p class="eyebrow">Modern serif</p>
+    <h2 id="dl-warp-h" class="warp-dl-title">machine-made Warp 0.1</h2>
+  </div>
+  <p><a class="btn" href="{{WARP_RELEASE}}">Download Warp 0.1 from GitHub</a></p>
+  <h3>On your computer</h3>
+  <p>Install the six TTF or OTF files: machine-made Warp Regular, Italic, Bold and Bold Italic for text, and machine-made Warp Display Regular and Italic for titles. They show as two families.</p>
+  <h3>On the web</h3>
+  <div class="snippet">
+    <button class="btn btn-small copy" type="button" data-copy="css-warp">Copy</button>
+<pre id="css-warp"><code>@font-face {
+  font-family: "machine-made Warp";
+  src: url("/fonts/MachineMadeWarp-Regular.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "machine-made Warp";
+  src: url("/fonts/MachineMadeWarp-Italic.woff2") format("woff2");
+  font-weight: 400;
+  font-style: italic;
+  font-display: swap;
+}
+@font-face {
+  font-family: "machine-made Warp";
+  src: url("/fonts/MachineMadeWarp-Bold.woff2") format("woff2");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "machine-made Warp";
+  src: url("/fonts/MachineMadeWarp-BoldItalic.woff2") format("woff2");
+  font-weight: 700;
+  font-style: italic;
+  font-display: swap;
+}
+@font-face {
+  font-family: "machine-made Warp Display";
+  src: url("/fonts/MachineMadeWarpDisplay-Regular.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+body {
+  font-family: "machine-made Warp", Georgia, serif;
+  font-variant-numeric: oldstyle-nums; /* optional: the default figures are lining and tabular */
+}
+h1 {
+  font-family: "machine-made Warp Display", Georgia, serif;
+}</code></pre>
+  </div>
+  <p class="note">The text styles are drawn for 9 to 12 pt; use Display at 24 px and up. Small capitals: <code>font-variant-caps: small-caps</code>. The Display Italic file is <code>MachineMadeWarpDisplay-Italic.woff2</code>.</p>
 </section>
 
 <section class="wrap band" id="npm" aria-labelledby="npm-h">

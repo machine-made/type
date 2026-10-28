@@ -5,8 +5,21 @@ Each family keeps its own changelog:
 - machine-made Weft: [`weft/CHANGELOG.md`](weft/CHANGELOG.md)
 - machine-made Sans: [`sans/CHANGELOG.md`](sans/CHANGELOG.md)
 - machine-made Heddle: [`heddle/CHANGELOG.md`](heddle/CHANGELOG.md)
+- machine-made Warp: [`warp/CHANGELOG.md`](warp/CHANGELOG.md)
 
-Release tags: `weft-vX.Y.Z`, `sans-vX.Y.Z`, `heddle-vX.Y.Z`, `site-vX.Y.Z`.
+Release tags: `weft-vX.Y.Z`, `sans-vX.Y.Z`, `heddle-vX.Y.Z`, `warp-vX.Y.Z`, `site-vX.Y.Z`.
+
+## 2026-10-27: Warp 0.1
+
+- machine-made Warp 0.1.0 (font version 0.100): machine-made Warp
+  Regular, Italic, Bold, Bold Italic and machine-made Warp Display
+  Regular, Italic. See `warp/CHANGELOG.md`.
+- Add `.github/workflows/warp.yml` (tests, build, byte check, fidelity
+  report, OCR gate, Fontspector, proofs) and a `warp` job in
+  `release.yml` for `warp-v*` tags. `package_release.sh` packs Warp.
+- Site: add the Warp page (style switch, a paragraph from a paper,
+  Greek, figures and small caps, equations, glyph map), Warp on the
+  home and download pages, and Warp in the nav.
 
 ## 2026-10-27: Heddle 0.1
 

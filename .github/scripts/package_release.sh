@@ -1,14 +1,14 @@
 #!/usr/bin/env bash
 # Make the release files for one family or for the site.
-# Usage: .github/scripts/package_release.sh weft|sans|heddle|site VERSION OUT_DIR
+# Usage: .github/scripts/package_release.sh weft|sans|heddle|warp|site VERSION OUT_DIR
 #   VERSION is the version from the tag, for example 0.1.0.
 #   OUT_DIR receives the zip file and the single files to attach.
 # Run from the repository root, after the build and the checks.
-# For weft, OUT_DIR/readability.json must exist already (the release
-# workflow writes it with weft/tools/readability.py --gate).
+# For weft and warp, OUT_DIR/readability.json must exist already (the
+# release workflow writes it with <family>/tools/readability.py --gate).
 set -euo pipefail
 
-fam="${1:?family: weft, sans, heddle or site}"
+fam="${1:?family: weft, sans, heddle, warp or site}"
 version="${2:?version, for example 0.1.0}"
 out="${3:?output folder}"
 mkdir -p "$out"
@@ -135,6 +135,37 @@ case "$fam" in
        fonts/heddle/webfonts/MachineMadeHeddle-Bold.woff2 \
        "fonts/heddle/variable/MachineMadeHeddle[wdth,wght].ttf" "$out/"
     ;;
+  warp)
+    name="machine-made-warp-${version}"
+    need fonts/warp/ttf/MachineMadeWarp-Regular.ttf fonts/warp/ttf/MachineMadeWarp-Italic.ttf \
+         fonts/warp/ttf/MachineMadeWarp-Bold.ttf fonts/warp/ttf/MachineMadeWarp-BoldItalic.ttf \
+         fonts/warp/ttf/MachineMadeWarpDisplay-Regular.ttf fonts/warp/ttf/MachineMadeWarpDisplay-Italic.ttf \
+         fonts/warp/otf/MachineMadeWarp-Regular.otf fonts/warp/webfonts/MachineMadeWarp-Regular.woff2 \
+         warp/OFL.txt "warp/RELEASE-NOTES-${notes_version}.md" "$out/readability.json"
+    mkdir -p "$stage/$name"
+    cp -r fonts/warp/ttf fonts/warp/otf fonts/warp/webfonts "$stage/$name/"
+    cp warp/OFL.txt "$stage/$name/OFL.txt"
+    cp "warp/RELEASE-NOTES-${notes_version}.md" "$stage/$name/RELEASE-NOTES.md"
+    cp "$out/readability.json" "$stage/$name/readability.json"
+    {
+      echo "# machine-made Warp ${version}"
+      echo
+      echo "A Modern serif for science, drawn by a pen model in code."
+      echo "machine-made Warp: Regular, Italic, Bold, Bold Italic (text, opsz 10)."
+      echo "machine-made Warp Display: Regular, Italic (titles, opsz 60)."
+      echo
+      echo "- ttf/, otf/: the six static fonts"
+      echo "- webfonts/: WOFF2 of the six fonts"
+      echo "- readability.json: the OCR readability report of this release"
+      echo "- RELEASE-NOTES.md: what is in this release"
+      echo
+      echo "Licence: SIL Open Font License 1.1, Reserved Font Name \"machine-made\" (OFL.txt)."
+      echo "Source: https://github.com/machine-made/type"
+      echo "Specimen: https://machine-made.github.io/type/warp/"
+    } > "$stage/$name/README.md"
+    make_zip "$stage" "$out/$name.zip"
+    cp fonts/warp/webfonts/*.woff2 fonts/warp/ttf/*.ttf "$out/"
+    ;;
   site)
     name="machine-made-type-site-${version}"
     need site/_site/index.html site/_site/data/readability.json
@@ -143,7 +174,7 @@ case "$fam" in
     make_zip "$stage" "$out/$name.zip"
     ;;
   *)
-    echo "error: unknown family $fam (use weft, sans, heddle or site)." >&2
+    echo "error: unknown family $fam (use weft, sans, heddle, warp or site)." >&2
     exit 1
     ;;
 esac
