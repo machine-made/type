@@ -1,0 +1,119 @@
+{
+  "about": "OCR character error rate (CER), lower is better. Heddle is a display face: this stops regressions; it is not a text-face gate. See heddle/tools/readability.py.",
+  "tesseract": "tesseract 5.3.4",
+  "paragraph": "Swiss posters of 1958 set big words in tight grotesks. Heddle builds every letter from four parts: rect, ring, slant and vee. Quick zebras jump over the lazy dog; 27 boxes of 64 jugs weigh 3,590 kg.",
+  "sizes_px": [
+    24,
+    32,
+    48
+  ],
+  "heddle": {
+    "font": "machine-made Heddle 0.2 (static TTF)",
+    "Regular": {
+      "cer_by_px": {
+        "24": 0.0051,
+        "32": 0.0,
+        "48": 0.0
+      },
+      "cer_mean": 0.0017
+    },
+    "Bold": {
+      "cer_by_px": {
+        "24": 0.0,
+        "32": 0.0,
+        "48": 0.0051
+      },
+      "cer_mean": 0.0017
+    },
+    "Black": {
+      "cer_by_px": {
+        "24": 0.0,
+        "32": 0.0,
+        "48": 0.0
+      },
+      "cer_mean": 0.0
+    }
+  },
+  "reference": {
+    "font": "DejaVu Sans (Book; Bold for Bold and Black)",
+    "Regular": {
+      "cer_by_px": {
+        "24": 0.0,
+        "32": 0.0,
+        "48": 0.0051
+      },
+      "cer_mean": 0.0017
+    },
+    "Bold": {
+      "cer_by_px": {
+        "24": 0.0,
+        "32": 0.0,
+        "48": 0.0
+      },
+      "cer_mean": 0.0
+    },
+    "Black": {
+      "cer_by_px": {
+        "24": 0.0,
+        "32": 0.0,
+        "48": 0.0
+      },
+      "cer_mean": 0.0
+    }
+  },
+  "gate": {
+    "margin_over_baseline": 0.01,
+    "margin_over_reference": 0.05,
+    "checks": [
+      {
+        "style": "Regular",
+        "cer": 0.0017,
+        "against": "baseline",
+        "limit": 0.01,
+        "pass": true
+      },
+      {
+        "style": "Bold",
+        "cer": 0.0017,
+        "against": "baseline",
+        "limit": 0.0134,
+        "pass": true
+      },
+      {
+        "style": "Black",
+        "cer": 0.0,
+        "against": "baseline",
+        "limit": 0.01,
+        "pass": true
+      }
+    ],
+    "pass": true
+  },
+  "before": {
+    "font": "Heddle 0.1",
+    "Regular": {
+      "cer_by_px": {
+        "24": 0.0,
+        "32": 0.0,
+        "48": 0.0
+      },
+      "cer_mean": 0.0
+    },
+    "Bold": {
+      "cer_by_px": {
+        "24": 0.0,
+        "32": 0.0051,
+        "48": 0.0051
+      },
+      "cer_mean": 0.0034
+    },
+    "Black": {
+      "cer_by_px": {
+        "24": 0.0,
+        "32": 0.0,
+        "48": 0.0
+      },
+      "cer_mean": 0.0
+    }
+  }
+}

@@ -1,6 +1,6 @@
 [project]
 name = "heddle-loom"
-version = "0.1.0"
+version = "0.2.0"
 description = "Generator for the machine-made Heddle typeface."
 requires-python = ">=3.13"
 license = "Apache-2.0"
@@ -12,6 +12,7 @@ dependencies = [
     "pillow==13.0.0",
     "munkres==1.1.4",
     "brotli==1.2.1",
+    "ttfautohint-py==0.6.1",
 ]
 
 [project.optional-dependencies]
