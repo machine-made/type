@@ -1,0 +1,94 @@
+{
+  "about": "OCR character error rate (CER). Lower is better. See sans/scripts/readability.py.",
+  "tesseract": "tesseract 5.3.4",
+  "paragraph": "Machines read the same text many times, and people read it once. A quick brown fox jumps over the lazy dog near 1,250 metres; the jury quizzed six vexed workers about the 0.37 ratio and the 48 hour delay. Writing a function f(x) = 9y + 2z, we find that the error falls by half when the grid doubles. Illegible pairs such as Il1, O0, rn and m, cl and d must stay clear at small sizes, so the counters keep open.",
+  "sizes_px": [
+    10,
+    12,
+    14
+  ],
+  "upscale": 3,
+  "sans": {
+    "font": "machine-made Sans 0.2 (hinted static TTF)",
+    "Regular": {
+      "cer_by_px": {
+        "10": 0.0537,
+        "12": 0.0268,
+        "14": 0.0244
+      },
+      "cer_mean": 0.035
+    },
+    "Italic": {
+      "cer_by_px": {
+        "10": 0.0634,
+        "12": 0.0415,
+        "14": 0.0268
+      },
+      "cer_mean": 0.0439
+    }
+  },
+  "before": {
+    "font": "machine-made Sans 0.1 (hinted static TTF)",
+    "Regular": {
+      "cer_by_px": {
+        "10": 0.0537,
+        "12": 0.0268,
+        "14": 0.0244
+      },
+      "cer_mean": 0.035
+    },
+    "Italic": {
+      "cer_by_px": {
+        "10": 0.0634,
+        "12": 0.0415,
+        "14": 0.0268
+      },
+      "cer_mean": 0.0439
+    }
+  },
+  "reference": {
+    "font": "DejaVu Sans (Book, Oblique)",
+    "Regular": {
+      "cer_by_px": {
+        "10": 0.0122,
+        "12": 0.0024,
+        "14": 0.0073
+      },
+      "cer_mean": 0.0073
+    },
+    "Italic": {
+      "cer_by_px": {
+        "10": 0.0244,
+        "12": 0.0024,
+        "14": 0.0049
+      },
+      "cer_mean": 0.0106
+    }
+  },
+  "gate": {
+    "baseline": {
+      "Regular": 0.035,
+      "Italic": 0.0439
+    },
+    "noise": 0.005,
+    "checks": [
+      {
+        "style": "Regular",
+        "cer": 0.035,
+        "reference_cer": 0.0073,
+        "limit": 0.04,
+        "pass": true,
+        "before_cer": 0.035
+      },
+      {
+        "style": "Italic",
+        "cer": 0.0439,
+        "reference_cer": 0.0106,
+        "limit": 0.0489,
+        "pass": true,
+        "before_cer": 0.0439
+      }
+    ],
+    "pass": true
+  }
+}

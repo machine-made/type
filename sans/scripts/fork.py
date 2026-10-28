@@ -33,11 +33,12 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
+import extend  # noqa: E402
 import glyphsfmt  # noqa: E402
 
 FAMILY = "machine-made Sans"
 PS_FAMILY = "MachineMadeSans"
-VERSION = (0, 100)
+VERSION = (0, 200)
 UPSTREAM_COPYRIGHT = (
     "Copyright 2020 The Plus Jakarta Sans Project Authors "
     "(https://github.com/tokotype/PlusJakartaSans)"
@@ -86,6 +87,8 @@ SOURCES = {
     "PlusJakartaSans.glyphs": "MachineMadeSans.glyphs",
     "PlusJakartaSans-Italic.glyphs": "MachineMadeSans-Italic.glyphs",
 }
+
+UPRIGHT, ITALIC = SOURCES
 
 SUB_RE = re.compile(r"sub (\S+) by (\S+);")
 TOKEN_RE = re.compile(r"[A-Za-z0-9_.@]+")
@@ -605,7 +608,34 @@ def fix_zero_scale(font: dict) -> list:
 # --------------------------------------------------------------------------
 
 
-def fork(src: Path, dst: Path, skip_forms: bool) -> list:
+def copy_stems(upright: dict, italic: dict) -> None:
+    """Give the upright source the stem values of the italic source.
+
+    Upstream defines stems (for PostScript hinting) only in the italic
+    source. The italic is the upright slanted by a horizontal shear,
+    which keeps horizontal distances, so the stem widths are the same.
+    The OTF autohinter (otfautohint) needs them in the CFF Private dict.
+    """
+    if "stems" in upright or "stems" not in italic:
+        return
+    stems = copy.deepcopy(italic["stems"])
+    by_weight = {tuple(m["axesValues"]): m for m in italic["fontMaster"]}
+    for m in upright["fontMaster"]:
+        src = by_weight.get(tuple(m["axesValues"]))
+        if src is None or "stemValues" not in src:
+            raise ForkError(f"No italic stem values for the master at {m['axesValues']}.")
+        m["stemValues"] = list(src["stemValues"])
+    # Glyphs writes "stems" just before "unitsPerEm".
+    items = list(upright.items())
+    upright.clear()
+    for k, v in items:
+        if k == "unitsPerEm":
+            upright["stems"] = stems
+        if k != "stems":
+            upright[k] = v
+
+
+def fork_font(src: Path, skip_forms: bool) -> tuple[dict, str, list]:
     text = src.read_text(encoding="utf-8")
     font = glyphsfmt.loads(text)
     italic = "Italic" in src.name
@@ -619,8 +649,189 @@ def fork(src: Path, dst: Path, skip_forms: bool) -> list:
         report.append(("scale", name, "removed scale (0,0)", ""))
     if not skip_forms:
         apply_forms(font, report)
-    dst.write_text(glyphsfmt.dumps(font, text), encoding="utf-8")
-    return report
+    return font, text, report
+
+
+# --------------------------------------------------------------------------
+# Kerning (0.2)
+# --------------------------------------------------------------------------
+
+# Kerning exceptions found with scripts/kernaudit.py (see sans/STATUS.md).
+# Each pair touched or overlapped in at least one master. The value is
+# the kerning in each master (wght 200, 400, 800) that leaves at least
+# 20 units between the inks; in the other masters it keeps the old
+# value. A left key "@MMK_L_x" is the right side group x, a right key
+# "@MMK_R_x" the left side group x; other keys are glyph names.
+KERN_FIXES: dict[str, dict[tuple[str, str], tuple[int, int, int]]] = {
+    "upright": {
+        ("@MMK_L_E", "yukrcyr"): (0, 5, 60),
+        ("@MMK_L_F", "ibreve"): (40, 60, 85),
+        ("@MMK_L_F", "icircumflex"): (40, 60, 100),
+        ("@MMK_L_F", "idblgrave"): (50, 80, 145),
+        ("@MMK_L_F", "igrave"): (0, 5, 25),
+        ("@MMK_L_F", "iinvertedbreve"): (40, 60, 105),
+        ("@MMK_L_F", "itilde"): (20, 50, 100),
+        ("@MMK_L_K", "yukrcyr"): (0, 10, 60),
+        ("@MMK_L_P", "iinvertedbreve"): (0, 0, 50),
+        ("@MMK_L_P", "itilde"): (0, 0, 40),
+        ("@MMK_L_T", "idblgrave"): (75, 100, 145),
+        ("@MMK_L_T", "igrave"): (0, 25, 25),
+        ("@MMK_L_T", "itilde"): (40, 70, 100),
+        ("@MMK_L_T", "yukrcyr"): (0, 35, 70),
+        ("@MMK_L_W", "idblgrave"): (70, 100, 140),
+        ("@MMK_L_W", "igrave"): (0, 25, 20),
+        ("@MMK_L_W", "itilde"): (25, 50, 85),
+        ("@MMK_L_Y", "idblgrave"): (70, 100, 140),
+        ("@MMK_L_Y", "igrave"): (0, 25, 20),
+        ("@MMK_L_Y", "itilde"): (15, 40, 80),
+        ("@MMK_L_f", "idblgrave"): (60, 80, 140),
+        ("@MMK_L_f", "igrave"): (-10, 5, 20),
+        ("@MMK_L_f", "itilde"): (10, 40, 90),
+        ("@MMK_L_j", "idblgrave"): (40, 70, 100),
+        ("@MMK_L_j", "itilde"): (0, 5, 60),
+        ("Gecyr", "yukrcyr"): (0, 35, 70),
+        ("Hacyr", "yukrcyr"): (0, 20, 70),
+        ("Lcaron", "@MMK_R_T"): (-60, -60, 25),
+        ("Lcaron", "@MMK_R_W"): (-70, -70, 25),
+        ("Lcaron", "@MMK_R_Y"): (-90, -90, 25),
+        ("Lcaron", "V"): (-70, -70, 25),
+        ("Lcaron", "X"): (0, 0, 25),
+        ("Ucyr", "yukrcyr"): (0, 30, 70),
+        ("V", "idblgrave"): (70, 100, 140),
+        ("V", "igrave"): (0, 25, 20),
+        ("V", "itilde"): (25, 45, 85),
+        ("Zhecyr", "yukrcyr"): (0, 10, 60),
+        ("dcaron", "idblgrave"): (65, 85, 135),
+        ("dcaron", "itilde"): (20, 30, 65),
+        ("geupcyr", "yukrcyr"): (0, 35, 70),
+        ("lcaron", "idblgrave"): (65, 85, 135),
+        ("lcaron", "itilde"): (20, 30, 65),
+        ("tcaron", "idblgrave"): (60, 95, 145),
+        ("tcaron", "igrave"): (0, 20, 25),
+        ("tcaron", "itilde"): (15, 40, 75),
+        ("yukrcyr", "djecyr"): (20, 50, 85),
+        ("yukrcyr", "tshecyr"): (20, 50, 85),
+    },
+    "italic": {
+        ("@MMK_L_E", "yukrcyr"): (0, 5, 60),
+        ("@MMK_L_F", "idblgrave"): (50, 75, 145),
+        ("@MMK_L_K", "yukrcyr"): (0, 10, 60),
+        ("@MMK_L_P", "icircumflex"): (0, 10, 55),
+        ("@MMK_L_P", "iinvertedbreve"): (0, 0, 35),
+        ("@MMK_L_P", "itilde"): (0, 0, 30),
+        ("@MMK_L_T", "idblgrave"): (75, 100, 145),
+        ("@MMK_L_T", "igrave"): (0, 25, 20),
+        ("@MMK_L_T", "yukrcyr"): (0, 35, 70),
+        ("@MMK_L_W", "idblgrave"): (75, 100, 140),
+        ("@MMK_L_W", "igrave"): (0, 25, 20),
+        ("@MMK_L_Y", "idblgrave"): (70, 95, 140),
+        ("@MMK_L_Y", "rcaron"): (-65, -45, -65),
+        ("@MMK_L_f", "idblgrave"): (60, 75, 130),
+        ("Gecyr", "yukrcyr"): (0, 40, 70),
+        ("Hacyr", "yukrcyr"): (0, 20, 65),
+        ("Lcaron", "@MMK_R_T"): (-60, -60, 25),
+        ("Lcaron", "@MMK_R_W"): (-70, -70, 25),
+        ("Lcaron", "@MMK_R_Y"): (-90, -90, 25),
+        ("Lcaron", "V"): (-70, -70, 25),
+        ("Ucyr", "yukrcyr"): (0, 35, 70),
+        ("V", "idblgrave"): (70, 100, 140),
+        ("V", "igrave"): (0, 25, 20),
+        ("Zhecyr", "yukrcyr"): (0, 10, 60),
+        ("dcaron", "idblgrave"): (60, 85, 135),
+        ("geupcyr", "yukrcyr"): (0, 35, 70),
+        ("lcaron", "idblgrave"): (60, 85, 135),
+        ("tcaron", "idblgrave"): (70, 95, 145),
+        ("tcaron", "igrave"): (0, 20, 25),
+        ("yukrcyr", "djecyr"): (20, 50, 85),
+        ("yukrcyr", "tshecyr"): (20, 50, 85),
+    },
+}
+
+MARK_SUFFIX = "comb"
+
+
+def _layers_by_master(font: dict, glyph: dict) -> list[dict]:
+    ids = {m["id"] for m in font["fontMaster"]}
+    return [l for l in glyph["layers"] if l["layerId"] in ids]
+
+
+def cyrillic_kerning_groups(font: dict, report: list) -> None:
+    """Give Cyrillic look-alikes the kerning groups of their Latin base.
+
+    A Cyrillic glyph that is one Latin glyph (Cyrillic A = A) or a Latin
+    glyph with marks (yo = e with dieresis) draws the same outline as
+    that Latin glyph, so it kerns with the same groups. Upstream gives the
+    Cyrillic no groups, so Cyrillic text had no kerning.
+    """
+    left_key, right_key = extend.group_keys(font)
+    glyphs = {g["glyphname"]: g for g in font["glyphs"]}
+
+    def latin_base(name: str, depth: int = 0) -> str | None:
+        g = glyphs[name]
+        if depth > 4:
+            return None
+        if not extend.is_cyrillic(g):
+            return name if g.get(left_key) or g.get(right_key) else None
+        layers = _layers_by_master(font, g)
+        bases = set()
+        for layer in layers:
+            shapes = layer.get("shapes", [])
+            if not shapes or any("ref" not in s for s in shapes):
+                return None
+            first, rest = shapes[0], shapes[1:]
+            if first.get("pos") or first.get("scale") or first.get("angle"):
+                return None
+            if any(not s["ref"].endswith(MARK_SUFFIX) for s in rest):
+                return None
+            bases.add(first["ref"])
+        if len(bases) != 1:
+            return None
+        return latin_base(bases.pop(), depth + 1)
+
+    for g in font["glyphs"]:
+        if not extend.is_cyrillic(g) or g.get(left_key) or g.get(right_key):
+            continue
+        base = latin_base(g["glyphname"])
+        if base is None:
+            continue
+        b = glyphs[base]
+        for key in (left_key, right_key):
+            if b.get(key):
+                g[key] = b[key]
+        ordered = extend.sorted_glyph(g)
+        g.clear()
+        g.update(ordered)
+        report.append(("kern-group", g["glyphname"], base, ""))
+
+
+def apply_kern_fixes(font: dict, style: str) -> None:
+    table_key = "kerningLTR" if extend.italic_style(font) else "kerning"
+    kerning = font.setdefault(table_key, {})
+    masters = sorted(font["fontMaster"], key=lambda m: m["axesValues"][0])
+    if [m["axesValues"][0] for m in masters] != [200, 400, 800]:
+        raise ForkError("Kerning fixes expect masters at wght 200, 400 and 800.")
+    for (left, right), values in KERN_FIXES[style].items():
+        for master, value in zip(masters, values):
+            row = kerning.setdefault(master["id"], {}).setdefault(left, {})
+            row[right] = value
+
+
+def extend_fonts(upright: dict, italic: dict, report_up: list, report_it: list) -> None:
+    """Glyphs added in 0.2 (see extend.py)."""
+    try:
+        for font in (upright, italic):
+            extend.make_longs(font)
+            extend.make_napostrophe(font)
+        extend.add_italic_cyrillic(italic, upright, report_it)
+    except extend.ExtendError as e:
+        raise ForkError(str(e)) from e
+    copy_stems(upright, italic)
+    cyrillic_kerning_groups(upright, report_up)
+    cyrillic_kerning_groups(italic, report_it)
+    apply_kern_fixes(upright, "upright")
+    apply_kern_fixes(italic, "italic")
+    report_up += [("added", "longs", "", ""), ("added", "napostrophe", "", "")]
+    report_it += [("added", "longs", "", ""), ("added", "napostrophe", "", "")]
 
 
 def main(argv=None) -> int:
@@ -632,12 +843,19 @@ def main(argv=None) -> int:
     args = ap.parse_args(argv)
     args.out.mkdir(parents=True, exist_ok=True)
     rows = []
+    done = {}
+    try:
+        for up in SOURCES:
+            done[up] = fork_font(args.upstream / up, args.skip_forms)
+        (upright, up_text, rep_up), (italic, it_text, rep_it) = done[UPRIGHT], done[ITALIC]
+        if not args.skip_forms:
+            extend_fonts(upright, italic, rep_up, rep_it)
+    except ForkError as e:
+        print(f"error: {e}", file=sys.stderr)
+        return 1
     for up, mine in SOURCES.items():
-        try:
-            rep = fork(args.upstream / up, args.out / mine, args.skip_forms)
-        except ForkError as e:
-            print(f"error: {up}: {e}", file=sys.stderr)
-            return 1
+        font, text, rep = done[up]
+        (args.out / mine).write_text(glyphsfmt.dumps(font, text), encoding="utf-8")
         rows += [(mine,) + r for r in rep]
     if args.report:
         lines = ["source\tkind\tglyph\tdetail\tmore"]

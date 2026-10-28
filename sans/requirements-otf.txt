@@ -1,0 +1,7 @@
+# OTF hinting for machine-made Sans: otfautohint from afdko.
+# afdko 5.0.1 has wheels up to Python 3.13 only, so install this file in
+# its own Python 3.13 environment and put its otfautohint on PATH:
+#   python3.13 -m venv .venv-otf && .venv-otf/bin/pip install -r sans/requirements-otf.txt
+#   ln -s "$PWD/.venv-otf/bin/otfautohint" ~/.local/bin/otfautohint
+afdko==5.0.1
+fonttools==4.67.0

@@ -38,17 +38,28 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
         with:
-          python-version: "3.14"
+          # 3.13 for afdko (otfautohint), which has no 3.14 wheel; 3.14 (the
+          # last one) is the default python.
+          python-version: |
+            3.13
+            3.14
 
-      - name: Install system libraries for text shaping in proofs
+      - name: Install system libraries for text shaping in proofs, and Tesseract
         run: |
           sudo apt-get update
-          sudo apt-get install -y --no-install-recommends libraqm0 libfribidi0
+          sudo apt-get install -y --no-install-recommends libraqm0 libfribidi0 \
+            tesseract-ocr tesseract-ocr-eng fonts-dejavu-core
 
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
           python -m pip install -r sans/requirements.txt
+          # otfautohint in its own Python 3.13 environment; only the command goes on PATH.
+          python3.13 -m venv "$RUNNER_TEMP/otf"
+          "$RUNNER_TEMP/otf/bin/python" -m pip install -r sans/requirements-otf.txt
+          mkdir -p "$RUNNER_TEMP/otf-bin"
+          ln -s "$RUNNER_TEMP/otf/bin/otfautohint" "$RUNNER_TEMP/otf-bin/otfautohint"
+          echo "$RUNNER_TEMP/otf-bin" >> "$GITHUB_PATH"
 
       - name: Get the upstream sources at the pinned commit
         run: |
@@ -70,6 +81,9 @@ jobs:
 
       - name: Run tests
         run: python -m pytest -q sans/tests
+
+      - name: Readability gate (Tesseract OCR)
+        run: python sans/scripts/readability.py --gate --out build/sans/readability.json
 
       - name: Install Fontspector
         run: |
@@ -101,5 +115,6 @@ jobs:
           path: |
             fonts/sans/
             build/sans/proofs/
+            build/sans/readability.json
             reports/sans/
           if-no-files-found: warn
