@@ -420,6 +420,7 @@ input[type=range] { width: 100%; accent-color: var(--red); margin: 4px 0; min-he
 .warp-mid { font-size: clamp(1.375rem, 1rem + 1.5vw, 2.25rem); line-height: 1.25; }
 .warp-tnum { font-variant-numeric: lining-nums tabular-nums; }
 .warp-onum { font-variant-numeric: oldstyle-nums; }
+.warp-frac { font-variant-numeric: diagonal-fractions; }
 .warp-pnum { font-variant-numeric: lining-nums proportional-nums; }
 .warp-smcp { font-variant-caps: small-caps; }
 .warp-c2sc { font-variant-caps: all-small-caps; letter-spacing: 0.06em; }

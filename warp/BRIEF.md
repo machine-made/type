@@ -138,7 +138,18 @@ space). 314 drawn glyphs, 114 composites.
 | Figures | lining tabular (default), lining proportional (`.lf`), old-style proportional (`.osf`), old-style tabular (`.tosf`), superiors and two denominators for ¹ ² ³ ¼ ½ ¾ |
 | Small capitals | a–z, the accented lowercase, `æ œ ø ð þ` and the Greek lowercase (`.sc`) |
 
-The OpenType MATH table is planned for 0.2.
+0.2 adds: Latin Extended-A (U+0100 to U+017F) and Ș ș Ț ț, Greek tonos
+and dialytika, ‰ † ‡ ℓ ℎ ℏ ‖ ⟨ ⟩, superior and inferior figures, the
+mathematical italic letters, and the size variants and assembly parts
+of the MATH table (`loom/latin_ext.py`, `loom/mathglyphs.py`).
+
+## MATH table (0.2)
+
+`loom/mathtable.py` writes it, `tools/finish.py` adds it to every font.
+Axis 250; rule thickness = the rule pen (Rw); scripts 70 % and 50 %;
+four size variants for ( ) [ ] { } | ‖ ⟨ ⟩ √ ∫ ∑ ∏; assemblies for
+( ) [ ] { } | ‖ √ ∫; italic corrections and top accent positions. See
+`STATUS.md`.
 
 ## OpenType features
 
@@ -149,7 +160,8 @@ The OpenType MATH table is planned for 0.2.
 | `onum`, `lnum`, `pnum`, `tnum` | figures; default lining tabular; `onum` gives the sketch's old-style figures, proportional |
 | `smcp`, `c2sc` | small capitals (ß becomes two small-cap S) |
 | `kern` | class kerning (see below) |
-| `mark`, `mkmk` | marks on base letters and on marks, from anchors |
+| `mark`, `mkmk` | marks on base letters and on marks, from anchors (ogonek: its own anchor) |
+| `sups`, `subs`, `sinf`, `numr`, `dnom`, `frac` | superior and inferior figures, numerators, denominators, fractions (0.2) |
 
 Kerning starts from the sketch's table (To Te Ta Tr Ty TA T. Av Aw AV
 AT AY A' Va Ve Vo Ya Yo LT LV LY L' P. P, F. r. f' quotes and others)

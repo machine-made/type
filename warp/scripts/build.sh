@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Build Warp 0.1: six static styles as UFO, then TTF, OTF and WOFF2.
+# Build Warp 0.2: six static styles as UFO, then TTF (hinted), OTF and WOFF2.
 # Usage: warp/scripts/build.sh (from any directory)
 set -euo pipefail
 WARP="$(cd "$(dirname "$0")/.." && pwd)"
@@ -18,5 +18,12 @@ mkdir -p "$OUT/ttf" "$OUT/otf" "$OUT/webfonts"
 # The loom writes overlap-free outlines already: keep them as they are.
 fontmake -u build/ufo/*.ufo -o ttf --keep-overlaps --output-dir "$OUT/ttf"
 fontmake -u build/ufo/*.ufo -o otf --keep-overlaps --output-dir "$OUT/otf"
+# Hint the TTF with ttfautohint (pinned in pyproject.toml as ttfautohint-py).
+# --no-info keeps the version string; finish.py then resets head.modified
+# from SOURCE_DATE_EPOCH, so the hinted files are the same on every build.
+for f in "$OUT"/ttf/*.ttf; do
+  python -m ttfautohint --no-info "$f" "$f.hinted"
+  mv "$f.hinted" "$f"
+done
 python tools/finish.py --static "$OUT"/ttf/*.ttf "$OUT"/otf/*.otf
 python tools/finish.py --woff2-dir "$OUT/webfonts" --woff2 "$OUT"/ttf/*.ttf

@@ -37,9 +37,11 @@ from loom import engine as E
 from loom import features as F
 from loom import kerning as K
 from loom import outline as O
+from loom import revisions as RV
+from loom.latin_ext import OGONEK, mathit_def
 from loom.sketch import G, GI
 
-VERSION = (0, 100)  # 0.100: Warp 0.1
+VERSION = (0, 200)  # 0.200: Warp 0.2
 COPYRIGHT = "Copyright 2026 The machine-made Warp Project Authors (https://github.com/machine-made/type)"
 LICENSE_DESCRIPTION = (
     "This Font Software is licensed under the SIL Open Font License, "
@@ -163,6 +165,46 @@ def table_def(key: str, ital: bool):
     return (GI.get(key) if ital else None) or G[key]
 
 
+# Italic counterpart of each style (for the mathematical italic letters).
+ITALIC_OF = {"Regular": "Italic", "Bold": "BoldItalic", "Display": "DisplayItalic",
+             "Italic": "Italic", "BoldItalic": "BoldItalic", "DisplayItalic": "DisplayItalic"}
+
+
+def mathit_key(key: str) -> str:
+    """The drawing of a mathematical italic letter: Greek look-alikes use the Latin drawing."""
+    if key == "ο":
+        return "o"
+    return CS.GREEK_LOOKALIKE.get(key, key)
+
+
+# Glyphs that get the ogonek: the inset of its anchor from the right foot
+# (design units), or None for the middle of the foot.
+OGONEK_BASES = {"A": 100, "a": 34, "E": 125, "e": 60, "I": None, "i": None, "U": 135, "u": 58}
+
+
+def ink_bounds(contours) -> tuple[float, float, float, float]:
+    xs, ys = [], []
+    for c in contours:
+        for s in c:
+            pts = [s[1], s[2]] if s[0] == "line" else list(s[1])
+            for q in pts:
+                xs.append(float(q[0])); ys.append(float(q[1]))
+    if not xs:
+        return 0.0, 0.0, 0.0, 0.0
+    return min(xs), max(xs), min(ys), max(ys)
+
+
+def band_xmax(d, lo: float, hi: float) -> float | None:
+    """Rightmost ink of a drawn glyph between heights lo and hi (font coordinates)."""
+    xs = [x + d.dx for poly in d.sweep.polys for x, y in poly if lo <= y <= hi]
+    return max(xs) if xs else None
+
+
+def band_xmin(d, lo: float, hi: float) -> float | None:
+    xs = [x + d.dx for poly in d.sweep.polys for x, y in poly if lo <= y <= hi]
+    return min(xs) if xs else None
+
+
 def band_center(sw: E.Swept, lo: float, hi: float) -> float | None:
     xs = []
     for poly in sw.polys:
@@ -181,16 +223,32 @@ def drawn(style_key: str, name: str) -> Drawn:
     gl = CS.BY_NAME[name]
     if gl.variant == "notdef":
         return notdef(p)
+    if gl.variant == "mathit":
+        key = mathit_key(gl.key)
+        d = mathit_def(key)
+        mods = {}
+        if d.cap and key not in GI:
+            mods = {"p": {"bk": 0}}
+        return _finish(style_key, gl, p, d, mods)
     d = table_def(gl.key, p.ital)
     mods = variant_mods(gl, p)
-    if p.ital and d.cap and gl.key not in GI:
+    return _finish(style_key, gl, p, d, mods)
+
+
+def _finish(style_key: str, gl, p, d, mods) -> Drawn:
+    if p.ital and d.cap and gl.key not in GI and gl.variant != "mathit":
         # Italic capitals without their own form are the roman ones,
         # slanted, with unbracketed serifs (as in Didone italics).
         mods = dict(mods)
         mods["p"] = {**mods.get("p", {}), "bk": 0}
     sw = E.compose(d, p, mods)
     adv, dx = sw.adv, sw.dx
-    if gl.variant is None and E.is_greek_lower(gl.key):
+    if isinstance(sw.ret, dict) and "dx" in sw.ret:
+        # assembly parts: a placement shared by all parts of one assembly
+        adv, dx = sw.ret["adv"], sw.ret["dx"]
+    if gl.key == " ":
+        adv = RV.word_space(p)
+    if gl.variant in (None, "mathit") and E.is_greek_lower(gl.key):
         adv += p.sb * 0.5
         dx += p.sb * 0.25
     if gl.category == "mark":
@@ -229,31 +287,136 @@ def notdef(p: E.Params) -> Drawn:
 
 def component_offsets(style_key: str, gl: CS.Glyph) -> tuple[list, float]:
     """[(component, dx, dy)] and the advance of a composite glyph."""
+    from loom.extended import BELOW
     st = STYLES[style_key]
     p = st.p()
-    if gl.comp_kind == "ref":
-        b = drawn(style_key, gl.comps[0])
-        return [(gl.comps[0], 0, 0)], b.adv
-    if gl.comp_kind == "greek-ref":
+    kind = gl.comp_kind
+    if kind == "ref":
+        b = drawn_or_comp_adv(style_key, gl.comps[0])
+        return [(gl.comps[0], 0, 0)], b
+    if kind == "greek-ref":
         b = drawn(style_key, gl.comps[0])
         return [(gl.comps[0], p.sb * 0.25, 0)], b.adv + p.sb * 0.5
-    if gl.comp_kind == "frac":
+    if kind == "inferior":
+        b = drawn(style_key, gl.comps[0])
+        return [(gl.comps[0], 0, INFERIOR_DY)], b.adv
+    if kind == "frac":
         parts, x = [], 0.0
         for k, nm in enumerate(gl.comps):
             dd = drawn(style_key, nm)
             parts.append((nm, x, 0))
             x += dd.adv
         return parts, x
+    if kind == "pair":
+        a, b = gl.comps
+        da, db = drawn(style_key, a), drawn(style_key, b)
+        if (a, b) == ("i", "j"):
+            # the stems of ĳ stand a fixed distance apart; the hook of j runs under the i
+            dist = (300 if st.italic else 250) * p.wd
+            x = da.dx + dist - db.dx
+            return [(a, 0, 0), (b, x, 0)], x + db.adv
+        kern = -p.sb * 0.35
+        return [(a, 0, 0), (b, da.adv + kern, 0)], da.adv + kern + db.adv
+    if kind == "ldot":
+        base, dot = gl.comps
+        b, m = drawn(style_key, base), drawn(style_key, dot)
+        cap = base == "L"
+        yd = p.cap * 0.47 if cap else p.xh * 0.62
+        stem_half = p.A * (0.92 if cap else 1.0) / 2
+        x = (stem_half + (120 if cap else 95)) * p.wd + b.dx + (yd - b.yc) * b.sl
+        dx = x - m.center
+        dy = yd - 250
+        adv = b.adv if cap else max(b.adv, x + (m.adv - m.center) * 0.9)
+        return [(base, 0, 0), (dot, dx, dy)], adv
     base, mark = gl.comps
-    b = drawn(style_key, base)
+    b = drawn_any(style_key, base)
     m = drawn(style_key, mark)
+    if kind == "ogonek":
+        x = ogonek_x(style_key, base)
+        return [(base, 0, 0), (mark, x - (0 - m.yc) * m.sl, 0)], b.adv
+    if kind == "caronalt":
+        # right of the ascender (d l), the cap stem (L) or the t
+        top = {"t": p.xh + 178, "L": p.cap}.get(base, p.asc)
+        dy = top - p.asc
+        xr = band_xmax(b, top - 150, top + 40)
+        mx0 = ink_bounds(m.contours)[0]
+        gap = 26 if base != "L" else 40
+        dx = xr + gap - (mx0 + dy * m.sl)
+        adv = b.adv if base in ("L", "t") else max(b.adv, dx + ink_bounds(m.contours)[1] + dy * m.sl + p.sb * 0.5)
+        if base == "t":
+            adv = max(b.adv, dx + ink_bounds(m.contours)[1] + dy * m.sl + p.sb * 0.3)
+        return [(base, 0, 0), (mark, dx, dy)], adv
+    if kind == "ascender":
+        # above the ascender, over the stem (ĥ)
+        dy = p.asc - p.cap
+        dx = b.dx + (p.asc - b.yc) * b.sl - (p.cap - m.yc) * m.sl
+        return [(base, 0, 0), (mark, dx, dy)], b.adv
+    if kind == "tonos":
+        # Greek capitals: the tonos stands left of the letter, which moves right.
+        bx0 = ink_bounds(b.contours)[0]
+        mx0, mx1 = ink_bounds(m.contours)[:2]
+        gap = 34
+        shift = max(0.0, (mx1 - mx0) + gap + p.sb * 0.7 - bx0)
+        dx = shift + bx0 - gap - mx1
+        return [(base, shift, 0), (mark, dx, 0)], b.adv + shift
     dy = 0.0
-    if gl.comp_kind == "sc-accent" and mark != "cedillacomb":
+    if kind == "sc-accent" and mark not in BELOW and mark != "cedillacomb":
         dy = b.top - p.cap
     dx = b.center + dy * b.sl
     adv = b.adv
-    # a mark wider than a narrow base (ı, I) widens the glyph a little
     return [(base, 0, 0), (mark, dx, dy)], adv
+
+
+INFERIOR_DY = -150   # inferior figures: the denominators, lowered
+
+
+def flatten(style_key: str, comps: list) -> list:
+    """Replace components that are themselves composites by their components (no nesting)."""
+    out = []
+    for name, dx, dy in comps:
+        gl = CS.BY_NAME[name]
+        if gl.comps:
+            sub, _ = component_offsets(style_key, gl)
+            out += [(n, dx + x, dy + y) for n, x, y in flatten(style_key, sub)]
+        else:
+            out.append((name, dx, dy))
+    return out
+
+
+def drawn_any(style_key: str, name: str) -> Drawn:
+    """drawn() for a glyph, or for a reference composite (ο, Greek look-alikes): the referenced
+    drawing, moved by its offset."""
+    from dataclasses import replace
+    gl = CS.BY_NAME[name]
+    if not gl.comps:
+        return drawn(style_key, name)
+    if gl.comp_kind not in ("ref", "greek-ref"):
+        raise ValueError(f"{name}: cannot be the base of an accented composite")
+    (ref, ox, oy), adv = component_offsets(style_key, gl)[0][0], component_offsets(style_key, gl)[1]
+    d = drawn_any(style_key, ref)
+    contours = [[(s[0], s[1] + (ox, 0), s[2] + (ox, 0)) if s[0] == "line" else (s[0], s[1] + (ox, 0)) for s in c]
+                for c in d.contours]
+    return replace(d, contours=contours, adv=adv, center=d.center + ox, dx=d.dx + ox)
+
+
+def drawn_or_comp_adv(style_key: str, name: str) -> float:
+    gl = CS.BY_NAME[name]
+    if gl.comps:
+        return component_offsets(style_key, gl)[1]
+    return drawn(style_key, name).adv
+
+
+def ogonek_x(style_key: str, name: str) -> float:
+    """x of the ogonek anchor: the right foot of the base, moved in."""
+    d = drawn(style_key, name)
+    key = CS.BY_NAME[name].key
+    xr = band_xmax(d, -5, 60)
+    xl = band_xmin(d, -5, 60)
+    inset = OGONEK_BASES.get(key, 60)
+    p = STYLES[style_key].p()
+    if inset is None:
+        return (xr + xl) / 2
+    return xr - inset * p.wd
 
 
 # -------------------------------------------------------------- anchors
@@ -267,20 +430,26 @@ def anchors(style_key: str, name: str) -> list[tuple[str, float, float]]:
         from loom.extended import BELOW
         p = STYLES[style_key].p()
         base_y = p.cap if name.endswith(".case") else p.xh
+        if name in ("caroncomb.alt", "tonoscomb.case"):
+            return []   # placed by the composites only
         if name.split(".")[0] in BELOW:
             return [("_bottom", (0 - d.yc) * d.sl, 0)]
+        if name in OGONEK:
+            return [("_ogonek", (0 - d.yc) * d.sl, 0)]
         top = d.ymax
         return [("_top", (base_y - d.yc) * d.sl, base_y), ("top", (top - d.yc) * d.sl, top)]
     if gl.category == "ligature":
         n = gl.name.count("_") + 1 if "_" in gl.name else 2
         return [(f"caret_{k}", d.adv * k / n, 0) for k in range(1, n)]
-    if not gl.unicodes or gl.variant:
+    if not gl.unicodes or gl.variant not in (None, "mathit"):
         return []
     ch = chr(gl.unicodes[0])
     if not ch.isalpha() or gl.category == "ligature":
         return []
     out = [("top", d.center + (d.top - d.yc) * d.sl, d.top)]
     out.append(("bottom", d.center + (0 - d.yc) * d.sl, 0))
+    if gl.key in OGONEK_BASES and gl.variant is None:
+        out.append(("ogonek", ogonek_x(style_key, name), 0))
     return out
 
 
@@ -355,8 +524,15 @@ def build_font(style_key: str) -> ufoLib2.Font:
     for gl in CS.GLYPHS:
         g = font.newGlyph(gl.name)
         g.unicodes = list(gl.unicodes)
-        if gl.comps:
+        if gl.variant == "mathit" and st.italic:
+            # in the italic styles the mathematical italic letter is the letter itself
+            base = CS.glyph_name(gl.key)
+            g.width = rnd(drawn_or_comp_adv(style_key, base))
+            for n, dx, dy in flatten(style_key, [(base, 0, 0)]):
+                g.components.append(Component(n, transformation=(1, 0, 0, 1, rnd(dx), rnd(dy))))
+        elif gl.comps:
             comps, adv = component_offsets(style_key, gl)
+            comps = flatten(style_key, comps)
             g.width = rnd(adv)
             for base, dx, dy in comps:
                 g.components.append(Component(base, transformation=(1, 0, 0, 1, rnd(dx), rnd(dy))))

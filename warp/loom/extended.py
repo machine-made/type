@@ -595,8 +595,9 @@ def _OE(g):
 
 @rom_cap("Ð", r=0.85)
 def _Eth(g):
-    g.use(fn_of("D"))
-    g.bar(-g.h - 70, g.h + 120, g.C * 0.49)
+    g.use(fn_of("D", g.p.ital))
+    x = 120 if g.p.ital and "D" in GI else 0
+    g.bar(x - g.h - 70, x + g.h + 120, g.C * 0.49)
 
 
 @rom_cap("Þ", r=0.7)
