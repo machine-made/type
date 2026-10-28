@@ -28,7 +28,7 @@ Specimen site: <https://machine-made.github.io/type/>
 | Family | Release | Contents |
 | --- | --- | --- |
 | machine-made Weft 0.1 | [weft-v0.1.0](https://github.com/machine-made/type/releases/tag/weft-v0.1.0) | Variable TTF, 9 static TTF and OTF, WOFF2, readability report |
-| machine-made Sans 0.1 | [sans-v0.1.0](https://github.com/machine-made/type/releases/tag/sans-v0.1.0) | 2 variable TTF, 14 static TTF and OTF, WOFF2 |
+| machine-made Sans 0.2 | [sans-v0.2.0](https://github.com/machine-made/type/releases/tag/sans-v0.2.0) | 2 variable TTF, 14 static TTF and OTF (hinted), WOFF2 |
 | machine-made Heddle 0.1 | [heddle-v0.1.0](https://github.com/machine-made/type/releases/tag/heddle-v0.1.0) | Variable TTF, 11 static TTF, WOFF2 |
 | machine-made Warp 0.1 | [warp-v0.1.0](https://github.com/machine-made/type/releases/tag/warp-v0.1.0) | 6 static TTF and OTF (text and Display), WOFF2, readability report |
 
@@ -52,7 +52,7 @@ checks that FRAG 0 and 15 read as well as DejaVu Sans Mono
 Straight (Lurus) forms of a, j, p, q, r, y are the defaults. Stylistic
 set ss02 gives the sharp (Lancip) forms, ss01 the original Plus
 Jakarta Sans forms, ss03 the swirl (Lingkar) forms. Details:
-`sans/README.md` and `sans/RELEASE-NOTES-0.1.md`.
+`sans/README.md` and `sans/RELEASE-NOTES-0.2.md`.
 
 ## machine-made Heddle
 
@@ -99,6 +99,7 @@ Sans (from the repository root):
 
 ```sh
 python -m pip install -r sans/requirements.txt
+# OTF hinting also needs otfautohint (afdko, Python 3.13): see sans/README.md
 sans/scripts/build.sh                    # fonts/sans/{variable,ttf,otf,webfonts}
 sans/scripts/check.sh fontspector        # Fontspector and varLib.interpolatable
 git clone https://github.com/tokotype/PlusJakartaSans /tmp/pjs
