@@ -692,7 +692,7 @@ def build(out: Path) -> None:
         if rel == "404.html":
             root = "/type/"
         page_values = dict(values, ROOT=root, **nav,
-                           TITLE=meta.get("title", "machine-made type"),
+                           TITLE=meta.get("title", "machine-made fonts"),
                            DESCRIPTION=meta.get("description", ""),
                            BODY_CLASS=meta.get("class", ""),
                            SCRIPTS=scripts)

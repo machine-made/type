@@ -82,7 +82,11 @@ main:focus { outline: none; }
 .warp { font-family: var(--warp); font-feature-settings: normal; }
 
 /* Header */
-.site-head { border-bottom: 1px solid var(--rule); }
+/* The row of sites, the same on every machine-made house: machine-made, openfluids, fonts, BoringQuantSystems. */
+.houses-in { display: flex; flex-wrap: wrap; gap: 4px 24px; margin-block: 0; padding-block: 10px; list-style: none; }
+.houses a { font-family: var(--mono); font-size: 0.8125rem; letter-spacing: -0.03em; color: var(--muted); text-decoration: none; }
+.houses a:hover, .houses a[aria-current="page"] { color: var(--ink); text-decoration: underline; text-underline-offset: 0.3em; }
+.site-head { border-top: 1px solid var(--rule); border-bottom: 1px solid var(--rule); }
 .site-head-in {
   display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between;
   gap: 10px 24px; padding-block: 14px;
