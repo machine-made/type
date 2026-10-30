@@ -6,19 +6,19 @@ requires-python = ">=3.13"
 license = "Apache-2.0"
 dependencies = [
     "fontmake==3.12.2",
-    "fonttools==4.67.0",
+    "fonttools==4.68.0",
     "ufoLib2==0.19.1",
     "skia-pathops==0.9.2",
     "pillow==13.0.0",
-    "munkres==1.1.4",
+    "munkres==3.0.0",
     "brotli==1.2.1",
     "ttfautohint-py==0.6.1",
 ]
 
 [project.optional-dependencies]
-test = ["pytest==9.1.1"]
+test = ["pytest==9.2.0"]
 # Only for tools/sketch_compare.py (not run in CI).
-compare = ["playwright==1.63.0"]
+compare = ["playwright==1.64.1"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
