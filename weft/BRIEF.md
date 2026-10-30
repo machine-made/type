@@ -7,6 +7,11 @@ the axes and the build plan. Source of all shapes: the approved sketch 0.1
 > Update for Weft 0.1 (phase 2): the build plan below is done up to
 > phase 4. The width axis and the Thread style are not in 0.1. See
 > `STATUS.md`, `CHANGELOG.md` and `RELEASE-NOTES-0.1.md`.
+>
+> Update for Weft 0.2: l, I, 1, 0 and q changed for code look-alikes,
+> and the set grew to Latin Extended-A, combining marks, box drawing
+> and arrows. See `STATUS.md` (deviations from the sketch) and
+> `RELEASE-NOTES-0.2.md`.
 
 ## Name check: "Weft"
 

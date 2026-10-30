@@ -4,6 +4,7 @@ Usage:
     python tools/finish.py --variable FONT.ttf
     python tools/finish.py --static FONT.ttf|FONT.otf ...
     python tools/finish.py --woff2 FONT.ttf ...
+    python tools/finish.py --hint FONT.ttf ...
 
 --variable: set the OVERLAP_SIMPLE flag on every simple glyph and the
     OVERLAP_COMPOUND flag on every composite. The pieces overlap on
@@ -12,11 +13,17 @@ Usage:
     wght and FRAG axes (one value per axis, as the OpenType spec shows
     for static fonts).
 --woff2: write a WOFF2 copy next to the font.
+--hint: hint a static TTF in place with ttfautohint (the library that
+    ttfautohint-py ships, pinned in pyproject.toml) and set head flag
+    bit 3 (integer ppem), as hinted fonts need. --no-info keeps the
+    ttfautohint options out of the version string, so the output depends
+    only on the input font.
 """
 
 from __future__ import annotations
 
 import argparse
+import io
 from pathlib import Path
 
 from fontTools.otlLib.builder import buildStatTable
@@ -60,6 +67,16 @@ def finish_static(path: Path) -> None:
     print(f"Added STAT to {path}.")
 
 
+def hint(path: Path) -> None:
+    from ttfautohint import ttfautohint
+
+    data = ttfautohint(in_buffer=path.read_bytes(), no_info=True)
+    font = TTFont(io.BytesIO(data))
+    font["head"].flags |= 1 << 3
+    font.save(path)
+    print(f"Hinted {path}.")
+
+
 def write_woff2(path: Path, out_dir: Path) -> None:
     font = TTFont(path)
     font.flavor = "woff2"
@@ -75,13 +92,16 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--static", nargs="*", default=[], type=Path)
     ap.add_argument("--woff2", nargs="*", default=[], type=Path)
     ap.add_argument("--woff2-dir", type=Path, help="Output folder for WOFF2 files.")
+    ap.add_argument("--hint", nargs="*", default=[], type=Path)
     args = ap.parse_args(argv)
-    if not (args.variable or args.static or args.woff2):
+    if not (args.variable or args.static or args.woff2 or args.hint):
         ap.error("Give at least one font file.")
     for p in args.variable:
         finish_variable(p)
     for p in args.static:
         finish_static(p)
+    for p in args.hint:
+        hint(p)
     for p in args.woff2:
         write_woff2(p, args.woff2_dir or p.parent)
     return 0

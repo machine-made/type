@@ -9,6 +9,13 @@ Each family keeps its own changelog:
 
 Release tags: `weft-vX.Y.Z`, `sans-vX.Y.Z`, `heddle-vX.Y.Z`, `warp-vX.Y.Z`, `site-vX.Y.Z`.
 
+## 2026-10-28: Weft 0.2
+
+- machine-made Weft 0.2.0 (font version 0.200): look-alikes, Latin
+  Extended-A, combining marks, box drawing, arrows, hinted static TTF.
+  See `weft/CHANGELOG.md`. Site: the Weft download links point to
+  `weft-v0.2.0`.
+
 ## 2026-10-27: Warp 0.1
 
 - machine-made Warp 0.1.0 (font version 0.100): machine-made Warp

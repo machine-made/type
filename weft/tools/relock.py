@@ -25,7 +25,7 @@ def main() -> int:
     attempts = {}
     for name in build.drawn_names():
         gp = pieces.plan_glyph(name, build.strokes_of(name))
-        attempt = interp.make_clean(gp, build.to_font)
+        attempt = interp.make_clean(gp, build.to_font, contours=build.plan_contours)
         if attempt:
             attempts[name] = attempt
     out = Path(build.__file__).with_name("drift_lock.json")
