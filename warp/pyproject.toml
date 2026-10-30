@@ -1,6 +1,6 @@
 [project]
 name = "warp-loom"
-version = "0.1.0"
+version = "0.2.0"
 description = "Generator for the machine-made Warp typeface."
 requires-python = ">=3.13"
 license = "Apache-2.0"
@@ -13,10 +13,11 @@ dependencies = [
     "numpy==2.5.3",
     "pillow==13.0.0",
     "brotli==1.2.1",
+    "ttfautohint-py==0.6.1",
 ]
 
 [project.optional-dependencies]
-test = ["pytest==9.1.1"]
+test = ["pytest==9.1.1", "uharfbuzz==0.53.3"]
 # Only for tools/sketch_compare.py (not run in CI).
 compare = ["playwright==1.63.0"]
 

@@ -3,101 +3,114 @@
 | Field | Value |
 | --- | --- |
 | Family | machine-made Warp, machine-made Warp Display |
-| Version | 0.1 (font version 0.100) |
-| Pull request | branch `warp/v0.1` (PR to open) |
-| Stage | Warp 0.1 built: 6 static styles (TTF, OTF, WOFF2) |
+| Version | 0.2 (font version 0.200) |
+| Pull request | branch `warp/v0.2` (PR open for review) |
+| Stage | Warp 0.2 built: 6 static styles (TTF hinted, OTF, WOFF2) with an OpenType MATH table |
 | Gate now | Jac reviews the PR; the founder reviews the proofs by eye |
-| Next | Release 0.1 (tag `warp-v0.1.0`). Then 0.2 (MATH table) and 0.3 (variable font) |
-| Last local run | 2026-10-27: tests, build, byte check, fidelity, OCR gate, Fontspector, site build all green |
-| Last green CI | none yet (first run is on the PR) |
+| Next | Release 0.2 (tag `warp-v0.2.0`). Then 0.3 (variable font, branch `warp/v0.3`) |
+| Last local run | 2026-10-28: build twice (byte-identical), fidelity (max 4.0 %), OCR gate, Fontspector 1.9.0 (0 FAIL, 0 ERROR), LuaLaTeX maths proof, site build, pytest (88 passed) |
+| Last green CI | see the PR |
 
-## Proven (local run, 2026-10-27)
+## Proven (local run, 2026-10-28)
 
-- 44 pytest tests pass. One runs the sketch engine in node and compares
-  the advances and the ink bounds of the 120 sketch characters, the
-  old-style figures and the small capitals with the port (Regular,
-  Italic, Display, Display Italic; within 0.02 unit).
-- The build is byte-reproducible: two builds give the same files (also
-  one with one process and one with two).
+- TESTS pytest tests pass, among them: the sketch engine in node against
+  the port; coverage of Latin Extended-A, Ș ș Ț ț and twelve Central
+  European languages; the MATH table (presence in all 12 files,
+  constants, every variant and part exists, variant heights grow,
+  parts overlap by at least MinConnectorOverlap, the stems of the parts
+  line up); HarfBuzz reads the MATH table (uharfbuzz 0.53.3); sups,
+  subs, frac; the TTF are hinted.
+- The build is byte-reproducible: two builds (one and two processes)
+  give the same files, the hinted TTF too.
 - Fontspector 1.9.0, universal profile: 0 FAIL, 0 ERROR on the 6 TTF and
   the 6 OTF (accepted WARNs below).
 - Outline fidelity (`proofs/warp/fidelity.json`): every drawn glyph of
-  every style, read back from the compiled TTF, against an independent
-  fill of its pen sweep. Largest difference 4.7 % of the ink (Display
-  ξ small cap, 128 ppem; hairlines of 9 units and integer points), mean
-  0.7 to 1.7 %. Limit 5 %.
-- Sketch comparison (`proofs/warp/sketch-compare.json`): mean IoU with
-  the sketch engine 0.95 (Regular), 0.95 (Italic), 0.95 (Display),
-  0.94 (Display Italic). × < > score low because they moved (see
-  "Deviations"). Bold and Bold Italic score 0.81: the bold skeleton is
-  6 % wider on purpose.
-- OCR readability gate (`proofs/warp/readability.json`, Tesseract 5.3.4,
-  10, 12 and 14 px): see below. Passes.
+  every style against an independent fill of its pen sweep; FIDMAX.
+  Limit 5 %.
+- OCR readability gate (`proofs/warp/readability.json`): see below.
+- LuaLaTeX and unicode-math set a page of formulas with the MATH table
+  (`proofs/warp/warp-math.png`, `tools/math_proof.py`): fractions,
+  radicals from the text size to assemblies, ∑ ∏ ∫ with limits,
+  delimiters from \big to assemblies taller than the fourth variant,
+  accents, cases. No missing character.
 
 ## Readability (OCR)
 
-| Style | Warp CER | DejaVu Serif CER | Limit | Result |
-| --- | --- | --- | --- | --- |
-| Regular | 0.0234 (10 px 0.034, 12 px 0.020, 14 px 0.016) | 0.0012 | 0.0312 | pass |
-| Italic | 0.0192 (10 px 0.049, 12 px 0.004, 14 px 0.005) | 0.0000 | 0.0300 | pass |
+| Style | Warp 0.2 CER | Warp 0.1 CER | DejaVu Serif | Limit | Result |
+| --- | --- | --- | --- | --- | --- |
+| Regular | 0.0018 | 0.0234 | 0.0012 | 0.0312 | pass |
+| Italic | 0.0126 | 0.0192 | 0.0000 | 0.0300 | pass |
 
-Warp reads a little worse than DejaVu Serif, a screen face. The gap is
-about 2 points at 10 px and closes at 12–14 px in the italic. The
-errors come from approved forms: Tesseract reads the open lower loop of
-g as a comma ("ng, t"), f as t, ﬁ and ﬂ as h and H, and joins words at
-the narrow word space. The optical size does not change this (opsz 9
-to 12 all give about 2 %). The margin (3 points) stops a regression; it
-does not prove parity.
+What helped: the closed g, the firmer f hook, the ﬁ ﬂ bars that stop
+short (no more "h" and "H"), the 310-unit word space (300 and 330 were
+tried; 310 read best), and hinting. The italic at 10 px still loses a
+few letters (v, c and e run together); it is fine from 12 px.
+
+## MATH table
+
+| Item | Value |
+| --- | --- |
+| Axis height | 250 |
+| Rule thickness (fraction, radical, over- and underbar) | the rule pen Rw: 38 (Regular), 61 (Bold), 33 (Display); the thickness of − |
+| Script / scriptscript | 70 % / 50 % |
+| Shifts and gaps | from the x-height and the rule, as the OpenType MATH specification suggests (`loom/mathtable.py`) |
+| Size variants | 4 per glyph: delimiters 1250 to 2450 units, ∑ ∏ 1400 to 2600, ∫ 1900 to 3400 |
+| Assemblies | ( ) [ ] { } \| ‖ √ ∫; MinConnectorOverlap 40 |
+| No assembly | ⟨ ⟩ ∑ ∏ (diagonal strokes cannot be extended) |
+| Italic correction | mathematical italic letters, ℎ ℏ, ∫ variants |
+| Top accent attachment | every letter (its top anchor) |
+
+The size variants and the parts are upright in every style, the
+italics too (stacked parts must line up). The text ( ) [ ] in the
+italics stay slanted.
 
 ## Fontspector WARNs (accepted)
 
 | Check | Files | Reason |
 | --- | --- | --- |
-| `name/family_and_style_max_length` | Display TTF and OTF | PostScript names over 27 characters (`MachineMadeWarpDisplay-Regular`, `-Italic`). Only old PostScript printers care. |
-| `unreachable_glyphs` | OTF | The capital marks (`*comb.case`) and `two.dnom`, `four.dnom` are used only inside composites; CFF flattens composites. The TTF keep them as components. |
+| `name/family_and_style_max_length` | Display TTF and OTF | Family and style together are over 32 characters. The name is long but unique. |
+| `unreachable_glyphs` | all | The MATH variants and assembly parts are reached through the MATH table, not through cmap or GSUB. In the OTF also the capital marks and the denominators used only inside composites. |
+| `contour_count` | all | Designs that differ from the usual count: ΅ ΐ ΰ (the tonos stands free between the dots), the double acute of the capitals, ţ in small capitals, Ű ű. |
 
 ## Deviations from the sketch
 
-| What | Sketch 0.2 | Font 0.1 | Why |
+| What | Sketch 0.2 | Font 0.2 | Why |
 | --- | --- | --- | --- |
 | Outlines | canvas fill of hull polygons | union with skia-pathops, cubic fit (0.9 unit), extrema points | Clean outlines with few points. Checked by `tools/fidelity.py`. |
-| Bar of A (roman and italic), Æ, ∀ | starts at x 95 (A) or 105 (italic A) | starts at 72 or 84 | The bar stopped a few units short of the hairline: the counter was open (Fontspector `contour_count`). |
-| × < > | own advances | the advance of + (with ÷ ± ≠ ≤ ≥ ∈ ∉ ⊂ ⊆ ≈ ≡ ∝ ¬) | Operators line up in tables (Fontspector `math_signs_width`). The ink is the sketch's. |
-| Lowercase head serifs | the engine has a wedge serif, but it reads `p.lc`, which `params()` never sets | flat serifs, as the sketch draws them | The port follows what the approved page shows. |
-| Bold | not in the sketch (the sketch has the `stem` parameter) | stem 134, contrast 11.3, serif x 0.82 thick and 0.65 long, skeleton x 1.06 | A true bold, not a smear (see `proofs/warp/warp-styles.png`, `warp-paragraph.png`). |
-| Italic capitals other than A C G M N O Q V W | slanted roman | slanted roman with unbracketed serifs | Didone italics are unbracketed; slanted brackets look lopsided. No roman serif sits where the italic draws a hook or a drop (those letters have their own forms). |
-| Optical sizes | continuous `opsz` | two statics: opsz 10 (text) and 60 (Display) | Statics in 0.1; `opsz` axis in 0.3. Maths scripts in the setter use smaller optical sizes; the font has one. |
-| Stretchy delimiters, radicals, big operators at size | drawn by the pen at any height | one size each | The MATH table (variants, assemblies) is 0.2. |
-| Nib cache | the engine caches nibs by keys rounded to 0.01 | no cache | Same shapes within 0.01 unit. |
+| Bar of A (roman and italic), Æ, ∀ | starts at x 95 (A) or 105 (italic A) | starts at 72 or 84 | The counter was open. |
+| × < > | own advances | the advance of + | Operators line up in tables. |
+| Lowercase head serifs | wedge serif in the engine, never drawn | flat serifs | The port follows the approved page. |
+| Bold | not in the sketch | stem 134, contrast 11.3, serifs x 0.82, skeleton x 1.06 | A true bold. |
+| g (0.2) | open lower loop | the loop closes on the link | OCR read the open loop as a comma at 10 px. |
+| f, ﬀ (0.2) | small drop | larger drop, lower | OCR read f as t. |
+| ﬁ ﬂ (0.2) | bar to the i and the l; ﬂ one arch into the l | bars stop short; the f of ﬂ ends in its own drop; the drop of ﬁ is the dot of the i | OCR read ﬁ as h and ﬂ as H. Italic ﬁ ﬂ: bars stop short. |
+| Σ (0.2) | hairline bars | bars 1.9 hairlines thick (Ξ: 1.9 and 2.4) | All horizontals: the level pen made them light. |
+| Word space (0.2) | 270 | 310 at opsz 10, 270 at opsz 60 (linear in the optical-size factor) | Words ran together at text size. |
+| √ (0.2) | right side bearing 0.2 | 0 | The maths rule starts at the advance and must meet the bar. |
+| Italic capitals (0.2) | slanted roman for all but A C G M N O Q V W | own cursive forms for B D E F H I J K L P R S T U X Y Z and & | 0.1 open issue. Æ Œ Ø Þ and the Greek capitals stay slanted romans (Þ has the new form). |
+| Optical sizes | continuous `opsz` | two statics (opsz 10, 60) | `opsz` axis in 0.3. |
 
-New glyphs (not in the sketch), drawn with the same pen: the rest of
-ASCII, the Latin-1 letters and symbols, the marks, ffi and ffl, the
-rest of Greek, 23 maths symbols, ₹, the dotted circle.
+New glyphs in 0.2 (not in the sketch), drawn with the same pen: the
+Latin Extended-A letters and marks, Greek tonos and dialytika, ‰ † ‡ ℓ
+ℎ ℏ ‖ ⟨ ⟩, superior and inferior figures, the maths variants and parts,
+the mathematical italic letters (the italic forms, drawn in the upright
+styles; references in the italics).
 
-## Open issues for 0.2
+## Open issues
 
-- OpenType MATH table: constants (axis 250, rule thickness, script
-  sizes and shifts), italic correction, top accent attachment, size
-  variants and assemblies for ( ) [ ] { } √ ∫ ∑ ∏, drawn by the pen at
-  each height.
-- OCR: the open loop of g, f, ﬁ and ﬂ at 10 px; the word space (270
-  units) is narrow for text. Try a wider space at text size and a
-  firmer f hook, then re-run the gate.
-- Ξ is all horizontal strokes, so the level pen makes it light (Σ too, a
-  little). Consider a heavier middle bar.
-- Italic capitals other than A C G M N O Q V W: own cursive forms; the
-  italic & is the roman one, slanted.
-- More kerning: lowercase pairs, Greek lowercase, italic-specific pairs.
-- Latin Extended-A, Greek tonos and dialytika, more symbols (‰ ‡ † ℓ ℏ).
-- Superior and inferior figures as a feature (`sups`, `subs`, `frac`).
 - Name: register search for WARP before a wide release (see `BRIEF.md`).
-- No hinting.
+- Italic at 10 px: v, c, e run together for OCR (CER 3.4 % at 10 px).
+- Æ Œ Ø and the Greek capitals in the italic: still slanted romans.
+- MATH: no math kerning (cut-ins), no `ssty` script forms, no
+  horizontal stretchy glyphs (over- and underbraces, wide accents), no
+  ∬ ∮ and no \mathcal, \mathbb alphabets.
+- No hinting in the OTF (CFF) files; the TTF are hinted.
+- Polytonic Greek.
 
 ## Planned for 0.3
 
-- The variable font, axes `wght` and `opsz`, from the same pen model.
-  Pen sweeps are not point-compatible across masters, so 0.3 needs a
-  fixed outline topology per glyph (for example an analytic sweep:
-  offset each segment by the nib's support point, join with nib arcs,
-  with a fixed point count), then masters at the axis corners and a
-  drift report as for Heddle.
+- The variable font, axes `wght` and `opsz`, from the same pen model,
+  with a fixed outline topology per glyph (an analytic sweep: each
+  segment offset by the nib's support point, nib arcs at joins, cubic
+  curves at fixed counts), masters at the axis corners and a drift
+  report.

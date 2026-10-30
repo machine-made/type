@@ -15,6 +15,10 @@ Sheets:
     warp-smallcaps-figures.png        small caps and the four figure styles
     warp-styles.png                   Regular, Italic, Bold, Bold Italic, Display, Display Italic
     warp-charset-<style>.png          every character of the font
+    warp-latin-ext.png                Latin Extended-A, Ș ș Ț ț, Greek tonos: texts per language (0.2)
+    warp-italic-caps.png              the italic capitals with their own forms (0.2)
+    warp-before-after.png             0.1 and 0.2: the forms that changed, the word space (0.2)
+    warp-math.png                     formulas set by LuaLaTeX with the MATH table (tools/math_proof.py; 0.2)
 
 The sketch parts need node (tools/sketch_node.py). Text is set with
 FreeType and Raqm through Pillow, so the OpenType features apply.
@@ -54,6 +58,7 @@ RED = (192, 57, 43)
 RULE = (205, 196, 178)
 MUTED = (120, 112, 98)
 
+VER = "0.2"
 STYLE_ORDER = ["Regular", "Italic", "Bold", "BoldItalic", "Display", "DisplayItalic"]
 LABEL = {"Regular": "Regular", "Italic": "Italic", "Bold": "Bold", "BoldItalic": "Bold Italic",
          "Display": "Display", "DisplayItalic": "Display Italic"}
@@ -94,7 +99,7 @@ def overlay(key: str, report: dict) -> None:
     W, H = cols * cell_w + 60, rows * cell_h + 110
     img = Image.new("RGB", (W, H), PAPER)
     d = ImageDraw.Draw(img)
-    label(d, (30, 22), f"warp 0.1 · {LABEL[key].lower()} · sketch 0.2 engine (red) and font (blue); dark where they agree",
+    label(d, (30, 22), f"warp {VER} · {LABEL[key].lower()} · sketch 0.2 engine (red) and font (blue); dark where they agree",
           size=24, fill=INK)
     ious = {}
     for i, ch in enumerate(chars):
@@ -172,7 +177,7 @@ def paragraph() -> None:
     W = 2200
     img = Image.new("RGB", (W, 2350), PAPER)
     d = ImageDraw.Draw(img)
-    label(d, (40, 24), "warp 0.1 · a paragraph from a paper · text styles at opsz 10", 26, INK)
+    label(d, (40, 24), f"warp {VER} · a paragraph from a paper · text styles at opsz 10", 26, INK)
     y = 80
     for pt in (9, 10, 11, 12):
         px = pt * 2  # 144 dpi
@@ -199,7 +204,7 @@ def greek() -> None:
     low = "".join(ch for ch in CS.GREEK if ch.islower())
     img = Image.new("RGB", (2300, 1500), PAPER)
     d = ImageDraw.Draw(img)
-    label(d, (40, 24), "warp 0.1 · greek: 24 capitals, 24 lowercase and final sigma", 26, INK)
+    label(d, (40, 24), f"warp {VER} · greek: 24 capitals, 24 lowercase and final sigma", 26, INK)
     y = 80
     for key in STYLE_ORDER:
         label(d, (40, y + 30), LABEL[key].lower(), 20)
@@ -231,8 +236,8 @@ def equations() -> None:
     H = 90 + sum(int(b["h"] + b["d"]) + 70 for _, b in boxes)
     img = Image.new("RGB", (W, H), PAPER)
     d = ImageDraw.Draw(img)
-    label(d, (40, 24), "warp 0.1 · equations set by the sketch 0.2 setter with the font's glyphs (text, opsz 10); "
-                       "grey: radicals and stretched delimiters drawn by the pen at size (MATH table in 0.2)", 22, INK)
+    label(d, (40, 24), f"warp {VER} · equations set by the sketch 0.2 setter with the font's glyphs (text, opsz 10); "
+                       "grey: the sketch's own radicals and delimiters (the font's MATH table: warp-math.png)", 22, INK)
     y = 80
     missing = set()
     for name, b in boxes:
@@ -264,13 +269,15 @@ def equations() -> None:
 
 KERN_SAMPLES = ["To Ta Te Ty TA T. Va Vo VA V. Ya Yo YA Y.", "AV AT AY Av Aw Ay A’ LT LV LY L’ Ly",
                 "P. P, PA F. Fa r. y. v. w. f’ f) ’s ’A", "Τα Το ΤΑ ΓΑ Γο ΥΑ ΑΤ ΑΥ Κο Λ.",
+                "ro xo ox ev ex vs ka Tx · το τα τυ γο νο χο · Ťa Ŧo Ŵa Ŷo",
                 "7. 74 · 7. 74 (old-style)"]
 
 
 def kerning() -> None:
-    img = Image.new("RGB", (2300, 3400), PAPER)
+    # 4 styles x (heading 34 + 6 lines x 140 + 10) + 80 top = 3616 px
+    img = Image.new("RGB", (2300, 3700), PAPER)
     d = ImageDraw.Draw(img)
-    label(d, (40, 24), "warp 0.1 · kerning: each pair line without kerning (grey) and with kerning (ink)", 26, INK)
+    label(d, (40, 24), f"warp {VER} · kerning: each pair line without kerning (grey) and with kerning (ink)", 26, INK)
     y = 80
     for key in ("Regular", "Italic", "Bold", "Display"):
         label(d, (40, y), LABEL[key].lower(), 20)
@@ -294,7 +301,7 @@ def accents() -> None:
     lower = "".join(c for c in acc if c.islower())
     img = Image.new("RGB", (2300, 2000), PAPER)
     d = ImageDraw.Draw(img)
-    label(d, (40, 24), "warp 0.1 · accents: marks drawn by the pen, composites; small caps below", 26, INK)
+    label(d, (40, 24), f"warp {VER} · accents: marks drawn by the pen, composites; small caps below", 26, INK)
     y = 80
     for key in STYLE_ORDER:
         label(d, (40, y + 26), LABEL[key].lower(), 20)
@@ -313,7 +320,7 @@ def accents() -> None:
 def smallcaps_figures() -> None:
     img = Image.new("RGB", (2300, 2400), PAPER)
     d = ImageDraw.Draw(img)
-    label(d, (40, 24), "warp 0.1 · small caps (smcp, c2sc) and figures", 26, INK)
+    label(d, (40, 24), f"warp {VER} · small caps (smcp, c2sc) and figures", 26, INK)
     y = 80
     for key in ("Regular", "Italic", "Bold", "Display"):
         f = F(key, 52)
@@ -332,6 +339,13 @@ def smallcaps_figures() -> None:
             d.text((620, y), "0123456789 · 1.25 × 10³ · 2026 · ¼ ½ ¾", font=f, fill=INK, features=feats or ["-onum"])
             y += 74
         y += 14
+    for name, text, feats in (("sups", "x2 + y2 = r2 · 10-15 · 123456789", ["sups"]),
+                              ("subs", "H2O, CO2, x0 x1 x9", ["subs"]),
+                              ("frac", "1/2 3/4 17/32 355/113", ["frac"]),
+                              ("unicode", "x² ⁰¹²³⁴⁵⁶⁷⁸⁹ ₀₁₂₃₄₅₆₇₈₉", [])):
+        label(d, (40, y + 22), name, 18)
+        d.text((620, y), text, font=F("Regular", 52), fill=INK, features=feats)
+        y += 74
     d.text((620, y), "1111 / 7777 / 0000", font=F("Regular", 52), fill=INK)
     d.text((1300, y), "1111 / 7777 / 0000", font=F("Regular", 52), fill=INK, features=["pnum"])
     label(d, (40, y + 22), "tabular vs proportional", 18)
@@ -342,7 +356,7 @@ def smallcaps_figures() -> None:
 def styles() -> None:
     img = Image.new("RGB", (2300, 1700), PAPER)
     d = ImageDraw.Draw(img)
-    label(d, (40, 24), "warp 0.1 · the six styles", 26, INK)
+    label(d, (40, 24), f"warp {VER} · the six styles", 26, INK)
     y = 80
     for key in STYLE_ORDER:
         label(d, (40, y + 40), LABEL[key].lower(), 20)
@@ -366,7 +380,7 @@ def charset(key: str) -> None:
     rows = (len(chars) + cols - 1) // cols
     img = Image.new("RGB", (cols * cw + 80, rows * ch_ + 100), PAPER)
     d = ImageDraw.Draw(img)
-    label(d, (40, 24), f"warp 0.1 · {LABEL[key].lower()} · {len(chars)} characters", 26, INK)
+    label(d, (40, 24), f"warp {VER} · {LABEL[key].lower()} · {len(chars)} characters", 26, INK)
     f = F(key, 64)
     for i, c in enumerate(chars):
         r, k = divmod(i, cols)
@@ -376,6 +390,138 @@ def charset(key: str) -> None:
         d.text((x + (cw - 8 - w) / 2, y + 10), c, font=f, fill=INK, features=["-liga"])
         d.text((x, y + 98), f"{ord(c):04X}", font=F("Regular", 13), fill=MUTED)
     img.save(OUT / f"warp-charset-{key.lower()}.png", optimize=True)
+
+
+LANG_SAMPLES = [
+    ("Polish", "Zażółć gęślą jaźń. Łódź, Gdańsk, Kraków"),
+    ("Czech", "Příliš žluťoučký kůň úpěl ďábelské ódy"),
+    ("Slovak", "Kŕdeľ ďatľov učí koňa žrať kôru. Ľubovňa"),
+    ("Hungarian", "Árvíztűrő tükörfúrógép. Győr, Pécs"),
+    ("Romanian", "Șase știuleți și țânțari în Țara Românească"),
+    ("Turkish", "Pijamalı hasta yağız şoföre çabucak güvendi. İzmir"),
+    ("Croatian", "Đurđevac, Čakovec, Šibenik, Žminj, Ćićarija"),
+    ("Latvian", "Glāžšķūņa rūķīši dzērumā ņieka ģīģeli"),
+    ("Lithuanian", "Įlinkdama fechtuotojo špaga sublykčiojusi pragręžė apvalų arbūzą"),
+    ("Maltese, Esperanto", "Ħ ħ Ġ ġ Ċ ċ Ż ż · Ĉ ĉ Ĝ ĝ Ĥ ĥ Ĵ ĵ Ŝ ŝ Ŭ ŭ"),
+    ("Sámi, other", "Ŋ ŋ Ŧ ŧ ĸ ſ Ĳ ĳ Ŀ ŀ ŉ Ő ő Ű ű"),
+    ("Greek", "Ταχίστη αλώπηξ βαφής ψημένη γη, δρασκελίζει υπέρ νωθρού κυνός. Ϊ Ϋ ΐ ΰ"),
+]
+
+
+def latin_ext() -> None:
+    img = Image.new("RGB", (2300, 4200), PAPER)
+    d = ImageDraw.Draw(img)
+    label(d, (40, 24), f"warp {VER} · latin extended-a, ș ț, greek tonos: Central European texts", 26, INK)
+    y = 80
+    for key in ("Regular", "Italic", "Bold"):
+        label(d, (40, y), LABEL[key].lower(), 20)
+        y += 34
+        for lang, text in LANG_SAMPLES:
+            label(d, (40, y + 12), lang.lower(), 16)
+            d.text((340, y), text, font=F(key, 46), fill=INK)
+            y += 64
+        y += 16
+    d.line([(40, y), (2260, y)], fill=RULE)
+    y += 16
+    ext = "".join(chr(c) for c in range(0x100, 0x180)) + "ȘșȚț"
+    for key in ("Regular", "Italic"):
+        for k in range(0, len(ext), 44):
+            d.text((40, y), ext[k:k + 44], font=F(key, 46), fill=INK)
+            y += 66
+    y += 10
+    d.text((40, y), "ą́ ę̄ ĺ ș̆ · ‰ † ‡ ℓ ℎ ℏ ˘ ˛ ˝ ΄ ΅", font=F("Regular", 46), fill=INK)
+    img = img.crop((0, 0, 2300, y + 90))
+    img.save(OUT / "warp-latin-ext.png", optimize=True)
+
+
+def italic_caps() -> None:
+    img = Image.new("RGB", (2300, 1600), PAPER)
+    d = ImageDraw.Draw(img)
+    label(d, (40, 24), f"warp {VER} · italic capitals: own cursive forms (0.1 slanted the roman for B D E F H I J K L P R S T U X Y Z and &)", 22, INK)
+    y = 80
+    for key in ("Italic", "BoldItalic", "DisplayItalic"):
+        label(d, (40, y + 30), LABEL[key].lower(), 20)
+        d.text((300, y), "ABCDEFGHIJKLM", font=F(key, 92), fill=INK)
+        d.text((300, y + 120), "NOPQRSTUVWXYZ &", font=F(key, 92), fill=INK)
+        y += 260
+    d.line([(40, y), (2260, y)], fill=RULE)
+    y += 20
+    for key in ("Italic", "BoldItalic"):
+        d.text((40, y), "Bessel, Fourier, Hilbert, Jacobi, Kepler, Laplace, Riemann, Stokes, Taylor, Young, Zermelo",
+               font=F(key, 44), fill=INK)
+        y += 70
+    img = img.crop((0, 0, 2300, y + 30))
+    img.save(OUT / "warp-italic-caps.png", optimize=True)
+
+
+BEFORE = ROOT / "warp" / "build" / "before-0.1"
+
+
+def before_fonts() -> bool:
+    """The 0.1 fonts from the last commit on main that has them (for before/after sheets)."""
+    import subprocess
+    BEFORE.mkdir(parents=True, exist_ok=True)
+    ok = True
+    for key in STYLE_ORDER:
+        nm = f"{Bd.ps_name(Bd.STYLES[key])}.ttf"
+        dst = BEFORE / nm
+        if dst.exists():
+            continue
+        res = subprocess.run(["git", "-C", str(ROOT), "show", f"warp-v0.1-fonts:fonts/warp/ttf/{nm}"],
+                             capture_output=True)
+        if res.returncode != 0:
+            res = subprocess.run(["git", "-C", str(ROOT), "show", f"7a8b6b2:fonts/warp/ttf/{nm}"], capture_output=True)
+        if res.returncode != 0:
+            ok = False
+            continue
+        dst.write_bytes(res.stdout)
+    return ok
+
+
+def FB(key, size):
+    return ImageFont.truetype(str(BEFORE / f"{Bd.ps_name(Bd.STYLES[key])}.ttf"), size=round(size),
+                              layout_engine=ImageFont.Layout.RAQM)
+
+
+def before_after() -> None:
+    if not before_fonts():
+        print("before/after: the 0.1 fonts are not in git; skipped")
+        return
+    img = Image.new("RGB", (2300, 2600), PAPER)
+    d = ImageDraw.Draw(img)
+    label(d, (40, 24), f"warp 0.1 (grey) and {VER} (ink): the forms that changed", 26, INK)
+    y = 80
+    rows = [("Regular", "g f fi fl ff ffi ffl Ξ Σ", 110), ("Italic", "fi fl BDEFHIJKLPRSTUXYZ &", 96),
+            ("Bold", "g f fi fl Ξ Σ", 110), ("Display", "g f fi fl Ξ Σ √", 110)]
+    for key, text, size in rows:
+        label(d, (40, y + 10), LABEL[key].lower(), 20)
+        d.text((300, y), text, font=FB(key, size), fill=(150, 142, 128))
+        d.text((300, y + size * 1.25), text, font=F(key, size), fill=INK)
+        y += int(size * 2.6)
+    d.line([(40, y), (2260, y)], fill=RULE)
+    y += 20
+    label(d, (40, y), "word space at text size: 270 (0.1) and 310 (0.2), 10 pt at 144 dpi", 20)
+    y += 36
+    text = ("We study the drawing of a thin viscous thread from a heated preform. When the draw ratio "
+            "exceeds a critical value, the steady state loses stability through a Hopf bifurcation.")
+    for f, col in ((FB("Regular", 20), (150, 142, 128)), (F("Regular", 20), INK)):
+        words, cx, yy = text.split(" "), 40, y
+        for w in words:
+            wl = f.getlength(w)
+            if cx + wl > 1500:
+                cx, yy = 40, yy + 30
+            d.text((cx, yy), w, font=f, fill=col)
+            cx += wl + f.getlength(" ")
+        y = yy + 46
+    img = img.crop((0, 0, 2300, y + 20))
+    img.save(OUT / "warp-before-after.png", optimize=True)
+
+
+def maths_page() -> None:
+    import math_proof
+    rc = math_proof.main(["--out", str(OUT / "warp-math.png")])
+    if rc:
+        raise SystemExit("the LuaLaTeX maths proof failed")
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -399,7 +545,14 @@ def main(argv: list[str] | None = None) -> int:
                       "(1.0 = the same pixels). See warp/tools/proof.py.", "styles": report},
             ensure_ascii=False, indent=1) + "\n")
     steps = {"paragraph": paragraph, "greek": greek, "equations": equations, "kerning": kerning,
-             "accents": accents, "smallcaps": smallcaps_figures, "styles": styles}
+             "accents": accents, "smallcaps": smallcaps_figures, "styles": styles, "latin_ext": latin_ext,
+             "italic_caps": italic_caps, "before_after": before_after}
+    if want("math"):
+        if __import__("shutil").which("lualatex"):
+            maths_page()
+            print("math: done")
+        else:
+            print("math: lualatex is not installed; skipped (run tools/math_proof.py where it is)")
     for n, fn in steps.items():
         if want(n):
             fn()

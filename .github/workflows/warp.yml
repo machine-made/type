@@ -95,7 +95,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
-          name: warp-0.1
+          name: warp-0.2
           path: |
             fonts/warp/
             proofs/warp/

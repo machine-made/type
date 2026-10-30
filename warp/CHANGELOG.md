@@ -1,5 +1,49 @@
 # Warp changelog
 
+## 0.200 (Warp 0.2)
+
+### Added
+
+- OpenType MATH table in all six fonts (`loom/mathtable.py`,
+  `loom/mathglyphs.py`): constants (axis 250, rule thickness = the rule
+  pen, script sizes 70 % and 50 %, shifts and gaps from the x-height
+  and the rule), italic corrections, top accent attachment, four size
+  variants for ( ) [ ] { } | ‖ ⟨ ⟩ √ ∫ ∑ ∏ and assemblies for
+  ( ) [ ] { } | ‖ √ ∫. Every variant and part is drawn by the pen at
+  its height.
+- Mathematical italic letters (U+1D434 to U+1D467, Greek U+1D6E2 to
+  U+1D715, ℎ): the italic forms, drawn in the upright styles.
+- `tools/math_proof.py`: a page of formulas set by LuaLaTeX and
+  unicode-math (`proofs/warp/warp-math.png`).
+- Latin Extended-A (U+0100 to U+017F) and Ș ș Ț ț: new marks (breve,
+  ogonek, double acute, comma below, turned comma above, the vertical
+  caron of ď ť ľ Ľ, capital forms), new letters đ ħ Ħ Ł ł Ŧ ŧ Ŋ ŋ ĸ ſ,
+  composites for the rest. Latvian and Romanian letters use the comma
+  below.
+- Greek tonos and dialytika (Ά to ώ, ΐ ΰ, ΄ ΅, ano teleia, question mark).
+- ‰ † ‡ ℓ ℎ ℏ ‖ ⟨ ⟩ ˘ ˛ ˝.
+- Superior and inferior figures (U+2070 to U+2089), numerators,
+  denominators; features `sups`, `subs`, `sinf`, `numr`, `dnom`, `frac`.
+- Italic capitals with their own cursive forms: B D E F H I J K L P R S
+  T U X Y Z and the italic & (an Et).
+- Kerning: lowercase pairs (ro xo ox ev ex vs ka), Greek lowercase (τ γ
+  ν χ), italic-only pairs, the Extended-A letters in the classes.
+- Hinting: the TTF are hinted with ttfautohint 1.8.4 (ttfautohint-py
+  0.6.1), byte-reproducible.
+- Small capitals for đ ħ ł ŧ ŋ ŀ and ϊ ϋ; smcp maps every lowercase
+  letter.
+
+### Changed
+
+- g: the lower loop closes on the link (OCR read it as a comma).
+- f, ﬀ: a firmer hook with a larger drop. ﬁ ﬂ: the bar stops short of
+  the i and the l; the f of ﬂ ends in its own drop.
+- Ξ and Σ: heavier horizontals.
+- Word space 310 units at text size (270 in 0.1); Display keeps 270.
+- √ has no right side bearing, so that the rule of a maths engine meets
+  its bar.
+- Readability gate (Tesseract, 10 to 14 px): Regular CER 0.0234 to 0.0018, Italic 0.0192 to 0.0126.
+
 ## 0.100 (Warp 0.1)
 
 ### Added
