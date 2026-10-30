@@ -6,17 +6,17 @@ requires-python = ">=3.14"
 license = "Apache-2.0"
 dependencies = [
     "fontmake==3.12.2",
-    "fonttools==4.67.0",
+    "fonttools==4.68.0",
     "ufoLib2==0.19.1",
     "skia-pathops==0.9.2",
     "pillow==13.0.0",
-    "munkres==1.1.4",
+    "munkres==3.0.0",
     "brotli==1.2.1",
     "ttfautohint-py==0.6.1",
 ]
 
 [project.optional-dependencies]
-test = ["pytest==9.1.1"]
+test = ["pytest==9.2.0"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
