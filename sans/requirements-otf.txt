@@ -4,4 +4,4 @@
 #   python3.13 -m venv .venv-otf && .venv-otf/bin/pip install -r sans/requirements-otf.txt
 #   ln -s "$PWD/.venv-otf/bin/otfautohint" ~/.local/bin/otfautohint
 afdko==5.0.1
-fonttools==4.67.0
+fonttools==4.68.0
