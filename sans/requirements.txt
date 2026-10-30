@@ -1,7 +1,7 @@
 # Build, check and proof tools for machine-made Sans. Python 3.14.
-gftools==0.10.4
+gftools==0.10.6
 fontmake==3.12.2
-fonttools[woff]==4.67.0
+fonttools[woff]==4.68.0
 glyphsLib==6.16.2
 ufo2ft==3.9.1
 # CFF subroutines of the hinted OTF (scripts/finish.py).
@@ -10,4 +10,4 @@ openstep-plist==0.5.2
 pillow==13.0.0
 uharfbuzz==0.57.0
 munkres==3.0.0
-pytest==9.1.1
+pytest==9.2.0
