@@ -30,38 +30,42 @@ def _names(chars: str, extra: tuple = ()) -> list[str]:
 
 # First glyph (its right side).
 KERN1 = {
-    "A": _names("AÀÁÂÃÄÅΑΔΛ"),
-    "T": _names("TΤΓ"),
-    "V": _names("VW"),
-    "Y": _names("YÝŸΥ"),
-    "L": _names("L"),
+    "A": _names("AÀÁÂÃÄÅΑΔΛĀĂĄ"),
+    "T": _names("TΤΓŢŤȚŦ"),
+    "V": _names("VWŴ"),
+    "Y": _names("YÝŸΥŶ"),
+    "L": _names("LĹĻŁ"),
     "P": _names("PΡÞ"),
     "F": _names("F"),
-    "R": _names("R"),
-    "K": _names("KΚXΧ"),
-    "r": _names("r"),
+    "R": _names("RŔŖŘ"),
+    "K": _names("KΚXΧĶ"),
+    "r": _names("rŕŗř"),
     "f": _names("f"),
-    "k": _names("kκ"),
-    "o": _names("oòóôõöøbpþοσ"),
-    "v": _names("vwyýÿνγ"),
+    "k": _names("kκķĸ"),
+    "o": _names("oòóôõöøbpþοσōŏő"),
+    "v": _names("vwyýÿνγχŵŷ"),
+    "x": _names("x"),
+    "tau": _names("τ"),
+    "e": _names("eèéêëēĕėęě"),
     "quote": _names("'’\"”"),
     "seven": ["seven.lf", "seven.osf"],
 }
 
 # Second glyph (its left side).
 KERN2 = {
-    "a": _names("aàáâãäåæα"),
-    "o": _names("ceoqdgçèéêëòóôõöøœðοσεθδφςω"),
-    "s": _names("s"),
-    "u": _names("ruùúûüıυικμ"),
-    "n": _names("nmpñηπρ"),
-    "v": _names("vwyýÿνγχ"),
-    "A": _names("AÀÁÂÃÄÅÆΑΔΛ"),
-    "O": _names("CGOQÇÒÓÔÕÖØŒΘΟΩ"),
-    "J": _names("J"),
-    "T": _names("TΤ"),
-    "V": _names("VW"),
-    "Y": _names("YÝŸΥ"),
+    "a": _names("aàáâãäåæαāăą"),
+    "o": _names("ceoqdgçèéêëòóôõöøœðοσεθδφςωćĉċčďđēĕėęěĝğġģōŏő"),
+    "s": _names("sśŝşšș"),
+    "u": _names("ruùúûüıυικμŕŗřũūŭůűų"),
+    "n": _names("nmpñηπρńņňŋ"),
+    "v": _names("vwyýÿνγχŵŷ"),
+    "x": _names("x"),
+    "A": _names("AÀÁÂÃÄÅÆΑΔΛĀĂĄ"),
+    "O": _names("CGOQÇÒÓÔÕÖØŒΘΟΩĆĈĊČĜĞĠĢŌŎŐ"),
+    "J": _names("JĴ"),
+    "T": _names("TΤŢŤȚŦ"),
+    "V": _names("VWŴ"),
+    "Y": _names("YÝŸΥŶ"),
     "quote": _names("'’\"”"),
     "period": _names(".,…‚„"),
     "close": _names(")]}?!"),
@@ -87,6 +91,24 @@ PAIRS = {
     ("k", "o"): -12,
     ("o", "v"): -10,
     ("seven", "period"): -50, ("seven", "four"): -30,
+    # 0.2: lowercase and Greek lowercase
+    ("r", "o"): -6,
+    ("x", "o"): -10, ("o", "x"): -8,
+    ("e", "v"): -8, ("e", "x"): -6,
+    ("v", "s"): -6,
+    ("k", "a"): -6,
+    ("tau", "o"): -20, ("tau", "a"): -16, ("tau", "u"): -8,
+    ("T", "x"): -40,
+}
+
+# 0.2: pairs for the italic only (full values; the italic forms differ:
+# the descending f, the round-bottomed v and w, the cursive capitals).
+PAIRS_ITALIC = {
+    ("f", "o"): -18, ("f", "a"): -16, ("f", "period"): -40,
+    ("r", "period"): -40,
+    ("v", "o"): 0, ("o", "v"): 0,
+    ("T", "o"): -70, ("T", "a"): -70,
+    ("quote", "o"): -20,
 }
 
 
@@ -98,4 +120,12 @@ def groups() -> dict[str, list[str]]:
 
 def kerning(st) -> dict[tuple[str, str], int]:
     f = 0.7 if st.italic else 1.0
-    return {(f"public.kern1.{a}", f"public.kern2.{b}"): int(round(v * f)) for (a, b), v in PAIRS.items()}
+    out = {(f"public.kern1.{a}", f"public.kern2.{b}"): int(round(v * f)) for (a, b), v in PAIRS.items()}
+    if st.italic:
+        for (a, b), v in PAIRS_ITALIC.items():
+            key = (f"public.kern1.{a}", f"public.kern2.{b}")
+            if v == 0:
+                out.pop(key, None)
+            else:
+                out[key] = v
+    return out

@@ -7,6 +7,7 @@ Usage:
 --static: add a STAT table that names the position of the static on the
     wght, ital and opsz axes (one value per axis, as the OpenType spec
     shows for static fonts). Text styles sit at opsz 10, Display at 60.
+    Add the OpenType MATH table (loom/mathtable.py).
 --woff2: write a WOFF2 copy.
 
 Apache-2.0.
@@ -18,12 +19,13 @@ import argparse
 import sys
 from pathlib import Path
 
-from fontTools.otlLib.builder import buildStatTable
+from fontTools.otlLib.builder import buildMathTable, buildStatTable
+from fontTools.pens.boundsPen import BoundsPen
 from fontTools.ttLib import TTFont
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
-from loom.build import DISPLAY_OPSZ, PS_DISPLAY, TEXT_OPSZ  # noqa: E402
+from loom.build import DISPLAY_OPSZ, PS_DISPLAY, STYLES, TEXT_OPSZ, ps_name  # noqa: E402
 
 
 def finish_static(path: Path) -> None:
@@ -46,8 +48,39 @@ def finish_static(path: Path) -> None:
         {"tag": "ital", "name": "Italic", "values": [i]},
     ]
     buildStatTable(font, axes, elidedFallbackName=2, macNames=False)
+    add_math(font, style_of(font))
+    if "fpgm" in font:
+        # hinted (ttfautohint): round the ppem to integers (head.flags bit 3)
+        font["head"].flags |= 1 << 3
     font.save(path)
-    print(f"Added STAT to {path}.")
+    print(f"Added STAT and MATH to {path}.")
+
+
+def style_of(font: TTFont) -> str:
+    ps = font["name"].getDebugName(6)
+    for key, st in STYLES.items():
+        if ps_name(st) == ps:
+            return key
+    raise ValueError(f"unknown style {ps}")
+
+
+def glyph_bounds(font: TTFont, names) -> dict[str, tuple[float, float]]:
+    gs = font.getGlyphSet()
+    out = {}
+    for n in names:
+        pen = BoundsPen(gs)
+        gs[n].draw(pen)
+        b = pen.bounds or (0, 0, 0, 0)
+        out[n] = (b[1], b[3])
+    return out
+
+
+def add_math(font: TTFont, style_key: str) -> None:
+    from loom import mathglyphs as MG
+    from loom import mathtable as MT
+    names = set(MG.MATH_GLYPHS) | set(MG.VARIANTS)
+    data = MT.math_data(style_key, glyph_bounds(font, sorted(names)))
+    buildMathTable(font, **data)
 
 
 def write_woff2(path: Path, out_dir: Path) -> None:

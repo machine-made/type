@@ -48,10 +48,10 @@ ROOT = SITE.parent
 REPO_URL = "https://github.com/machine-made/type"
 ORG_URL = "https://github.com/machine-made"
 RELEASES = {
-    "weft": REPO_URL + "/releases/tag/weft-v0.1.0",
+    "weft": REPO_URL + "/releases/tag/weft-v0.2.0",
     "sans": REPO_URL + "/releases/tag/sans-v0.2.0",
     "heddle": REPO_URL + "/releases/tag/heddle-v0.1.0",
-    "warp": REPO_URL + "/releases/tag/warp-v0.1.0",
+    "warp": REPO_URL + "/releases/tag/warp-v0.2.0",
 }
 
 # Font files per family, in fonts/<family>/webfonts/. Every role is
@@ -87,7 +87,7 @@ FAMILIES = {
         "licence": ROOT / "heddle" / "OFL.txt",
         "planned_axes": {"wght": [100, 400, 900], "wdth": [70, 100, 140]},
     },
-    # Warp 0.1 is six static fonts; "vf" is the Regular (the pages read
+    # Warp 0.2 is six static fonts; "vf" is the Regular (the pages read
     # its character map). The variable font is planned for 0.3.
     "warp": {
         "dir": ROOT / "fonts" / "warp" / "webfonts",
@@ -692,7 +692,7 @@ def build(out: Path) -> None:
         if rel == "404.html":
             root = "/type/"
         page_values = dict(values, ROOT=root, **nav,
-                           TITLE=meta.get("title", "machine-made type"),
+                           TITLE=meta.get("title", "machine-made fonts"),
                            DESCRIPTION=meta.get("description", ""),
                            BODY_CLASS=meta.get("class", ""),
                            SCRIPTS=scripts)

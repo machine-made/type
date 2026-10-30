@@ -258,9 +258,13 @@ def _make_stroke(kind: str, pts) -> StrokePlan:
 
 
 def _seg_span(sp: StrokePlan, k: int, h: float) -> tuple[float, float]:
-    """Return the along range of segment k, with square caps."""
+    """Return the along range of segment k, with square caps.
+
+    A "butt" stroke has no caps: it ends on its end points (box drawing
+    lines end on the cell edges).
+    """
     lo, hi = 0.0, sp.segs[k].length
-    if not sp.closed:
+    if sp.kind == "open":
         if k == 0:
             lo -= h
         if k == len(sp.segs) - 1:
@@ -313,7 +317,7 @@ def _find_notches(plans: list[StrokePlan]) -> list[Notch]:
                 out.append(nt)
     # Stroke ends on other strokes: corners (end on end) and T-junctions.
     for ai, A in enumerate(plans):
-        if A.kind != "open":
+        if A.kind not in ("open", "butt"):
             continue
         nA = len(A.pts)
         for end in (0, nA - 1):
@@ -653,13 +657,14 @@ def _wedge_safe(prev, v, nxt, half):
 def _pieces(sp: StrokePlan, w: float, frag: float, cutpos):
     """Return pieces as lists of (segment, s0, s1). cutpos: [(seg, u, gap)]."""
     h = w / 2
+    cap = h if sp.kind == "open" else 0.0
     nseg = len(sp.segs)
     if not sp.closed:
-        bounds = [(0, -h)]
+        bounds = [(0, -cap)]
         for k, u, g in cutpos:
             bounds.append((k, u - g / 2))
             bounds.append((k, u + g / 2))
-        bounds.append((nseg - 1, sp.segs[-1].length + h))
+        bounds.append((nseg - 1, sp.segs[-1].length + cap))
         pieces = []
         for (k0, s0), (k1, s1) in zip(bounds[0::2], bounds[1::2]):
             pieces.append(_ranges(sp, k0, s0, k1, s1, False))
