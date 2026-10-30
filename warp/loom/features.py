@@ -11,6 +11,10 @@ and glyph categories. This module writes the substitutions:
   order onum, lnum, pnum, tnum, so onum + tnum gives tabular old-style.
 * smcp: lowercase to small capitals (ß to two small-cap S). c2sc:
   capitals to small capitals.
+* 0.2: sups (superior figures), subs and sinf (inferior figures), numr,
+  dnom, and frac (figures before a slash or fraction slash become
+  numerators, after it denominators; the slash becomes the fraction
+  slash).
 
 Apache-2.0.
 """
@@ -29,8 +33,11 @@ def _cls(suffix: str) -> str:
 def features(st) -> str:
     sm = CS.smcp_pairs()
     c2 = CS.c2sc_pairs()
-    top_marks = " ".join(n for n in CS.ORDER if CS.BY_NAME[n].category == "mark"
-                         and not n.endswith(".case") and n != "cedillacomb")
+    from loom.extended import BELOW
+    top_marks = " ".join(n for n in CS.ORDER if CS.BY_NAME[n].category == "mark" and CS.BY_NAME[n].unicodes
+                         and not n.endswith(".case") and n not in BELOW and n not in ("cedillacomb", "ogonekcomb"))
+    sups = " ".join(CS.glyph_name(chr(CS.SUPERIORS[f])) for f in CS.FIGURES)
+    infs = " ".join(CS.glyph_name(chr(CS.INFERIORS[f])) for f in CS.FIGURES)
     lines = [
         "languagesystem DFLT dflt;",
         "languagesystem latn dflt;",
@@ -44,6 +51,11 @@ def features(st) -> str:
         "@Lower = [" + " ".join(a for a, _ in sm) + "];",
         "@LowerSc = [" + " ".join(b for _, b in sm) + "];",
         "@Upper = [" + " ".join(a for a, _ in c2) + "];",
+        f"@Sups = [{sups}];",
+        f"@Infs = [{infs}];",
+        "@Numr = " + _cls(".numr") + ";",
+        "@Dnom = " + _cls(".dnom") + ";",
+        "@FigAll = [@Fig @FigLf @FigOsf @FigTosf];",
         "@UpperSc = [" + " ".join(b for _, b in c2) + "];",
         "",
         "feature ccmp {",
@@ -61,10 +73,14 @@ def features(st) -> str:
         "    sub fl by f.sc l.sc;",
         "    sub dotlessj by j.sc;",
         "    sub micro by mu.sc;",
+        "    sub ij by i.sc j.sc;",
+        "    sub napostrophe by quoteright n.sc;",
         "    sub @Lower by @LowerSc;",
         "} smcp;",
         "",
         "feature c2sc {",
+        "    sub IJ by i.sc j.sc;",
+        "    sub Idotaccent by i.sc;",
         "    sub @Upper by @UpperSc;",
         "} c2sc;",
         "",
@@ -75,6 +91,56 @@ def features(st) -> str:
         "    sub f i by fi;",
         "    sub f l by fl;",
         "} liga;",
+        "",
+        "feature sups {",
+        "    sub @Fig by @Sups;",
+        "    sub @FigLf by @Sups;",
+        "    sub @FigOsf by @Sups;",
+        "    sub @FigTosf by @Sups;",
+        "} sups;",
+        "",
+        "feature subs {",
+        "    sub @Fig by @Infs;",
+        "    sub @FigLf by @Infs;",
+        "    sub @FigOsf by @Infs;",
+        "    sub @FigTosf by @Infs;",
+        "} subs;",
+        "",
+        "feature sinf {",
+        "    sub @Fig by @Infs;",
+        "    sub @FigLf by @Infs;",
+        "    sub @FigOsf by @Infs;",
+        "    sub @FigTosf by @Infs;",
+        "} sinf;",
+        "",
+        "feature numr {",
+        "    sub @Fig by @Numr;",
+        "    sub @FigLf by @Numr;",
+        "    sub @FigOsf by @Numr;",
+        "    sub @FigTosf by @Numr;",
+        "} numr;",
+        "",
+        "feature dnom {",
+        "    sub @Fig by @Dnom;",
+        "    sub @FigLf by @Dnom;",
+        "    sub @FigOsf by @Dnom;",
+        "    sub @FigTosf by @Dnom;",
+        "} dnom;",
+        "",
+        "feature frac {",
+        "    lookup frac_slash {",
+        "        sub slash by fraction;",
+        "    } frac_slash;",
+        "    lookup frac_numr {",
+        "        sub @Fig by @Numr;",
+        "        sub @FigLf by @Numr;",
+        "        sub @FigOsf by @Numr;",
+        "        sub @FigTosf by @Numr;",
+        "    } frac_numr;",
+        "    lookup frac_dnom {",
+        "        sub [fraction @Dnom] @Numr' by @Dnom;",
+        "    } frac_dnom;",
+        "} frac;",
         "",
         "feature onum {",
         "    sub @Fig by @FigOsf;",

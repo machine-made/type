@@ -1,4 +1,4 @@
-"""Build the Weft 0.1 sources: variable masters, designspace, static UFOs.
+"""Build the Weft sources: variable masters, designspace, static UFOs.
 
 Usage:
     python -m loom.build [--out build]
@@ -10,8 +10,10 @@ Writes:
 
 Masters: wght 100, 400, 900 x FRAG 0, 15, 50, 100. Every glyph has the
 same contours and points in all 12 masters (see loom/pieces.py).
-Accented letters are components (base + accent) placed with anchors in
-the masters, and decomposed in the statics.
+Accented letters and the guillemets are components in the masters
+(offsets from extended.parts(), which can depend on the stroke width),
+and are decomposed in the statics. Accents above the base are drawn a
+little larger at heavy weights (extended.ACCENT_SCALE).
 """
 
 from __future__ import annotations
@@ -38,6 +40,9 @@ from ufoLib2.objects import Component
 from loom import extended as ext
 from loom import glyphs as data
 from loom import pieces
+from fontTools.ttLib.tables.O_S_2f_2 import intersectUnicodeRanges
+from ufo2ft.util import calcCodePageRanges
+
 from loom.outline import clean_contour, path_contours, signed_area
 
 UPM = 1000
@@ -49,7 +54,7 @@ BOX = data.METRICS["box_offset"]
 
 FAMILY = "machine-made Weft"
 PS_FAMILY = "MachineMadeWeft"
-VERSION = (0, 100)  # 0.100: Weft 0.1
+VERSION = (0, 200)  # 0.200: Weft 0.2
 COPYRIGHT = "Copyright 2026 The machine-made Weft Project Authors (https://github.com/machine-made/type)"
 LICENSE_DESCRIPTION = (
     "This Font Software is licensed under the SIL Open Font License, "
@@ -74,10 +79,13 @@ STATICS = [
 ]
 FRAG_NAMES = [(0, "Clean"), (15, "Notched"), (50, "Cut"), (100, "Broken")]
 
-# Characters in Weft 0.1. Soft hyphen (U+00AD) is not in the set on
+# Characters in Weft. Soft hyphen (U+00AD) is not in the set on
 # purpose: it is a format character, not a drawn glyph.
-DRAWN = {**data.STROKES, **ext.STROKES_EXT}
-CHARS = sorted(set(DRAWN) | set(ext.COMPOSITES), key=ord)
+# The double quote of the sketch table is a compound in Weft 0.2 (two
+# single quotes, see extended.COMPOUNDS).
+DRAWN = {ch: st for ch, st in {**data.STROKES, **ext.STROKES_EXT}.items()
+         if ch not in ext.COMPOUNDS}
+CHARS = sorted(set(DRAWN) | set(ext.COMPOSITES) | set(ext.COMPOUNDS) | set(ext.COMBINING), key=ord)
 
 
 def u(v: float) -> int:
@@ -89,9 +97,22 @@ def glyph_name(ch: str) -> str:
     return ext.GLYPH_NAMES_EXT.get(ch) or data.glyph_name(ch)
 
 
+def advance(name: str) -> int:
+    """Return the advance of a glyph: 750, or 0 for a combining mark."""
+    return 0 if name in mark_names() else ADVANCE
+
+
+@lru_cache(maxsize=None)
+def mark_names() -> frozenset[str]:
+    return frozenset(glyph_name(ch) for ch in ext.COMBINING)
+
+
 def glyph_order() -> list[str]:
-    names = [".notdef", "space"] + [glyph_name(c) for c in CHARS]
-    return names + sorted(ext.ACCENTS)
+    # The zero-width marks come first, so all glyphs after them share one
+    # advance and hmtx stays short.
+    marks = [glyph_name(c) for c in CHARS if c in ext.COMBINING]
+    names = [".notdef", "space"] + marks + [glyph_name(c) for c in CHARS if c not in ext.COMBINING]
+    return names + sorted(ext.ALTERNATES) + sorted(ext.ACCENTS)
 
 
 def charset() -> str:
@@ -101,7 +122,13 @@ def charset() -> str:
 
 def drawn_names() -> list[str]:
     """Return the names of all glyphs with their own strokes."""
-    return [".notdef"] + [glyph_name(c) for c in sorted(DRAWN, key=ord)] + sorted(ext.ACCENTS)
+    return ([".notdef"] + [glyph_name(c) for c in sorted(DRAWN, key=ord)]
+            + sorted(ext.ALTERNATES) + sorted(ext.ACCENTS))
+
+
+def part_name(part: str) -> str:
+    """Return the glyph name of a component (a char or an accent name)."""
+    return part if part in ext.ACCENTS else glyph_name(part)
 
 
 def strokes_of(name: str):
@@ -109,6 +136,8 @@ def strokes_of(name: str):
         return data.NOTDEF
     if name in ext.ACCENTS:
         return ext.ACCENTS[name]
+    if name in ext.ALTERNATES:
+        return ext.ALTERNATES[name]
     for ch in DRAWN:
         if glyph_name(ch) == name:
             return DRAWN[ch]
@@ -136,6 +165,26 @@ def drift_lock() -> dict[str, int]:
     return json.loads(path.read_text())["attempts"]
 
 
+def contours(name: str, w: float, frag: float) -> list[list[tuple[float, float]]]:
+    """Return the piece contours of a drawn glyph at (w, FRAG), design units.
+
+    An accent that scales with weight is drawn at width w / s and scaled
+    by s about (3.5, 0), so its stroke width stays w. The point structure
+    is the same at every location.
+    """
+    return plan_contours(plan(name), w, frag)
+
+
+def plan_contours(gp: pieces.GlyphPlan, w: float, frag: float) -> list[list[tuple[float, float]]]:
+    """Like contours(), for a plan (interp.problems() calls this)."""
+    name = gp.name
+    s = ext.accent_scale(name, w) if name in ext.ACCENTS else 1.0
+    cs = pieces.glyph_contours(gp, w / s, frag)
+    if s == 1.0:
+        return cs
+    return [[(3.5 + s * (x - 3.5), s * y) for x, y in c] for c in cs]
+
+
 def to_font(p: tuple[float, float]) -> tuple[int, int]:
     return (round((p[0] + BOX) * SCALE), round(p[1] * SCALE))
 
@@ -147,10 +196,6 @@ def draw_piece_contours(glyph, contours) -> None:
         for p in c:
             pen.addPoint(to_font(p), segmentType="line")
         pen.endPath()
-
-
-def _anchor_y(kind: str, w: float, accent: str) -> int:
-    return u(ext.accent_offset(kind, w, accent))
 
 
 def _set_info(font: ufoLib2.Font, wght: float, style: str, *, static: bool) -> None:
@@ -189,10 +234,12 @@ def _set_info(font: ufoLib2.Font, wght: float, style: str, *, static: bool) -> N
     # (monospaced, the fourth digit).
     panose_weight = min(11, max(2, round(wght / 100) + 1))
     info.openTypeOS2Panose = [2, 0, panose_weight, 9, 0, 0, 0, 0, 0, 0]
-    # Unicode ranges: 0 Basic Latin, 1 Latin-1 Supplement, 31 General
-    # Punctuation, 33 Currency Symbols. Code page: 0 Latin 1.
-    info.openTypeOS2UnicodeRanges = [0, 1, 31, 33]
-    info.openTypeOS2CodePageRanges = [0]
+    # Unicode ranges and code pages from the character set.
+    cps = {ord(c) for c in charset()}
+    info.openTypeOS2UnicodeRanges = sorted(intersectUnicodeRanges(cps))
+    # Only the Windows ANSI code pages (bits 0 to 31): the box drawing
+    # set is too small to claim the OEM code pages.
+    info.openTypeOS2CodePageRanges = sorted(b for b in calcCodePageRanges(cps) if b < 32)
     info.unitsPerEm = UPM
     info.xHeight = u(data.METRICS["x_height"])
     info.capHeight = u(data.METRICS["cap_height"])
@@ -206,10 +253,35 @@ def _set_info(font: ufoLib2.Font, wght: float, style: str, *, static: bool) -> N
     info.openTypeHheaAscender = asc
     info.openTypeHheaDescender = desc
     info.openTypeHheaLineGap = 0
-    # No feature writers: Weft has no kerning and no mark positioning.
-    font.lib["com.github.googlei18n.ufo2ft.featureWriters"] = []
+    # Feature writers: mark positioning for the combining marks and the
+    # GDEF classes. Weft has no kerning. The other features (ccmp, ss01)
+    # are in extended.FEATURES.
+    font.lib["com.github.googlei18n.ufo2ft.featureWriters"] = FEATURE_WRITERS
+    font.lib["public.openTypeCategories"] = categories()
+    font.features.text = ext.FEATURES
     font.lib["public.glyphOrder"] = glyph_order()
     font.lib["public.postscriptNames"] = {}
+
+
+FEATURE_WRITERS = [{"class": "MarkFeatureWriter"}, {"class": "GdefFeatureWriter"}]
+
+
+def categories() -> dict[str, str]:
+    """Return the GDEF classes: marks and the bases that carry anchors."""
+    cats = {glyph_name(ch): "base" for ch in ext.ANCHOR_BASES}
+    cats.update({name: "mark" for name in mark_names()})
+    return dict(sorted(cats.items()))
+
+
+def add_mark_anchors(font: ufoLib2.Font, w: float) -> None:
+    """Add the mark anchors to the base letters and the combining marks."""
+    for ch in ext.ANCHOR_BASES:
+        g = font[glyph_name(ch)]
+        for name, (x, y) in ext.base_anchors(ch, w).items():
+            g.anchors.append(UfoAnchor(u(x + BOX), u(y), name=name))
+    for ch in ext.COMBINING:
+        name, (x, y) = ext.mark_anchor(ch, w)
+        font[glyph_name(ch)].anchors.append(UfoAnchor(u(x + BOX), u(y), name=f"_{name}"))
 
 
 def build_master(wght: float, frag: float) -> ufoLib2.Font:
@@ -220,40 +292,18 @@ def build_master(wght: float, frag: float) -> ufoLib2.Font:
     _set_info(font, wght, style, static=False)
     for name in glyph_order():
         g = font.newGlyph(name)
-        g.width = ADVANCE
+        g.width = advance(name)
     font["space"].unicodes = [0x20, 0xA0]
     for ch in CHARS:
         font[glyph_name(ch)].unicodes = [ord(ch)]
     for name in drawn_names():
-        draw_piece_contours(font[name], pieces.glyph_contours(plan(name), w, frag))
-    # Anchors on bases and accents. x is the box centre.
-    cx = u(3.5 + BOX)
-    for name in ext.ACCENTS:
-        if name.startswith("cedilla"):
-            font[name].anchors.append(UfoAnchor(cx, 0, name="_bottom"))
-        else:
-            # The lowest ink of the accent, so that base "top" minus this
-            # anchor gives the component offset.
-            a, b = ext.ACCENT_LOW[name]
-            font[name].anchors.append(UfoAnchor(cx, u(a + b * w), name="_top"))
-    bases = {}
-    for ch, (base, accent, kind) in ext.COMPOSITES.items():
-        if base is not None:
-            bases.setdefault(base, set()).add(kind)
-    for base, kinds in bases.items():
-        g = font[glyph_name(base)]
-        for kind in sorted(kinds):
-            if kind == "base":
-                g.anchors.append(UfoAnchor(cx, 0, name="bottom"))
-            else:
-                g.anchors.append(UfoAnchor(cx, u(ext.ACCENT_BASE_TOP[kind] + w / 2 + ext.ACCENT_GAP[kind]), name="top"))
-    # Composites: base at (0, 0), accent at anchor minus accent anchor.
-    for ch, (base, accent, kind) in ext.COMPOSITES.items():
+        draw_piece_contours(font[name], contours(name, w, frag))
+    add_mark_anchors(font, w)
+    # Composites: the parts at their offsets for this stroke width.
+    for ch in list(ext.COMPOSITES) + list(ext.COMPOUNDS) + list(ext.COMBINING):
         g = font[glyph_name(ch)]
-        if base is not None:
-            g.components.append(Component(glyph_name(base)))
-        dy = 0 if kind == "base" else _anchor_y(kind, w, accent)
-        g.components.append(Component(accent, transformation=(1, 0, 0, 1, 0, dy)))
+        for part, dx, dy in ext.parts(ch, w):
+            g.components.append(Component(part_name(part), transformation=(1, 0, 0, 1, u(dx), u(dy))))
     return font
 
 
@@ -314,20 +364,30 @@ def static_contours(name: str, wght: float, frag: float = 0) -> list[list[tuple]
     w = data.stroke_width(wght)
     raw: list[list[tuple]] = []
 
-    def add(plan_name: str, dy_units: float) -> None:
-        for c in pieces.glyph_contours(plan(plan_name), w, frag):
-            raw.append([((x + BOX) * SCALE, (y + dy_units) * SCALE) for x, y in c])
+    def add(plan_name: str, dx: float, dy: float) -> None:
+        # The variable font rounds component offsets to font units. Do
+        # the same, so the statics match the variable font.
+        ox, oy = u(dx) / SCALE, u(dy) / SCALE
+        for c in contours(plan_name, w, frag):
+            raw.append([((x + ox + BOX) * SCALE, (y + oy) * SCALE) for x, y in c])
 
-    comp = next(((b, a, k) for ch, (b, a, k) in ext.COMPOSITES.items()
-                 if glyph_name(ch) == name), None)
-    if comp is None:
-        add(name, 0.0)
+    ch = composite_char(name)
+    if ch is None:
+        add(name, 0.0, 0.0)
     else:
-        base, accent, kind = comp
-        if base is not None:
-            add(glyph_name(base), 0.0)
-        add(accent, ext.accent_offset(kind, w, accent))
+        for part, dx, dy in ext.parts(ch, w):
+            add(part_name(part), dx, dy)
     return _union(raw)
+
+
+@lru_cache(maxsize=None)
+def _composite_names() -> dict[str, str]:
+    return {glyph_name(ch): ch for ch in list(ext.COMPOSITES) + list(ext.COMPOUNDS) + list(ext.COMBINING)}
+
+
+def composite_char(name: str) -> str | None:
+    """Return the char of a composite glyph, or None for a drawn glyph."""
+    return _composite_names().get(name)
 
 
 def draw_contours(glyph, contours) -> None:
@@ -350,12 +410,13 @@ def build_static(wght: float, style: str) -> ufoLib2.Font:
     font.lib["public.glyphOrder"] = order
     for name in order:
         g = font.newGlyph(name)
-        g.width = ADVANCE
+        g.width = advance(name)
         if name != "space":
             draw_contours(g, static_contours(name, wght))
     font["space"].unicodes = [0x20, 0xA0]
     for ch in CHARS:
         font[glyph_name(ch)].unicodes = [ord(ch)]
+    add_mark_anchors(font, data.stroke_width(wght))
     return font
 
 
@@ -403,12 +464,12 @@ def build_designspace(master_dir: Path, masters: dict) -> DesignSpaceDocument:
         inst.postScriptFontName = f"{PS_FAMILY}-{style}"
         inst.location = {"Weight": wv, "Fragmentation": 0}
         doc.addInstance(inst)
-    doc.lib["com.github.googlei18n.ufo2ft.featureWriters"] = []
+    doc.lib["com.github.googlei18n.ufo2ft.featureWriters"] = FEATURE_WRITERS
     return doc
 
 
 def main(argv: list[str] | None = None) -> int:
-    ap = argparse.ArgumentParser(description="Build the Weft 0.1 UFO sources.")
+    ap = argparse.ArgumentParser(description="Build the Weft UFO sources.")
     ap.add_argument("--out", default="build")
     ap.add_argument("--no-static", action="store_true", help="Do not write the static UFOs.")
     args = ap.parse_args(argv)

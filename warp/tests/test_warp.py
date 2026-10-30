@@ -1,6 +1,7 @@
-"""Tests for the Warp 0.1 generator and fonts: metrics, glyph set, the
+"""Tests for the Warp generator and fonts: metrics, glyph set, the
 port of the sketch engine (node), outlines, kerning, features, names,
-the fidelity and readability reports, determinism."""
+the MATH table, hinting, the fidelity and readability reports,
+determinism."""
 
 from __future__ import annotations
 
@@ -17,8 +18,9 @@ from loom import build as Bd
 from loom import charset as CS
 from loom import engine as E
 from loom import kerning as K
+from loom import mathglyphs as MG
 from loom import outline as O
-from loom.sketch import G, GI
+from loom import revisions as RV
 
 HERE = Path(__file__).resolve().parent
 WARP = HERE.parent
@@ -80,7 +82,47 @@ def required() -> set[int]:
     cps |= {ord(c) for c in "ßÆæØøŒœ‘’“”‚„‹›«»…•·€©®°—– "}
     cps |= {ord(c) for c in CS.GREEK}
     cps |= {ord(c) for c in "+−×÷±=≠<>≤≥∑∏∫√∞∂∇′″·∘→←↔∈∉⊂⊆∪∩∀∃∅≈≡∝"}
+    # 0.2
+    cps |= set(range(0x100, 0x180)) | {0x218, 0x219, 0x21A, 0x21B}
+    cps |= {ord(c) for c in "ΆΈΉΊΌΎΏΐΪΫάέήίΰϊϋόύώ΄΅"}
+    cps |= {ord(c) for c in "‰‡†ℓℏℎ‖⟨⟩"}
+    cps |= {0x2070, 0xB9, 0xB2, 0xB3} | set(range(0x2074, 0x207A)) | set(range(0x2080, 0x208A))
+    cps |= {0x306, 0x30B, 0x326, 0x328, 0x312}
     return cps
+
+
+# Central European languages: the letters each needs (beyond ASCII).
+LANGUAGES = {
+    "Polish": "ąćęłńóśźżĄĆĘŁŃÓŚŹŻ",
+    "Czech": "áčďéěíňóřšťúůýžÁČĎÉĚÍŇÓŘŠŤÚŮÝŽ",
+    "Slovak": "áäčďéíĺľňóôŕšťúýžÁÄČĎÉÍĹĽŇÓÔŔŠŤÚÝŽ",
+    "Hungarian": "áéíóöőúüűÁÉÍÓÖŐÚÜŰ",
+    "Romanian": "ăâîșțĂÂÎȘȚ",
+    "Turkish": "çğıİöşüÇĞÖŞÜ",
+    "Croatian": "čćđšžČĆĐŠŽ",
+    "Slovenian": "čšžČŠŽ",
+    "Latvian": "āčēģīķļņšūžĀČĒĢĪĶĻŅŠŪŽ",
+    "Lithuanian": "ąčęėįšųūžĄČĘĖĮŠŲŪŽ",
+    "Estonian": "äöõüšžÄÖÕÜŠŽ",
+    "Greek (monotonic)": "άέήίόύώϊϋΐΰΆΈΉΊΌΎΏΪΫ",
+}
+
+
+@pytest.mark.parametrize("lang", sorted(LANGUAGES))
+def test_language_coverage(lang):
+    cmap = ttf("Regular").getBestCmap()
+    missing = [c for c in LANGUAGES[lang] if ord(c) not in cmap]
+    assert not missing, (lang, missing)
+
+
+def test_comma_below_and_caron_forms():
+    """Romanian and Latvian use a comma below; ď ť ľ Ľ a vertical caron; ģ a turned comma."""
+    for ch in "ȘșȚțĢĶķĻļŅņŖŗ":
+        assert CS.BY_NAME[CS.glyph_name(ch)].comps[1] == "commaaccentcomb", ch
+    for ch in "ďťľĽ":
+        assert CS.BY_NAME[CS.glyph_name(ch)].comps[1] == "caroncomb.alt", ch
+    assert CS.BY_NAME["gcommaaccent"].comps[1] == "commaturnedabovecomb"
+    assert CS.BY_NAME[CS.glyph_name("Ş")].comps[1] == "cedillacomb"  # Turkish keeps the cedilla
 
 
 def test_greek_set():
@@ -140,6 +182,9 @@ def sketch_node():
 
 
 PORT_STYLES = ["Regular", "Italic", "Display", "DisplayItalic"]
+# Changed from the sketch on purpose in 0.2 (loom/revisions.py, STATUS.md): the port
+# still draws the sketch's form, the font does not.
+CHANGED = set(RV.REVISED) | {" "}
 
 
 @pytest.mark.parametrize("key", PORT_STYLES)
@@ -160,7 +205,7 @@ def test_advances_and_bounds_match_the_sketch_engine(key):
             base, mods = nm[0], E.osf_mods(p, nm[0])
         elif nm.startswith("sc:"):
             base, mods = nm[3:], E.sc_mods(p)
-        d = (GI.get(base) if p.ital else None) or G[base]
+        d = RV.sketch_def(base, p.ital)
         sw = E.compose(d, p, mods)
         adv, dx = sw.adv, sw.dx
         if E.is_greek_lower(base):
@@ -170,10 +215,44 @@ def test_advances_and_bounds_match_the_sketch_engine(key):
             assert a == pytest.approx(b, abs=0.01), nm
         assert adv == pytest.approx(r["adv"], abs=0.02), nm
         # and the font: the advance in the compiled TTF, rounded
-        if len(nm) == 1 and nm not in CS.EQUAL_WIDTH_MATHS:
+        changed = CHANGED | (set(RV.ITALIC_CAPS_02) if p.ital else set())
+        if len(nm) == 1 and nm not in CS.EQUAL_WIDTH_MATHS and nm not in changed:
             name = CS.glyph_name(nm)
             if name in CS.BY_NAME and not CS.BY_NAME[name].comps:
                 assert Bd.drawn(key, name).adv == pytest.approx(r["adv"], abs=0.02), nm
+
+
+def test_word_space():
+    assert Bd.drawn("Regular", "space").adv == pytest.approx(RV.SPACE_TEXT)
+    assert Bd.drawn("Display", "space").adv == pytest.approx(RV.SPACE_DISPLAY)
+    f = ttf("Regular")
+    assert f["hmtx"]["space"][0] == RV.SPACE_TEXT
+
+
+def test_revised_forms_differ_from_the_sketch():
+    for key in ("g", "f", "ﬁ", "ﬂ", "Σ"):
+        p = Bd.STYLES["Regular"].p()
+        a = E.compose(RV.sketch_def(key, False), p)
+        b = E.compose(Bd.table_def(key, False), p)
+        assert a.polys != b.polys, key
+
+
+def test_xi_sigma_bars_are_heavier():
+    """The horizontals of Ξ and Σ are thicker than a hairline (the 0.1 bars were B thick)."""
+    p = Bd.STYLES["Regular"].p()
+    for ch in "ΞΣ":
+        sw = E.compose(Bd.table_def(ch, False), p)
+        bars = [s for s in Bd.drawn("Regular", CS.glyph_name(ch)).sweep.strokes if s["role"] == "bar"]
+        assert bars, ch
+    g = E.Builder(p)
+    RV._Xi(g)
+    assert max(s["o"].get("b", 0) for s in g.strokes) >= p.B * 2.3
+
+
+def test_italic_capitals_have_own_forms():
+    from loom.sketch import GI
+    for ch in "ABCDEFGHIJKLMNOPQRSTUVWXYZ&":
+        assert ch in GI, ch
 
 
 def test_font_advances_are_the_loom_advances():
@@ -324,7 +403,11 @@ def single_map(f: TTFont, tag: str) -> dict:
 def test_features(key):
     f = ttf(key)
     feats = gsub_features(f)
-    assert {"ccmp", "liga", "smcp", "c2sc", "onum", "lnum", "pnum", "tnum"} <= feats
+    assert {"ccmp", "liga", "smcp", "c2sc", "onum", "lnum", "pnum", "tnum",
+            "sups", "subs", "sinf", "numr", "dnom", "frac"} <= feats
+    assert single_map(f, "sups")["four"] == "uni2074"
+    assert single_map(f, "subs")["two"] == "uni2082"
+    assert single_map(f, "dnom")["seven"] == "seven.dnom"
     assert {"kern", "mark", "mkmk"} <= {r.FeatureTag for r in f["GPOS"].table.FeatureList.FeatureRecord}
     assert single_map(f, "smcp")["a"] == "a.sc"
     assert single_map(f, "c2sc")["A"] == "a.sc"
@@ -351,6 +434,171 @@ def test_default_figures_are_lining_tabular():
     assert len(widths) == 1
     assert len({f["hmtx"][n + ".tosf"][0] for n in CS.FIG_NAMES}) == 1
     assert len({f["hmtx"][n + ".osf"][0] for n in CS.FIG_NAMES}) > 1
+
+
+def shape(key, text, features):
+    hb = pytest.importorskip("uharfbuzz")
+    blob = hb.Blob.from_file_path(str(FONTS / "ttf" / f"{Bd.ps_name(Bd.STYLES[key])}.ttf"))
+    font = hb.Font(hb.Face(blob))
+    buf = hb.Buffer()
+    buf.add_str(text)
+    buf.guess_segment_properties()
+    hb.shape(font, buf, features)
+    names = [font.glyph_to_string(i.codepoint) for i in buf.glyph_infos]
+    return names, buf.glyph_positions
+
+
+def test_frac_feature():
+    names, _ = shape("Regular", "1/2 3", {"frac": True})
+    assert names[:3] == ["one.numr", "fraction", "two.dnom"]
+    names, _ = shape("Regular", "17/32", {"frac": True})
+    assert names == ["one.numr", "seven.numr", "fraction", "three.dnom", "two.dnom"]
+
+
+def test_superiors_and_inferiors_sit_right():
+    f = ttf("Regular")
+    gs = f.getGlyphSet()
+    from fontTools.pens.boundsPen import BoundsPen
+    def bounds(n):
+        pen = BoundsPen(gs); gs[n].draw(pen); return pen.bounds
+    sup, inf, dnom = bounds("uni2074"), bounds("uni2084"), bounds("four.dnom")
+    assert sup[3] == pytest.approx(670, abs=15)       # superiors reach the cap height
+    assert abs(dnom[1]) < 15                           # denominators sit on the baseline
+    assert inf[1] == pytest.approx(dnom[1] + Bd.INFERIOR_DY, abs=1)
+
+
+# ------------------------------------------------------------------- MATH
+
+def math_tab(key):
+    return ttf(key)["MATH"].table
+
+
+@pytest.mark.parametrize("key", STYLES)
+def test_math_table_present(key):
+    for fmt in ("ttf", "otf"):
+        f = TTFont(FONTS / fmt / f"{Bd.ps_name(Bd.STYLES[key])}.{fmt}")
+        assert "MATH" in f, (key, fmt)
+
+
+@pytest.mark.parametrize("key", STYLES)
+def test_math_constants_are_sane(key):
+    from loom.sketch import Rw
+    c = math_tab(key).MathConstants
+    p = Bd.STYLES[key].p()
+    v = lambda name: getattr(c, name).Value if hasattr(getattr(c, name), "Value") else getattr(c, name)  # noqa: E731
+    assert v("AxisHeight") == 250
+    r = Bd.rnd(Rw(p))
+    for name in ("FractionRuleThickness", "RadicalRuleThickness", "OverbarRuleThickness", "UnderbarRuleThickness"):
+        assert v(name) == r, name
+    # the rule matches the pen: the thickness of the minus sign
+    f = ttf(key)
+    gs = f.getGlyphSet()
+    from fontTools.pens.boundsPen import BoundsPen
+    pen = BoundsPen(gs); gs["minus"].draw(pen)
+    assert pen.bounds[3] - pen.bounds[1] == pytest.approx(r, abs=3)
+    assert 60 <= v("ScriptPercentScaleDown") <= 80
+    assert 40 <= v("ScriptScriptPercentScaleDown") < v("ScriptPercentScaleDown")
+    assert v("AccentBaseHeight") == Bd.rnd(p.xh)
+    assert v("FlattenedAccentBaseHeight") == 670
+    assert 0 < v("SubscriptShiftDown") < v("SubscriptTopMax") < p.xh
+    assert 0 < v("SuperscriptBottomMin") < v("SuperscriptShiftUp") < p.xh
+    assert v("FractionNumeratorDisplayStyleShiftUp") > v("FractionNumeratorShiftUp") > 250
+    assert v("FractionDenominatorDisplayStyleShiftDown") > v("FractionDenominatorShiftDown") > 0
+    assert v("RadicalVerticalGap") >= r
+    assert v("DisplayOperatorMinHeight") > 1040                 # above the text ∑ (1040 units)
+    assert math_tab(key).MathVariants.MinConnectorOverlap > Bd.STYLES[key].p().B
+
+
+@pytest.mark.parametrize("key", ["Regular", "Bold", "Display", "Italic"])
+def test_math_variants_and_assemblies(key):
+    """Every variant and part exists; at least four sizes, growing; parts connect."""
+    f = ttf(key)
+    order = set(f.getGlyphOrder())
+    mv = math_tab(key).MathVariants
+    cov = mv.VertGlyphCoverage.glyphs
+    by = dict(zip(cov, mv.VertGlyphConstruction))
+    need = {"parenleft", "parenright", "bracketleft", "bracketright", "braceleft", "braceright", "bar",
+            "uni2016", "radical", "integral", "summation", "product", "uni27E8", "uni27E9"}
+    assert need <= set(by)
+    for base, con in by.items():
+        heights = [r.AdvanceMeasurement for r in con.MathGlyphVariantRecord]
+        names = [r.VariantGlyph for r in con.MathGlyphVariantRecord]
+        assert names[0] == base and len(names) >= 5, base
+        assert all(n in order for n in names)
+        assert heights == sorted(heights) and len(set(heights)) == len(heights), (base, heights)
+        asm = con.GlyphAssembly
+        if base in MG.ASSEMBLY:
+            assert asm is not None, base
+            parts = asm.PartRecords
+            assert any(p.PartFlags & 1 for p in parts), base
+            for p in parts:
+                assert p.glyph in order
+                assert p.FullAdvance > 0
+            for a, b in zip(parts, parts[1:]):
+                # the overlap the shaper may use must cover the minimum overlap
+                assert min(a.EndConnectorLength, b.StartConnectorLength) >= mv.MinConnectorOverlap, (base, a.glyph, b.glyph)
+        else:
+            assert asm is None, base
+
+
+def test_math_parts_line_up():
+    """The stems of the parts of an assembly are at the same x (the shaper stacks them at one origin)."""
+    f = ttf("Regular")
+    gs = f.getGlyphSet()
+    from fontTools.pens.boundsPen import BoundsPen
+    for base, parts in MG.ASSEMBLY.items():
+        advs = {f["hmtx"][n][0] for n, _, _ in parts}
+        assert len(advs) == 1, base
+        ext = next(n for n, e, _ in parts if e)
+        pen = BoundsPen(gs); gs[ext].draw(pen)
+        e0, e1 = pen.bounds[0], pen.bounds[2]
+        for n, _, role in parts:
+            if role in ("top", "bot"):
+                d = Bd.drawn("Regular", n)
+                # the connector end: ink in the straight part, at the stem
+                xs = [x + d.dx for poly in d.sweep.polys for x, y in poly
+                      if (y < d.sweep.ymin + 60 if role == "top" else y > d.sweep.ymax - 60)]
+                assert min(xs) == pytest.approx(e0, abs=3) and max(xs) == pytest.approx(e1, abs=3), (base, n)
+
+
+def test_math_with_harfbuzz():
+    hb = pytest.importorskip("uharfbuzz")
+    blob = hb.Blob.from_file_path(str(FONTS / "ttf" / "MachineMadeWarp-Regular.ttf"))
+    face = hb.Face(blob)
+    font = hb.Font(face)
+    assert face.has_math_data
+    assert font.get_math_constant(hb.OTMathConstant.AXIS_HEIGHT) == 250
+    gid = font.get_nominal_glyph(ord("("))
+    variants = font.get_math_glyph_variants(gid, "TTB")
+    assert len(variants) >= 5
+    parts, ic = font.get_math_glyph_assembly(gid, "TTB")
+    assert len(parts) == 3
+    assert font.get_math_min_connector_overlap("TTB") > 0
+    x = font.get_nominal_glyph(0x1D465)   # mathematical italic x
+    assert x and font.get_math_glyph_top_accent_attachment(x) > 0
+    f = font.get_nominal_glyph(0x1D453)   # mathematical italic f leans out: italic correction
+    assert font.get_math_glyph_italics_correction(f) > 0
+
+
+def test_math_italic_letters():
+    """Upright styles draw the italic forms; italic styles refer to their letters."""
+    reg, ita = ttf("Regular"), ttf("Italic")
+    cr, ci = reg.getBestCmap(), ita.getBestCmap()
+    for u, ch in CS.MATH_ITALIC:
+        assert u in cr and u in ci
+    assert ci[0x1D44E] and ita["glyf"][ci[0x1D44E]].isComposite()
+    assert not reg["glyf"][cr[0x1D44E]].isComposite()
+    assert reg["hmtx"][cr[0x1D44E]][0] == ita["hmtx"]["a"][0]
+    assert 0x210E in cr and 0x210F in cr
+
+
+# ---------------------------------------------------------------- hinting
+
+@pytest.mark.parametrize("key", STYLES)
+def test_ttf_are_hinted(key):
+    f = ttf(key)
+    assert {"fpgm", "prep", "cvt ", "gasp"} <= set(f.keys())
+    assert "ttfautohint" not in (f["name"].getDebugName(5) or "")   # --no-info
 
 
 # ------------------------------------------------------------------ names
@@ -396,8 +644,15 @@ def test_readability_report():
 
 def test_sketch_compare_report():
     rep = json.loads((PROOFS / "sketch-compare.json").read_text())
+    # The italic capitals of 0.2 are drawn in their own cursive forms
+    # (STATUS.md, "Deviations from the sketch"), so the sketch does not
+    # match them by design. The gate leaves them out for the italics.
+    own = set(RV.ITALIC_CAPS_02)
     for key in ("Regular", "Italic", "Display", "DisplayItalic"):
-        assert rep["styles"][key]["mean_iou"] >= 0.9, key
+        iou = rep["styles"][key]["iou"]
+        if key in ("Italic", "DisplayItalic"):
+            iou = {ch: v for ch, v in iou.items() if ch not in own}
+        assert sum(iou.values()) / len(iou) >= 0.9, key
 
 
 # ------------------------------------------------------------ determinism

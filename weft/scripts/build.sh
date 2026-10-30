@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
-# Build Weft 0.1: UFO masters and statics, then the variable TTF, static
-# TTF and OTF, and WOFF2.
+# Build Weft: UFO masters and statics, then the variable TTF, static TTF
+# and OTF, and WOFF2. The static TTFs are hinted with ttfautohint (pinned
+# in pyproject.toml: ttfautohint-py, which ships the ttfautohint library).
 # Usage: weft/scripts/build.sh (from any directory)
 set -euo pipefail
 WEFT="$(cd "$(dirname "$0")/.." && pwd)"
@@ -24,6 +25,9 @@ python tools/finish.py --variable "$OUT/variable/MachineMadeWeft[FRAG,wght].ttf"
 fontmake -u build/static/*.ufo -o ttf --keep-overlaps --output-dir "$OUT/ttf"
 fontmake -u build/static/*.ufo -o otf --keep-overlaps --output-dir "$OUT/otf"
 python tools/finish.py --static "$OUT"/ttf/*.ttf "$OUT"/otf/*.otf
+
+# Hint the static TTFs (ttfautohint, see tools/finish.py --hint).
+python tools/finish.py --hint "$OUT"/ttf/*.ttf
 
 python tools/finish.py --woff2-dir "$OUT/webfonts" --woff2 \
   "$OUT/variable/MachineMadeWeft[FRAG,wght].ttf" \

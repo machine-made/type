@@ -10,9 +10,10 @@ data), and computes the character error rate (CER): the Levenshtein
 distance between the OCR text and the true text, divided by the length
 of the true text. Whitespace is normalized first.
 
-* Paragraph: FRAG 0, 15, 50 and 100 at 16, 20 and 24 px, wght 400.
+* Paragraph: FRAG 0, 8, 15, 50 and 100 at 16, 20 and 24 px, wght 400.
 * Look-alikes: fixed lines of the characters I l 1 | O 0 r n m c l d
-  5 S 2 Z B 8 g 9 in groups of five, at 20, 24 and 32 px, FRAG 0 and 15. Tesseract
+  5 S 2 Z B 8 g 9 q in groups of five, at 20, 24 and 32 px, at the
+  text-safe FRAG values 0, 8 and 15. Tesseract
   reads it with a whitelist of only these characters, so each error is a
   confusion between look-alikes. Spaces are removed before the compare
   (Tesseract often joins the groups). Per-pair confusion counts are in
@@ -21,10 +22,11 @@ of the true text. Whitespace is normalized first.
 The reference is a free monospace (default: DejaVu Sans Mono from the
 distribution). It goes through the same steps.
 
-Gate (--gate): for FRAG 0 and 15, the mean paragraph CER of Weft must
-not be more than the reference plus MARGIN, and the mean look-alike CER
-not more than the reference plus LOOKALIKE_MARGIN. FRAG 15 must also
-stay within FRAG15_MARGIN of FRAG 0. FRAG 50 and 100 are reported only.
+Gate (--gate): for FRAG 0, 8 and 15 (the text-safe stages), the mean
+paragraph CER of Weft must not be more than the reference plus MARGIN,
+and the mean look-alike CER not more than the reference plus
+LOOKALIKE_MARGIN. FRAG 8 and 15 must also stay within FRAG15_MARGIN of
+FRAG 0. FRAG 50 and 100 are reported only.
 """
 
 from __future__ import annotations
@@ -48,20 +50,21 @@ PARAGRAPH = (
 )
 COLUMNS = 48
 SIZES = (16, 20, 24)
-FRAGS = (0, 15, 50, 100)
-GATED_FRAGS = (0, 15)
-PAIRS = ["Il1|", "O0", "rnm", "cld", "5S", "2Z", "B8", "g9"]
+FRAGS = (0, 8, 15, 50, 100)
+GATED_FRAGS = (0, 8, 15)
+PAIRS = ["Il1|", "O0", "rnm", "cld", "5S", "2Z", "B8", "g9q"]
 LOOKALIKE_SIZES = (20, 24, 32)
 UPSCALE = 3        # Tesseract reads small text better at about 30 px x-height
 # Absolute CER margins over the reference. The look-alike line has
-# 240 characters, and Tesseract (trained on common fonts) reads Weft's
-# flagged l and serifed I as 1 more often than DejaVu's. The margin for
-# it was set after the first run (Weft 0.1: about 0.11 against 0.07);
-# it stops a regression, it does not prove parity with the reference.
+# 240 characters. Weft 0.1 needed a margin of 0.06 (about 0.12 against
+# 0.075): Tesseract read its l and I as 1, q as g, and confused O and 0.
+# Weft 0.2 changed l, I, 1, 0 and q (see STATUS.md) and reads better
+# than the reference (about 0.07 against 0.0875), so the margin is 0:
+# Weft must not read worse than DejaVu Sans Mono.
 MARGIN = 0.02
-LOOKALIKE_MARGIN = 0.06
-# FRAG 15 must read like FRAG 0 (the brief: "body text at FRAG 15 reads
-# the same as FRAG 0").
+LOOKALIKE_MARGIN = 0.0
+# FRAG 8 and 15 must read like FRAG 0 (the brief: "body text at FRAG 15
+# reads the same as FRAG 0").
 FRAG15_MARGIN = 0.02
 SEED = "machine-made Weft readability"
 DEFAULT_REFERENCE = "/usr/share/fonts/truetype/dejavu/DejaVuSansMono.ttf"
@@ -218,14 +221,17 @@ def main(argv: list[str] | None = None) -> int:
             gate["checks"].append({"frag": f, "test": kind, "cer": value,
                                    "limit": round(limit, 4), "pass": ok})
             gate["pass"] &= ok
-    for kind, k0, k15 in (
-        ("paragraph vs FRAG 0", weft["paragraph"]["FRAG 0"]["cer_mean"], weft["paragraph"]["FRAG 15"]["cer_mean"]),
-        ("lookalikes vs FRAG 0", weft["lookalikes"]["FRAG 0"]["cer"], weft["lookalikes"]["FRAG 15"]["cer"]),
-    ):
-        ok = k15 <= k0 + FRAG15_MARGIN + 1e-9
-        gate["checks"].append({"frag": 15, "test": kind, "cer": k15,
-                               "limit": round(k0 + FRAG15_MARGIN, 4), "pass": ok})
-        gate["pass"] &= ok
+    for f in GATED_FRAGS[1:]:
+        for kind, k0, kf in (
+            ("paragraph vs FRAG 0", weft["paragraph"]["FRAG 0"]["cer_mean"],
+             weft["paragraph"][f"FRAG {f}"]["cer_mean"]),
+            ("lookalikes vs FRAG 0", weft["lookalikes"]["FRAG 0"]["cer"],
+             weft["lookalikes"][f"FRAG {f}"]["cer"]),
+        ):
+            ok = kf <= k0 + FRAG15_MARGIN + 1e-9
+            gate["checks"].append({"frag": f, "test": kind, "cer": kf,
+                                   "limit": round(k0 + FRAG15_MARGIN, 4), "pass": ok})
+            gate["pass"] &= ok
     report = {
         "about": "OCR character error rate (CER). Lower is better. See weft/tools/readability.py.",
         "tesseract": version,

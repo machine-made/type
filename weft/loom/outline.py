@@ -4,6 +4,8 @@ The rules match the sketch 0.1 canvas renderer:
 
 * Open strokes get square caps: each end extends by half the stroke
   width along its end segment, then the end is cut flat.
+* "butt" strokes have flat ends on the end points (no cap). Box drawing
+  uses them, so the lines end on the cell edges.
 * Joins are miter joins. If the miter ratio 1 / sin(theta / 2) is more
   than the miter limit (2.4), the join is a bevel.
 * A dot is a square with side = stroke width, centred on its point.
@@ -118,12 +120,12 @@ def stroke_polygons(kind: str, points: Sequence[Point], width: float,
         return [[(x - half, y - half), (x + half, y - half),
                  (x + half, y + half), (x - half, y + half)]]
     closed = kind == "closed"
-    if kind not in ("open", "closed"):
+    if kind not in ("open", "closed", "butt"):
         raise ValueError(f"Stroke kind {kind!r} is not known.")
     pts = _dedupe(points, closed)
     if len(pts) < 2 or (closed and len(pts) < 3):
         raise ValueError("Stroke has too few points.")
-    if not closed:
+    if kind == "open":
         d0 = _norm(_sub(pts[1], pts[0]))
         d1 = _norm(_sub(pts[-1], pts[-2]))
         pts[0] = _sub(pts[0], _mul(d0, half))
