@@ -1,22 +1,62 @@
 version: 2
 updates:
 
-  - package-ecosystem: "pip"
+  - package-ecosystem: "github-actions"
     directory: "/"
     open-pull-requests-limit: 5
     schedule:
       interval: monthly
     groups:
-      pip-updates:
+      github-actions-updates:
         patterns:
           - "*"
 
-  - package-ecosystem: "github-actions"
-    directory: "/.github/workflows"
+  - package-ecosystem: "pip"
+    directory: "/heddle"
     open-pull-requests-limit: 5
     schedule:
       interval: monthly
     groups:
-      github-actions-updates:
+      pip-heddle-updates:
+        patterns:
+          - "*"
+
+  - package-ecosystem: "pip"
+    directory: "/sans"
+    open-pull-requests-limit: 5
+    schedule:
+      interval: monthly
+    groups:
+      pip-sans-updates:
+        patterns:
+          - "*"
+
+  - package-ecosystem: "pip"
+    directory: "/site"
+    open-pull-requests-limit: 5
+    schedule:
+      interval: monthly
+    groups:
+      pip-site-updates:
+        patterns:
+          - "*"
+
+  - package-ecosystem: "pip"
+    directory: "/warp"
+    open-pull-requests-limit: 5
+    schedule:
+      interval: monthly
+    groups:
+      pip-warp-updates:
+        patterns:
+          - "*"
+
+  - package-ecosystem: "pip"
+    directory: "/weft"
+    open-pull-requests-limit: 5
+    schedule:
+      interval: monthly
+    groups:
+      pip-weft-updates:
         patterns:
           - "*"
