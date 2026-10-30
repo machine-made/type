@@ -28,13 +28,13 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import Callable
 
-from loom.geom import INF
+from loom.geom import INF, open_strokes
 
 UPM = 1000
 XH, CAP, ASC, DESC, OS = 520, 700, 730, -210, 10
 
 WGHT = (100, 400, 700, 900)
-WDTH = (70, 100, 140)
+WDTH = (70, 85, 100, 140)
 FW = 560  # tabular figure width at wdth 100
 
 
@@ -67,15 +67,23 @@ class Params:
         return 22 + 0.22 * self.S
 
 
-def tab_factor(wf: float) -> float:
-    """Width factor of the tabular figures: 0.8 at wdth 70, 1 at 100, 1.25 at 140.
+# Width factor of the tabular figures at the master widths: the sketch
+# value wdth/100, clamped to 0.8..1.25.
+_TAB = ((0.70, 0.80), (0.85, 0.85), (1.00, 1.00), (1.40, 1.25))
 
-    Linear between the master widths, so the variable font gives the
-    same value at every width (the sketch clamps wdth/100 to 0.8..1.25).
+
+def tab_factor(wf: float) -> float:
+    """Width factor of the tabular figures: 0.8 at wdth 70, 0.85 at 85,
+    1 at 100, 1.25 at 140.
+
+    The sketch value at every master width, linear between them, so the
+    variable font gives the same value at every width (the sketch clamps
+    wdth/100 to 0.8..1.25).
     """
-    if wf <= 1.0:
-        return 1.0 - (1.0 - wf) * (0.2 / 0.3)
-    return 1.0 + (wf - 1.0) * (0.25 / 0.4)
+    for (a, fa), (b, fb) in zip(_TAB, _TAB[1:]):
+        if wf <= b or b == _TAB[-1][0]:
+            return fa + (wf - a) * (fb - fa) / (b - a)
+    return _TAB[-1][1]
 
 
 @dataclass
@@ -136,6 +144,20 @@ def i_gap(S: float) -> float:
 
 # --------------------------------------------------- shared constructions
 
+def hook_span(g, wr):
+    """Return (width, terminal stroke) of a hook ring on a stem.
+
+    A hook is half a ring whose one side runs into a stem as wide as
+    the ring's stroke (f, t, j). Its visible counter lies between the
+    stem and the terminal. 0.2 rule: that counter is at least two
+    minimum counter radii wide. The ring gets wider (up to 1.8 stems
+    plus the counter), then its terminal gets thinner. At light and
+    regular weights nothing changes.
+    """
+    wr = max(wr, 1.8 * g.S + 2 * g.cmin)
+    return wr, min(g.S, wr - g.S - 2 * g.cmin)
+
+
 def arch(g, x0, x1, top, stem_to):
     """n shoulder: the upper half of a ring, then the right stem."""
     ry = min((x1 - x0) * 0.52, top * 0.62)
@@ -149,7 +171,10 @@ def bowl_d(g, x0, y0, x1, y1, s=None, h=None):
     """Square on the left, round on the right."""
     s = g.S if s is None else s
     h = g.H if h is None else h
-    g.ring(x0, y0, x1, y1, ts=s, th=h)
+    # The minimum counter rule for the whole bowl: the bars get the same
+    # strokes as the ring, so that the bars do not close the counter.
+    s, h = open_strokes((x1 - x0) / 2, (y1 - y0) / 2, s, h, g.cmin)
+    g.ring(x0, y0, x1, y1, ts=s, th=h, cmin=0.0)
     g.rect(x0, y0, x0 + (x1 - x0) / 2, y0 + h)
     g.rect(x0, y1 - h, x0 + (x1 - x0) / 2, y1)
     g.rect(x0, y0, x0 + s, y1)
@@ -336,13 +361,21 @@ def _dotlessi(g, W):
     _i_stem(g, W)
 
 
-@sketch("j", 0x6A, kind="stem", stem_width=lambda p: p.S + 120)
-def _j(g, W):
+def _j_body(g, W):
     x = W - g.S
     y0 = DESC - OS
     cy = DESC + 80
-    g.ring(0, y0, W, DESC + 170, [("l", cy, INF), ("r", cy, INF)])
+    # At heavy weights the hook reaches left of the glyph box, so that
+    # its counter stays open (0.2; the sketch closed it).
+    wr, ts = hook_span(g, W)
+    g.ring(W - wr, y0, W, DESC + 170, [("l", cy, INF), ("r", cy, INF)], ts=ts)
     g.rect(x, cy - 1, W, XH)
+
+
+@sketch("j", 0x6A, kind="stem", stem_width=lambda p: p.S + 120)
+def _j(g, W):
+    _j_body(g, W)
+    x = W - g.S
     gap = i_gap(g.S)
     g.rect(x, XH + gap, W, XH + gap + g.S * 1.04)
 
@@ -358,7 +391,8 @@ def _f(g, W):
     r = min(150, (W - x) / 2 + 10)
     g.rect(x, 0, x + g.S, ASC - r + 1)
     c = ASC + OS - r
-    g.ring(x, ASC + OS - 2 * r, x + 2 * r + 40, ASC + OS, [("l", -INF, c), ("r", -INF, c)])
+    wr, ts = hook_span(g, 2 * r + 40)
+    g.ring(x, ASC + OS - 2 * r, x + wr, ASC + OS, [("l", -INF, c), ("r", -INF, c)], ts=ts)
     g.rect(0, XH - g.H, W, XH)
 
 
@@ -368,7 +402,8 @@ def _t(g, W):
     r = min(130, (W - x) / 2)
     g.rect(x, r - OS - 1, x + g.S, XH + 150)
     c = r - OS
-    g.ring(x, -OS, x + 2 * r + 30, 2 * r - OS, [("l", c, INF), ("r", c, INF)])
+    wr, ts = hook_span(g, 2 * r + 30)
+    g.ring(x, -OS, x + wr, 2 * r - OS, [("l", c, INF), ("r", c, INF)], ts=ts)
     g.rect(0, XH - g.H, W, XH)
 
 
@@ -1107,20 +1142,25 @@ def _circle_frame(g, W):
 @glyph("copyright", 0xA9, 760, floor=5.0)
 def _copyright(g, W):
     _circle_frame(g, W)
-    s, h = g.S * 0.8, g.H * 0.8
-    g.ring(W * 0.28, CAP * 0.24, W * 0.72, CAP * 0.76, [("r", CAP * 0.40, CAP * 0.60)], ts=s, th=h)
+    # The inner c is as light as the frame, so that its counter stays
+    # open at Black.
+    s, h = g.S * 0.66, g.H * 0.66
+    g.ring(W * 0.27, CAP * 0.22, W * 0.73, CAP * 0.78, [("r", CAP * 0.40, CAP * 0.60)], ts=s, th=h)
 
 
 @glyph("registered", 0xAE, 760, floor=5.0)
 def _registered(g, W):
     _circle_frame(g, W)
-    s, h = g.S * 0.8, g.H * 0.8
-    x0, x1 = W * 0.33, W * 0.68
-    y0, y1 = CAP * 0.22, CAP * 0.78
+    # The inner R: as light as the frame; its bowl follows the minimum
+    # counter rule (bowl_d), so that it stays open at Black.
+    s, h = g.S * 0.62, g.H * 0.62
+    x0, x1 = W * 0.33, W * 0.69
+    y0, y1 = CAP * 0.21, CAP * 0.79
+    ym = CAP * 0.45
     g.rect(x0, y0, x0 + s, y1)
-    bowl_d(g, x0, CAP * 0.47, x1, y1, s, h)
-    t = g.dt((x1 - x0) * 0.5, CAP * 0.25) * 0.8
-    g.par((x0 + x1) / 2, CAP * 0.47 + h * 0.5, x1 - t / 2, y0, t)
+    bowl_d(g, x0, ym, x1, y1, s, h)
+    t = g.dt((x1 - x0) * 0.5, ym - y0) * 0.62
+    g.par((x0 + x1) / 2, ym + h * 0.5, x1 - t / 2, y0, t)
 
 
 def _degree_w(p):
@@ -1239,7 +1279,7 @@ def _oslash(g, W):
     g.par(W * 0.08 + t / 2, -OS - 30, W * 0.92 - t / 2, XH + OS + 30, t)
 
 
-@glyph("Eth", 0xD0, 720)
+@glyph("Eth", (0xD0, 0x110), 720)
 def _Eth(g, W):
     e = W * 0.10
     g.shift(e, 0, lambda: bowl_d(g, 0, 0, W - e, CAP))
@@ -1263,11 +1303,291 @@ def _thorn(g, W):
 def _eth(g, W):
     top = XH * 1.04
     g.ring(0, -OS, W, top + OS)
-    # The ascender leans back from the right side of the bowl.
-    t = g.dt(W * 0.30, ASC - top * 0.62) * 0.85
-    g.par(W - t / 2, top * 0.62, W * 0.62, ASC, t)
-    yc = ASC * 0.86
-    g.rect(W * 0.40, yc - g.H * 0.36, W * 0.98, yc + g.H * 0.36)
+    # The ascender leans back from the right side of the bowl. Its foot
+    # starts inside the bowl's outer edge at that height, so that no
+    # corner pokes out (0.2).
+    yb = top * 0.62
+    t = g.dt(W * 0.30, ASC - yb) * 0.85
+    ry = (top + 2 * OS) / 2
+    v = abs((yb - (top / 2)) / ry)
+    xr = W / 2 + (W / 2) * (1 - v ** 2.6) ** (1 / 2.6)
+    g.par(xr - t / 2 - 2, yb, W * 0.60, ASC, t)
+    yc = ASC * 0.84
+    g.rect(W * 0.38, yc - g.H * 0.38, W * 0.96, yc + g.H * 0.38)
+
+
+# ------------------------------------------- Latin Extended-A (drawn, 0.2)
+
+@glyph("dotlessj", 0x237, kind="stem", stem_width=lambda p: p.S + 120)
+def _dotlessj(g, W):
+    _j_body(g, W)
+
+
+def _bar_y_asc():
+    """Height of the bar of đ ħ: between the x-height and the ascender."""
+    return (XH + OS + ASC) / 2 + 15
+
+
+@glyph("dcroat", 0x111, 600)
+def _dcroat(g, W):
+    e = 0.10 * W
+    wd = W - e
+    g.flipX(wd, lambda: _bee(g, wd))
+    hb = 0.72 * g.H
+    yc = _bar_y_asc()
+    g.rect(wd - g.S - 0.24 * wd, yc - hb / 2, W, yc + hb / 2)
+
+
+@glyph("hbar", 0x127, 600)
+def _hbar(g, W):
+    e = 0.10 * W
+    g.shift(e, 0, lambda: _h(g, W - e))
+    hb = 0.72 * g.H
+    yc = _bar_y_asc()
+    g.rect(0, yc - hb / 2, e + g.S + 0.24 * (W - e), yc + hb / 2)
+
+
+@glyph("Hbar", 0x126, 720)
+def _Hbar(g, W):
+    e = 0.06 * W
+    g.shift(e, 0, lambda: _H(g, W - 2 * e))
+    hb = 0.72 * g.H
+    yc = CAP * 0.47 + g.H + (CAP - CAP * 0.47 - g.H) * 0.5
+    g.rect(0, yc - hb / 2, W, yc + hb / 2)
+
+
+@glyph("Tbar", 0x166, 580)
+def _Tbar(g, W):
+    _T(g, W)
+    hb = 0.72 * g.H
+    yc = CAP * 0.45
+    a = 0.27 * W + 0.5 * g.S
+    g.rect(W / 2 - a, yc - hb / 2, W / 2 + a, yc + hb / 2)
+
+
+@glyph("tbar", 0x167, 330)
+def _tbar(g, W):
+    _t(g, W)
+    hb = 0.72 * g.H
+    yc = XH * 0.50
+    x = W * 0.18
+    g.rect(x - 0.6 * x, yc - hb / 2, x + g.S + 0.6 * x + 0.1 * W, yc + hb / 2)
+
+
+def _slash_bar(g, cx, cy, length):
+    """The bar of Ł ł: a rectangle turned 60 degrees from vertical."""
+    import math
+    bar_poly(g, cx, cy, length, 0.78 * g.H, math.radians(62))
+
+
+def _lslash_e(S):
+    """How far the bar of ł reaches out of the stem on each side."""
+    return 40 + 0.45 * S
+
+
+@glyph("Lslash", 0x141, 560)
+def _Lslash(g, W):
+    e = 0.12 * W
+    g.shift(e, 0, lambda: _L(g, W - e))
+    _slash_bar(g, e + g.S / 2, CAP * 0.42, g.S + 2.4 * e)
+
+
+@glyph("lslash", 0x142, kind="stem", stem_width=lambda p: p.S + 2 * _lslash_e(p.S))
+def _lslash(g, W):
+    e = _lslash_e(g.S)
+    g.rect(e, 0, e + g.S, ASC)
+    _slash_bar(g, e + g.S / 2, ASC * 0.50, g.S + 2.2 * e)
+
+
+@glyph("kgreenlandic", 0x138, 500)
+def _kgreenlandic(g, W):
+    g.rect(0, 0, g.S, XH)
+    t = g.dt(W * 0.7, XH)
+    g.par(g.S * 0.6, XH * 0.30, W - t / 2, XH, t)
+    g.par(W * 0.34, XH * 0.52, W - t / 2, 0, t)
+
+
+def _hook_below(g, x1, y_top, y_bot, wr0):
+    """A j hook: the lower half of a ring ending at x1 (its right side under
+    a stem that ends at x1). Returns the ring's centre level."""
+    wr, ts = hook_span(g, wr0)
+    cy = (y_top + y_bot) / 2
+    g.ring(x1 - wr, y_bot, x1, y_top, [("l", cy, INF), ("r", cy, INF)], ts=ts)
+    return cy
+
+
+@glyph("Eng", 0x14A, 650)
+def _Eng(g, W):
+    g.rect(0, 0, g.S, CAP)
+    t = g.dt(W, CAP)
+    g.poly([(0, CAP), (t, CAP), (W, 0), (W - t, 0)])
+    cy = _hook_below(g, W, -10 + 170, DESC - OS, 0.62 * W)
+    g.rect(W - g.S, cy - 1, W, CAP)
+
+
+@glyph("eng", 0x14B, 540)
+def _eng(g, W):
+    g.rect(0, 0, g.S, XH)
+    arch(g, 0, W, XH, XH * 0.4)
+    cy = _hook_below(g, W, DESC + 170, DESC - OS, 0.55 * W)
+    g.rect(W - g.S, cy - 1, W, XH * 0.5)
+
+
+@glyph("longs", 0x17F, 280)
+def _longs(g, W):
+    r = min(150, W / 2 + 10)
+    g.rect(0, 0, g.S, ASC - r + 1)
+    c = ASC + OS - r
+    wr, ts = hook_span(g, 2 * r + 40)
+    g.ring(0, ASC + OS - 2 * r, wr, ASC + OS, [("l", -INF, c), ("r", -INF, c)], ts=ts)
+
+
+# ---------------------------------------------------- symbols (0.2)
+
+@glyph("cent", 0xA2, FW, kind="tab")
+def _cent(g, W):
+    y1 = XH + 90
+    g.ring(W * 0.08, -OS, W * 0.92, y1, [("r", y1 * 0.30, y1 * 0.70)])
+    b = g.S * 0.7
+    xc = W * 0.5
+    g.rect(xc - b / 2, -100, xc + b / 2, y1 + 100)
+
+
+@glyph("sterling", 0xA3, FW, kind="tab")
+def _sterling(g, W):
+    S, H = g.S, g.H
+    x = W * 0.20
+    r = min(0.30 * W + 0.3 * S, (W - x) / 2)
+    top = CAP + OS
+    c = top - r
+    # The stem rises into an arch that ends in a terminal on the right.
+    g.rect(x, H - 1, x + S, c + 1)
+    wr = max(2 * r, 1.8 * S + 2 * g.cmin)
+    g.ring(x, top - 2 * r, x + wr, top, [("l", -INF, c), ("r", -INF, c + 0.15 * r)],
+           ts=min(S, wr - S - 2 * g.cmin))
+    yb = CAP * 0.42
+    g.rect(0, yb - 0.8 * H, x + S + 0.32 * W, yb)
+    g.rect(0, 0, W, H)
+
+
+@glyph("yen", 0xA5, FW, kind="tab")
+def _yen(g, W):
+    yj = CAP * 0.42
+    g.vee(0, W, CAP, yj, g.dt(W / 2, CAP - yj))
+    g.rect(W / 2 - g.S / 2, 0, W / 2 + g.S / 2, yj + g.H * 0.2)
+    bh = 0.62 * g.H
+    gap = 26 + 0.18 * g.H
+    a = 0.36 * W
+    y1 = yj - 6
+    for y in (y1, y1 - bh - gap):
+        g.rect(W / 2 - a, y - bh, W / 2 + a, y)
+
+
+@glyph("section", 0xA7, 500, floor=3.0)
+def _section(g, W):
+    # An s whose spine is a ring: the top of an s (terminal upper right),
+    # a middle ring, the bottom of an s (terminal lower left). The hooks
+    # share their inner strokes with the middle ring, as S shares its
+    # spine.
+    top, bot = CAP + OS, -OS - 90
+    T = top - bot
+    m0, m1 = bot + 0.27 * T, top - 0.27 * T
+    s, h = 0.9 * g.S, 0.9 * g.H
+    g.ring(W * 0.04, m0, W * 0.96, m1, ts=s, th=h)
+    u0 = m1 - h
+    cu = (u0 + top) / 2
+    g.ring(W * 0.06, u0, W * 0.98, top, [("r", -INF, cu + (top - cu) * 0.20)], ts=s, th=h)
+    l1 = m0 + h
+    cl = (bot + l1) / 2
+    g.ring(W * 0.02, bot, W * 0.94, l1, [("l", cl - (cl - bot) * 0.20, INF)], ts=s, th=h)
+
+
+@glyph("paragraph", 0xB6, 600, floor=3.6)
+def _paragraph(g, W):
+    S, H = g.S, g.H
+    x2 = W - S
+    # Linear in W and S, so that the variable font does not drift.
+    x1 = 0.48 * W - 0.9 * S
+    yb = CAP * 0.40
+    g.rect(x1, -110, x1 + S, CAP)
+    g.rect(x2, -110, W, CAP)
+    g.rect(x1, CAP - H, W, CAP)
+    # The bowl: half a filled superellipse with a rectangle to the stem.
+    cx = (x1 + S) * 0.5
+    g.ring(0, yb, 2 * cx, CAP, [("r", -INF, INF)], ts=cx, th=(CAP - yb) / 2, cmin=0.0)
+    g.rect(cx - 1, yb, x1 + S, CAP)
+
+
+MATH_A = 0.38  # half length of the math bars, in figure widths
+
+
+@glyph("minus", 0x2212, FW, kind="tab")
+def _minus(g, W):
+    a = W * MATH_A
+    g.rect(W / 2 - a, MATH_Y - g.H / 2, W / 2 + a, MATH_Y + g.H / 2)
+
+
+@glyph("plusminus", 0xB1, FW, kind="tab")
+def _plusminus(g, W):
+    a = W * MATH_A
+    yc = MATH_Y + 0.5 * g.H + 30
+    arm = a * 0.92
+    g.rect(W / 2 - a, yc - g.H / 2, W / 2 + a, yc + g.H / 2)
+    g.rect(W / 2 - g.S / 2, yc - arm, W / 2 + g.S / 2, yc + arm)
+    yb = yc - arm - 40 - 0.3 * g.H
+    g.rect(W / 2 - a, yb - g.H, W / 2 + a, yb)
+
+
+@glyph("multiply", 0xD7, FW, kind="tab")
+def _multiply(g, W):
+    import math
+    L = 2 * W * MATH_A * 0.92
+    for ang in (math.pi / 4, -math.pi / 4):
+        bar_poly(g, W / 2, MATH_Y, L, 0.95 * g.S, ang)
+
+
+@glyph("divide", 0xF7, FW, kind="tab")
+def _divide(g, W):
+    a = W * MATH_A
+    g.rect(W / 2 - a, MATH_Y - g.H / 2, W / 2 + a, MATH_Y + g.H / 2)
+    d = dot_size(g)
+    gap = 36 + 0.25 * g.H
+    for y in (MATH_Y + g.H / 2 + gap, MATH_Y - g.H / 2 - gap - d):
+        g.rect(W / 2 - d / 2, y, W / 2 + d / 2, y + d)
+
+
+# Numerators and denominators: the figures, drawn at FRAC_K of their size
+# with a stroke of 0.62 S + 8, so that they keep their colour.
+FRAC_K = 0.58
+FIGURES = ("zero", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine")
+NUMR_W = 330
+
+
+def _small_figure(name, raise_y):
+    def draw(g, W):
+        from loom.geom import Canvas
+        k = FRAC_K
+        s_v = (0.62 * g.S + 8) / k
+        sub = Canvas(s_v, 0.84 * s_v)
+        GLYPHS[name].draw(sub, W / k)
+        for c in sub.contours:
+            g.add([(x * k, y * k + raise_y, on) for x, y, on in c])
+    return draw
+
+
+def _fraction_draw(g, W):
+    # The fraction slash reaches out of its box on both sides, so that
+    # numerator and denominator tuck under it.
+    ov = 0.55 * W
+    t = g.dt(W + 2 * ov, CAP) * 0.62
+    g.par(W + ov - t / 2, CAP, -ov + t / 2, 0, t)
+
+
+glyph("fraction", 0x2044, 120, kind="tab")(_fraction_draw)
+
+for _i, _fig in enumerate(FIGURES):
+    glyph(f"{_fig}.numr", None, NUMR_W, kind="tab")(_small_figure(_fig, CAP * (1 - FRAC_K)))
+    glyph(f"{_fig}.dnom", None, NUMR_W, kind="tab")(_small_figure(_fig, 0.0))
 
 
 # ------------------------------------------------------------- notdef
@@ -1287,112 +1607,297 @@ def _space(g, W):
 
 
 # --------------------------------------------------------------- marks
+#
+# 0.2: marks are lighter and smaller than in 0.1, so that they do not
+# crowd the letters at Black. Their stroke grows more slowly than the
+# stem (mark_stem). Capital marks stay below the typo ascender (950).
+# Narrow bases (dotless i, I, l, dotless j) get ".narrow" marks that
+# are no wider than the base plus 1.45 sidebearings, so that ï Ï Ĩ ĺ do
+# not widen their base.
+
+def mark_stem(S: float) -> float:
+    """Stroke of the marks: 0.62 S + 12 (S at Thin, 0.69 S at Black)."""
+    return 0.62 * S + 12
+
 
 def accent_gap(S: float, case: str) -> float:
-    return (44 + 0.30 * S) if case == "lc" else (36 + 0.24 * S)
+    """Gap between the x-height (or cap height) and the mark."""
+    return (40 + 0.22 * S) if case == "lc" else (30 + 0.16 * S)
 
 
 def accent_size(S: float, case: str) -> float:
-    """Height of the acute, grave and circumflex."""
-    h = 150 + 0.35 * S
-    return h if case == "lc" else h * 0.78
+    """Height of the acute, grave, circumflex and caron."""
+    h = 140 + 0.20 * S
+    return h if case == "lc" else h * 0.72
+
+
+def narrow_width(S: float) -> float:
+    """Largest ink width of a .narrow mark: the stem plus 1.45 sidebearings."""
+    return S + 1.45 * (22 + 0.22 * S)
 
 
 def _accent_box(p, kind) -> float:
-    """Width of the spacing accent glyphs: the mark plus a small margin."""
+    """Width of the spacing grave (U+0060): the mark plus a small margin."""
     h = accent_size(p.S, "lc")
-    t = 0.9 * p.S * (1 + (0.55) ** 2) ** 0.5
-    return 0.55 * h + t
+    sm = mark_stem(p.S)
+    dx = 0.6 * h
+    t = 0.9 * sm * (dx * dx + h * h) ** 0.5 / h
+    return dx + t
 
 
-def _accent(g, kind, case, cx):
+def _slant_dims(sm, h, wmax=None, k=0.6):
+    """(dx, t) of an acute: run dx over height h, horizontal width t.
+
+    The ink is dx + t wide. With wmax, dx shrinks until the ink fits.
+    """
+    import math
+    dx = k * h
+    t = 0.9 * sm * math.hypot(dx, h) / h
+    if wmax is not None and dx + t > wmax:
+        for _ in range(6):
+            dx = max(0.12 * h, wmax - t)
+            t = 0.9 * sm * math.hypot(dx, h) / h
+    return dx, t
+
+
+def _accent(g, kind, case, cx, narrow=False):
     """Draw a mark with its ink centred on x = cx.
 
     lc marks sit above the x-height, case marks above the cap height.
-    The cedilla hangs below the baseline.
+    Marks below the baseline (cedilla, ogonek, comma) and the vertical
+    caron (caroncomb.alt) have their own rules.
     """
+    import math
     S, H = g.S, g.H
+    sm = mark_stem(S)
+    hm = 0.84 * sm
     base_y = (XH if case == "lc" else CAP) + accent_gap(S, case)
     h = accent_size(S, case)
-    s = S * 0.9
-    hh = H * 0.9
+    wmax = narrow_width(S) if narrow else None
+
+    def fit(w):
+        return min(w, wmax) if wmax is not None else w
+
     if kind in ("acute", "grave"):
-        dx = 0.55 * h
-        t = g.dt(dx, h) * 0.9
+        dx, t = _slant_dims(sm, h, wmax)
         if kind == "acute":
             g.par(cx - dx / 2, base_y, cx + dx / 2, base_y + h, t)
         else:
             g.par(cx + dx / 2, base_y, cx - dx / 2, base_y + h, t)
-    elif kind == "circumflex":
-        w = 1.6 * h + 0.3 * S
-        t = g.dt(w / 2, h) * 0.78
-        _caret(g, cx, w, base_y, base_y + h, t)
+    elif kind == "hungarumlaut":
+        dx, t = _slant_dims(sm * 0.9, h, None, 0.5)
+        sep = t + 0.45 * t + 24
+        for o in (-sep / 2, sep / 2):
+            g.par(cx + o - dx / 2, base_y, cx + o + dx / 2, base_y + h, t)
+    elif kind in ("circumflex", "caron"):
+        w = fit(1.5 * h + 0.3 * sm)
+        t = 0.9 * sm * math.hypot(w / 2, h) / h * 0.8
+        if kind == "circumflex":
+            _caret(g, cx, w, base_y, base_y + h, t)
+        else:
+            g.vee(cx - w / 2, cx + w / 2, base_y + h, base_y, t)
     elif kind == "dieresis":
-        d = S * 0.95
-        gap = 0.6 * d + 40
+        d = 0.95 * sm
+        gap = 0.45 * d + 30
+        if wmax is not None and 2 * d + gap > wmax:
+            gap = 0.3 * wmax
+            d = min(d, (wmax - gap) / 2)
         g.rect(cx - gap / 2 - d, base_y, cx - gap / 2, base_y + d)
         g.rect(cx + gap / 2, base_y, cx + gap / 2 + d, base_y + d)
+    elif kind == "dotaccent":
+        d = 0.95 * sm
+        g.rect(cx - d / 2, base_y, cx + d / 2, base_y + d)
     elif kind == "tilde":
-        ts, tt = S * 0.62, H * 0.55
-        th = (tt + 20 + 0.04 * S) if case == "lc" else (tt + 16 + 0.03 * S)
-        w = 5.0 * th + 0.4 * ts
-        _tilde_shape(g, cx, base_y + th, w, th, ts, tt)
+        ts, tt = 0.78 * sm, 0.62 * sm
+        amp = (tt + 18 + 0.04 * sm) if case == "lc" else (tt + 14 + 0.03 * sm)
+        w = fit(5.0 * amp + 0.4 * ts)
+        _tilde_shape(g, cx, base_y + amp, w, amp, ts, tt)
+    elif kind == "macron":
+        w = fit(0.9 * h + 0.6 * sm)
+        g.rect(cx - w / 2, base_y, cx + w / 2, base_y + 0.8 * hm)
+    elif kind == "breve":
+        w = fit(1.25 * h + 0.3 * sm)
+        hb = 0.62 * h
+        cy = base_y + hb
+        g.ring(cx - w / 2, base_y, cx + w / 2, base_y + 2 * hb,
+               [("l", cy, INF), ("r", cy, INF)], ts=0.8 * sm, th=0.7 * sm)
     elif kind == "ring":
-        d = (150 + 0.9 * S) if case == "lc" else (130 + 0.8 * S)
-        g.ring(cx - d / 2, base_y, cx + d / 2, base_y + d, ts=S * 0.75, th=H * 0.75)
+        if case == "lc":
+            w, hr = 150 + 0.6 * sm, 150 + 0.6 * sm
+        else:
+            w, hr = 140 + 0.55 * sm, 110 + 0.45 * sm
+        g.ring(cx - w / 2, base_y, cx + w / 2, base_y + hr, ts=0.75 * sm, th=0.62 * sm)
     elif kind == "cedilla":
-        s2 = S * 0.8
+        s2 = 0.85 * sm
         g.rect(cx - s2 / 2, -60, cx + s2 / 2, 12)
-        r = 70 + 0.45 * S
+        r = 62 + 0.45 * sm
         y1 = -40
         y0 = y1 - 2 * r * 0.85
-        g.ring(cx - r, y0, cx + r, y1, [("l", -INF, INF)], ts=s2, th=H * 0.8)
+        g.ring(cx - r, y0, cx + r, y1, [("l", -INF, INF)], ts=s2, th=0.8 * hm)
+    elif kind == "ogonek":
+        # The attachment point is the origin: the tail hangs from the
+        # base's lower right and curls back to the right.
+        wo = 120 + 0.6 * sm
+        ho = 2 * (100 + 0.32 * sm)
+        y1 = 0.9 * hm
+        cy = y1 - ho / 2
+        x1 = 0.0
+        g.ring(x1 - wo, y1 - ho, x1, y1, [("r", cy - 0.45 * ho / 2, INF)],
+               ts=0.85 * sm, th=0.72 * sm)
+    elif kind == "commaaccent":
+        d = 0.9 * sm
+        top = -(36 + 0.16 * S)
+        comma_shape_d(g, cx - d * 0.55, top - d, d)
+    elif kind == "commaturnedabove":
+        d = 0.9 * sm
+        y = base_y
+        # A comma turned by 180 degrees: the square on top.
+        g.rot(2 * cx, y + d * 1.0, lambda: comma_shape_d(g, cx - d * 0.55, y + d * 0.95, d))
+    elif kind == "caronalt":
+        # The vertical caron of ď ľ ť Ľ: a comma with its top at y = 0,
+        # its ink starting at x = 0.
+        d = 0.85 * sm
+        comma_shape_d(g, 0, -d, d, tail=0.9)
     else:
         raise KeyError(kind)
 
 
-ACCENT_KINDS = ("acute", "grave", "circumflex", "dieresis", "tilde", "ring", "cedilla")
+def comma_shape_d(g, x, y, d, tail=1.1):
+    """A comma of size d with its square at (x, y)."""
+    g.rect(x, y, x + d, y + d)
+    g.poly([(x + d * 0.25, y), (x + d, y), (x + d * 0.55, y - d * tail), (x + d * 0.1, y - d * tail)])
+
+
+TOP_KINDS = ("grave", "acute", "circumflex", "tilde", "macron", "breve", "dotaccent",
+             "dieresis", "ring", "hungarumlaut", "caron")
+NARROW_KINDS = ("grave", "acute", "circumflex", "tilde", "macron", "breve", "dieresis")
+BOTTOM_KINDS = ("cedilla", "ogonek", "commaaccent")
 
 
 def accent_names() -> list[str]:
     out = []
-    for kind in ACCENT_KINDS:
-        if kind == "cedilla":
-            out.append("cedillacomb")
-        else:
-            out += [f"{kind}comb", f"{kind}comb.case"]
+    for kind in TOP_KINDS:
+        out += [f"{kind}comb", f"{kind}comb.case"]
+        if kind in NARROW_KINDS:
+            out += [f"{kind}comb.narrow", f"{kind}comb.case.narrow"]
+    out += [f"{k}comb" for k in BOTTOM_KINDS]
+    out += ["commaturnedabovecomb", "caroncomb.alt"]
     return out
 
 
+def mark_kind(name: str) -> tuple[str, str, bool]:
+    """Return (kind, case, narrow) of a mark glyph name."""
+    if name == "caroncomb.alt":
+        return "caronalt", "lc", False
+    parts = name.split(".")
+    kind = parts[0][: -len("comb")]
+    return kind, ("case" if "case" in parts else "lc"), ("narrow" in parts)
+
+
 def draw_accent(g, name: str) -> None:
-    kind = name.replace("comb", "").replace(".case", "")
-    case = "case" if name.endswith(".case") else "lc"
-    _accent(g, kind, case, 0.0)
+    kind, case, narrow = mark_kind(name)
+    _accent(g, kind, case, 0.0, narrow)
 
 
-# Composites: name -> (unicode, base glyph, accent glyph).
-_MARK = {"grave": 0x300, "acute": 0x301, "circumflex": 0x302, "tilde": 0x303,
-         "dieresis": 0x308, "ring": 0x30A, "cedilla": 0x327}
+# ------------------------------------------------------------ composites
+#
+# A composite is a base glyph plus marks, or a row of glyphs (Ĳ, ŉ, ½).
+# loom/build.py places the parts (see build.composite).
+
+@dataclass(frozen=True)
+class Comp:
+    cp: int
+    base: str
+    # (mark glyph, place). Places: "top" (centred on the base's ink, or
+    # on its top anchor), "top-asc" (a capital mark lifted to the
+    # ascender: ĥ ĺ), "bottom" (centred below), "ogonek" (at the base's
+    # lower right), "right" (the vertical caron, right of the stem),
+    # "dot" (the middle dot of Ŀ ŀ).
+    marks: tuple = ()
+    # A row of glyphs (the base is the first one), set by advance.
+    row: tuple = ()
 
 
-def _composites() -> dict[str, tuple[int, str, str]]:
+_TOP = {0x300: "grave", 0x301: "acute", 0x302: "circumflex", 0x303: "tilde", 0x304: "macron",
+        0x306: "breve", 0x307: "dotaccent", 0x308: "dieresis", 0x30A: "ring",
+        0x30B: "hungarumlaut", 0x30C: "caron"}
+_BOTTOM = {0x327: "cedilla", 0x328: "ogonek", 0x326: "commaaccent"}
+# Bases with an ascender: a top mark is a capital mark, lifted.
+ASCENDER_BASES = {"h", "l", "k", "b", "d"}
+# Narrow bases: top marks are .narrow marks.
+NARROW_BASES = {"dotlessi", "I", "l", "dotlessj"}
+# Letters whose cedilla is a comma below (Latvian, Romanian).
+_COMMA_BELOW = {0x122, 0x136, 0x137, 0x13B, 0x13C, 0x145, 0x146, 0x156, 0x157}
+# Vertical caron (ď ľ ť Ľ).
+_CARON_ALT = {0x10F, 0x13D, 0x13E, 0x165}
+
+
+def _composites() -> dict[str, Comp]:
     import unicodedata
     out = {}
-    for cp in list(range(0xC0, 0x100)) + [0x178]:
+    cps = list(range(0xC0, 0x100)) + list(range(0x100, 0x180)) + [0x218, 0x219, 0x21A, 0x21B]
+    for cp in cps:
         ch = chr(cp)
         decomp = unicodedata.decomposition(ch).split()
         if len(decomp) != 2 or decomp[0].startswith("<"):
             continue
         base, mark = chr(int(decomp[0], 16)), int(decomp[1], 16)
-        kind = next((k for k, v in _MARK.items() if v == mark), None)
-        if kind is None:
+        if base not in "".join(chr(u) for u in cmap_drawn()):
             continue
-        base_name = {"i": "dotlessi"}.get(base, base)
         case = base.isupper()
-        acc = "cedillacomb" if kind == "cedilla" else (f"{kind}comb.case" if case else f"{kind}comb")
-        name = unicodedata.name(ch)
-        out[_agl_name(cp)] = (cp, base_name, acc)
+        base_name = _agl_name(ord(base))
+        if cp == 0x123:  # ģ: a turned comma above
+            out[_agl_name(cp)] = Comp(cp, "g", (("commaturnedabovecomb", "top"),))
+            continue
+        if mark in _TOP:
+            kind = _TOP[mark]
+            if cp in _CARON_ALT:
+                out[_agl_name(cp)] = Comp(cp, base_name, (("caroncomb.alt", "right"),))
+                continue
+            if base == "i":
+                base_name = "dotlessi"
+            elif base == "j":
+                base_name = "dotlessj"
+            place = "top"
+            mark_name = f"{kind}comb"
+            if case or base_name in ASCENDER_BASES:
+                mark_name += ".case"
+                place = "top" if case else "top-asc"
+            if base_name in NARROW_BASES and kind in NARROW_KINDS:
+                mark_name += ".narrow"
+            out[_agl_name(cp)] = Comp(cp, base_name, ((mark_name, place),))
+        elif mark in _BOTTOM:
+            kind = _BOTTOM[mark]
+            if cp in _COMMA_BELOW:
+                kind = "commaaccent"
+            place = "ogonek" if kind == "ogonek" else "bottom"
+            out[_agl_name(cp)] = Comp(cp, base_name, ((f"{kind}comb", place),))
+    # Compatibility letters: rows of glyphs, and the middle dot.
+    out["IJ"] = Comp(0x132, "I", row=("I", "J"))
+    out["ij"] = Comp(0x133, "i", row=("i", "j"))
+    out["napostrophe"] = Comp(0x149, "quoteright", row=("quoteright", "n"))
+    out["Ldot"] = Comp(0x13F, "L", (("periodcentered", "dot"),))
+    out["ldot"] = Comp(0x140, "l", (("periodcentered", "dot"),))
+    # Fractions.
+    out["onehalf"] = Comp(0xBD, "one.numr", row=("one.numr", "fraction", "two.dnom"))
+    out["onequarter"] = Comp(0xBC, "one.numr", row=("one.numr", "fraction", "four.dnom"))
+    out["threequarters"] = Comp(0xBE, "three.numr", row=("three.numr", "fraction", "four.dnom"))
+    # Spacing marks: one mark, centred in its own advance.
+    for cp, mark in SPACING_MARKS.items():
+        out[_agl_name(cp)] = Comp(cp, mark, row=(mark,))
     return out
+
+
+# Spacing forms of the marks (the spacing grave U+0060 is drawn).
+SPACING_MARKS = {
+    0xA8: "dieresiscomb", 0xAF: "macroncomb", 0xB4: "acutecomb", 0xB8: "cedillacomb",
+    0x2C6: "circumflexcomb", 0x2C7: "caroncomb", 0x2D8: "brevecomb", 0x2D9: "dotaccentcomb",
+    0x2DA: "ringcomb", 0x2DB: "ogonekcomb", 0x2DC: "tildecomb", 0x2DD: "hungarumlautcomb",
+}
+
+
+def cmap_drawn() -> list[int]:
+    return [u for gl in GLYPHS.values() for u in gl.unicodes]
 
 
 def _agl_name(cp: int) -> str:
@@ -1406,8 +1911,8 @@ COMPOSITES = _composites()
 def glyph_order() -> list[str]:
     """.notdef, space, the drawn glyphs by code point, composites, marks."""
     drawn = [n for n in GLYPHS if n not in (".notdef", "space")]
-    drawn.sort(key=lambda n: GLYPHS[n].unicodes[0] if GLYPHS[n].unicodes else 0x10FFFF)
-    comps = sorted(COMPOSITES, key=lambda n: COMPOSITES[n][0])
+    drawn.sort(key=lambda n: (GLYPHS[n].unicodes[0] if GLYPHS[n].unicodes else 0x10FFFF, n))
+    comps = sorted(COMPOSITES, key=lambda n: COMPOSITES[n].cp)
     return [".notdef", "space"] + drawn + comps + accent_names()
 
 
@@ -1416,8 +1921,8 @@ def cmap() -> dict[int, str]:
     for n, gl in GLYPHS.items():
         for u in gl.unicodes:
             out[u] = n
-    for n, (u, _, _) in COMPOSITES.items():
-        out[u] = n
+    for n, c in COMPOSITES.items():
+        out[c.cp] = n
     return out
 
 

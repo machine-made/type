@@ -1,7 +1,11 @@
 """Heddle kerning: a small class kerning for display use.
 
 Classes cover the pairs that open up most in headlines: A V W Y T L P F
-against round lowercase and capitals, and punctuation. Values are in
+against round lowercase and capitals, and punctuation. 0.2 adds
+lowercase pairs (v w y k x r f t against round letters) and figures
+against punctuation (7 and the round figures before . and ,). The
+default figures are tabular, so figures do not kern with each other
+(Fontspector tabular_kerning). Values are in
 font units at wdth 100 and scale with the width axis. Tests check that
 no kerned pair makes two glyphs touch, in any master.
 
@@ -16,8 +20,8 @@ from loom import glyphs as G
 
 def _with_accents(*bases: str) -> list[str]:
     out = list(bases)
-    for name, (_, base, _acc) in sorted(G.COMPOSITES.items()):
-        if base in bases:
+    for name, c in sorted(G.COMPOSITES.items()):
+        if c.base in bases and not c.row:
             out.append(name)
     return out
 
@@ -33,8 +37,15 @@ KERN1 = {
     "P": ["P", "Thorn"],
     "F": ["F"],
     "O": _with_accents("O", "D", "Q") + ["Oslash", "Eth"],
-    "v": ["v", "w", "y"] + _with_accents("y")[1:],
-    "r": ["r"],
+    "v": _with_accents("v", "w", "y"),
+    "r": _with_accents("r"),
+    # 0.2: lowercase and figures.
+    "or": _with_accents("o", "b", "p") + ["oslash", "thorn"],
+    "f": ["f"],
+    "k": ["k", "x", "kgreenlandic"] + _with_accents("k")[1:],
+    "t": _with_accents("t")[1:] + ["t", "tbar"],
+    "seven": ["seven"],
+    "figround": ["zero", "six", "eight", "nine", "three"],
 }
 
 # Right side of a pair: the glyph's left side.
@@ -49,6 +60,9 @@ KERN2 = {
     "T": ["T"],
     "period": ["period", "comma", "ellipsis", "quotesinglbase", "quotedblbase"],
     "hyphen": ["hyphen", "endash", "emdash"],
+    # 0.2: lowercase and figures.
+    "v": _with_accents("v", "w", "y"),
+    "x": ["x"],
 }
 
 # (left class, right class): value at wdth 100.
@@ -66,6 +80,12 @@ PAIRS = {
     ("O", "period"): -25,
     ("v", "period"): -45, ("r", "period"): -40,
     ("T", "hyphen"): -40, ("V", "hyphen"): -30, ("W", "hyphen"): -20, ("Y", "hyphen"): -40,
+    # 0.2: lowercase pairs.
+    ("v", "o"): -20, ("v", "a"): -15, ("or", "v"): -20, ("or", "x"): -15,
+    ("r", "o"): -15, ("r", "a"): -12, ("f", "o"): -15, ("f", "a"): -10, ("f", "period"): -35,
+    ("k", "o"): -20, ("t", "o"): -10, ("v", "v"): -10,
+    # 0.2: figures.
+    ("seven", "period"): -70, ("seven", "hyphen"): -20, ("figround", "period"): -15,
 }
 
 

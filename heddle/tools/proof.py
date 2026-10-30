@@ -1,4 +1,4 @@
-"""Render the Heddle 0.1 proof sheets from the compiled variable font.
+"""Render the Heddle proof sheets from the compiled variable font.
 
 Usage:
     python tools/proof.py [--font VF.ttf] [--out-dir ../proofs/heddle]
@@ -12,6 +12,16 @@ Writes (FreeType and Raqm through Pillow, no sketch code):
                                   edges, midpoints): checks interpolation
     heddle-kerning.png           kerned pairs, kerning off and on
     heddle-accents.png           accented letters, marks and symbols
+    heddle-latin-ext.png         Latin Extended-A and Central European text
+    heddle-symbols.png           0.2 symbols, fractions (frac off and on),
+                                  the redrawn ß ð @ © ® %
+
+With --before OLD_VF (for example Heddle 0.1 from git), it also writes
+before/after sheets (old upper line, new lower line):
+
+    heddle-before-after-accents.png   marks at Black and Regular
+    heddle-before-after-counters.png  hooks and small rings at Black
+    heddle-before-after-drift.png     the glyphs that drifted most near wdth 85
 
 The sketch comparison is tools/sketch_compare.py (needs Chromium).
 
@@ -43,6 +53,8 @@ KERN_LINES = [
     "To Ta Te Vo Va Wo Wa Yo Ya Po Pa Fo Fa",
     "LT LV LW LY AV AW AY AT OA OV OY",
     "T. V. W. Y. P. F, v. y, r. T- Y-",
+    "vow eye yo ox ko to fo fa ro ra f. vv",
+    "1958. 7. 3. 0. 7- 2027.",
 ]
 
 
@@ -101,7 +113,7 @@ def encoded_chars() -> list[str]:
 
 def charset(vf: str, out: Path) -> None:
     chars = encoded_chars()
-    sheet = Sheet(f"machine-made Heddle 0.1: character set ({len(chars)} characters and the space)")
+    sheet = Sheet(f"machine-made Heddle 0.2: character set ({len(chars)} characters and the space)")
     size, cols = 52, 30
     for wght, wdth in ((400, 100), (900, 70), (100, 140)):
         sheet.text(f"wght {wght}, wdth {wdth}")
@@ -114,14 +126,14 @@ def charset(vf: str, out: Path) -> None:
 
 
 def weight_waterfall(vf: str, out: Path) -> None:
-    sheet = Sheet("machine-made Heddle 0.1: weight waterfall at wdth 100 (the nine static weights)")
+    sheet = Sheet("machine-made Heddle 0.2: weight waterfall at wdth 100 (the nine static weights)")
     for wght, style in build.WEIGHTS:
         sheet.line("Hamburgefonstiv 1958", font_at(vf, 80, wght, 100), 80, f"{wght} {style}")
     sheet.save(out)
 
 
 def width_ladder(vf: str, out: Path) -> None:
-    sheet = Sheet("machine-made Heddle 0.1: width ladder (wdth 70 to 140)")
+    sheet = Sheet("machine-made Heddle 0.2: width ladder (wdth 70 to 140)")
     for wght in (400, 900):
         sheet.text(f"wght {wght}")
         for wdth, name, _ in build.WIDTHS:
@@ -131,7 +143,7 @@ def width_ladder(vf: str, out: Path) -> None:
 
 
 def designspace(vf: str, out: Path) -> None:
-    sheet = Sheet("machine-made Heddle 0.1: designspace grid (masters at wght 100, 400, 700, 900 x wdth 70, 100, 140)")
+    sheet = Sheet("machine-made Heddle 0.2: designspace grid (masters at wght 100, 400, 700, 900 x wdth 70, 85, 100, 140)")
     for wdth in (70, 85, 105, 120, 140):
         sheet.text(f"wdth {wdth}")
         for wght in (100, 250, 550, 800, 900):
@@ -140,19 +152,20 @@ def designspace(vf: str, out: Path) -> None:
 
 
 def kerning(vf: str, out: Path) -> None:
-    sheet = Sheet("machine-made Heddle 0.1: kerning, off (upper line) and on (lower line), wght 700")
+    sheet = Sheet("machine-made Heddle 0.2: kerning, off (upper line) and on (lower line), wght 700")
     for wdth in (70, 100, 140):
         sheet.text(f"wdth {wdth}")
-        font = font_at(vf, 64, 700, wdth)
+        size = 64 if wdth < 140 else 50
+        font = font_at(vf, size, 700, wdth)
         for s in KERN_LINES:
-            sheet.line(s, font, 64, "kern off", features=["-kern"])
-            sheet.line(s, font, 64, "kern on", features=["kern"])
+            sheet.line(s, font, size, "kern off", features=["-kern"])
+            sheet.line(s, font, size, "kern on", features=["kern"])
         sheet.gap()
     sheet.save(out)
 
 
 def accents(vf: str, out: Path) -> None:
-    sheet = Sheet("machine-made Heddle 0.1: Latin-1 letters, marks and symbols")
+    sheet = Sheet("machine-made Heddle 0.2: Latin-1 letters, marks and symbols")
     lines = [
         "ÀÁÂÃÄÅ ÇÈÉÊË ÌÍÎÏ ÑÒÓÔÕÖ ÙÚÛÜÝŸ",
         "àáâãäå çèéêë ìíîï ñòóôõö ùúûüýÿ",
@@ -169,10 +182,66 @@ def accents(vf: str, out: Path) -> None:
     sheet.save(out)
 
 
+CE_LINES = [
+    "Zażółć gęślą jaźń · Příliš žluťoučký kůň",
+    "Árvíztűrő tükörfúrógép · Șirul țărilor",
+    "Pijamalı hasta yağız şoföre · Đurđa čuči",
+    "Glāžšķūņa rūķīši ĢĶĻŅ · Įlinkusi ąžuolų",
+    "Ċirku ħabib Ġużeppi · Ĉiuĵaŭde eĥoŝanĝo",
+]
+
+
+def latin_ext(vf: str, out: Path) -> None:
+    sheet = Sheet("machine-made Heddle 0.2: Latin Extended-A (U+0100 to U+017F), S and T with comma below, Central European text")
+    chars = "".join(chr(u) for u in range(0x100, 0x180)) + "ȘșȚț"
+    for wght, wdth in ((400, 100), (900, 85)):
+        sheet.text(f"wght {wght}, wdth {wdth}")
+        font = font_at(vf, 56, wght, wdth)
+        for i in range(0, len(chars), 33):
+            sheet.line(chars[i:i + 33], font, 56)
+        for s_ in CE_LINES:
+            sheet.line(s_, font_at(vf, 48, wght, wdth), 48)
+        sheet.gap()
+    sheet.save(out)
+
+
+def symbols(vf: str, out: Path) -> None:
+    sheet = Sheet("machine-made Heddle 0.2: new symbols, fractions (frac off, then on), redrawn germandbls eth at copyright registered percent")
+    for wght, wdth in ((400, 100), (900, 100), (900, 70)):
+        sheet.text(f"wght {wght}, wdth {wdth}")
+        font = font_at(vf, 72, wght, wdth)
+        sheet.line("¢5 £20 ¥300 §12 ¶ ±3 2×4 8÷2 −1", font, 72)
+        sheet.line("½ ¼ ¾ 1/2 3/4 15/16 2027/10", font, 72, "frac off", features=["-frac"])
+        sheet.line("½ ¼ ¾ 1/2 3/4 15/16 2027/10", font, 72, "frac on", features=["frac"])
+        sheet.line("ß ð @ © ® % Straße ðe a@b.ch", font, 72)
+        sheet.gap()
+    sheet.save(out)
+
+
+def before_after(old: str, vf: str, out_dir: Path) -> None:
+    sets = [
+        ("accents", "marks: Heddle 0.1 (upper line) and 0.2 (lower line)",
+         [(900, 100), (900, 70), (400, 100)], "ïÏíÎ ÄÖÜ äöü ñÑ õÕ åÅ ÉÈ naïve"),
+        ("counters", "hooks and small rings at Black: 0.1 (upper) and 0.2 (lower)",
+         [(900, 100), (900, 70)], "afjst ß ð @ © ® % jet fast"),
+        ("drift", "glyphs that drifted most near wdth 85: 0.1 (upper) and 0.2 (lower)",
+         [(900, 85), (800, 85), (900, 78)], "J z s ä õ – a Jazz"),
+    ]
+    for key, title, locs, text in sets:
+        sheet = Sheet(f"machine-made Heddle: before/after, {title}")
+        for wght, wdth in locs:
+            sheet.text(f"wght {wght}, wdth {wdth}")
+            sheet.line(text, font_at(old, 80, wght, wdth), 80, "0.1")
+            sheet.line(text, font_at(vf, 80, wght, wdth), 80, "0.2")
+            sheet.gap()
+        sheet.save(out_dir / f"heddle-before-after-{key}.png")
+
+
 def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(description="Render the Heddle proof sheets.")
     ap.add_argument("--font", default="../fonts/heddle/variable/MachineMadeHeddle[wdth,wght].ttf")
     ap.add_argument("--out-dir", default="../proofs/heddle")
+    ap.add_argument("--before", help="An older variable font for the before/after sheets.")
     args = ap.parse_args(argv)
     out = Path(args.out_dir)
     out.mkdir(parents=True, exist_ok=True)
@@ -182,6 +251,10 @@ def main(argv: list[str] | None = None) -> int:
     designspace(args.font, out / "heddle-designspace.png")
     kerning(args.font, out / "heddle-kerning.png")
     accents(args.font, out / "heddle-accents.png")
+    latin_ext(args.font, out / "heddle-latin-ext.png")
+    symbols(args.font, out / "heddle-symbols.png")
+    if args.before:
+        before_after(args.before, args.font, out)
     return 0
 
 

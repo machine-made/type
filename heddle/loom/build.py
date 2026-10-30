@@ -1,10 +1,10 @@
-"""Build the Heddle 0.1 sources: variable masters, designspace, static UFOs.
+"""Build the Heddle sources: variable masters, designspace, static UFOs.
 
 Usage:
     python -m loom.build [--out build]
 
 Writes:
-    build/master/Heddle-wWWW-dDDD.ufo   12 masters (wght 100, 400, 700, 900 x wdth 70, 100, 140)
+    build/master/Heddle-wWWW-dDDD.ufo   16 masters (wght 100, 400, 700, 900 x wdth 70, 85, 100, 140)
     build/Heddle.designspace            axes wght 100-900, wdth 70-140, 13 named instances
     build/static/MachineMadeHeddle-{Style}.ufo   statics, overlaps removed
 
@@ -44,7 +44,7 @@ from loom.geom import Canvas, signed_area
 
 FAMILY = "machine-made Heddle"
 PS_FAMILY = "MachineMadeHeddle"
-VERSION = (0, 100)  # 0.100: Heddle 0.1
+VERSION = (0, 200)  # 0.200: Heddle 0.2
 COPYRIGHT = "Copyright 2026 The machine-made Heddle Project Authors (https://github.com/machine-made/type)"
 LICENSE_DESCRIPTION = (
     "This Font Software is licensed under the SIL Open Font License, "
@@ -134,19 +134,130 @@ def ink_center(name: str, wght: float, wdth: float) -> float:
     return (min(xs) + max(xs)) / 2 if xs else adv / 2
 
 
+def ink_bounds(name: str, wght: float, wdth: float) -> tuple[float, float, float, float]:
+    contours, _ = drawn(name, wght, wdth)
+    xs = [x for c in contours for x, _, _ in c]
+    ys = [y for c in contours for _, y, _ in c]
+    return min(xs), min(ys), max(xs), max(ys)
+
+
+def ink_spans(name: str, wght: float, wdth: float, y: float) -> list[tuple[float, float]]:
+    """Return the filled x intervals of a drawn glyph at height y (nonzero rule)."""
+    contours, _ = drawn(name, wght, wdth)
+    hits = []
+    for c in contours:
+        poly = R._flatten(c, 16)
+        for (x0, y0), (x1, y1) in zip(poly, poly[1:] + poly[:1]):
+            if (y0 <= y < y1) or (y1 <= y < y0):
+                x = x0 + (y - y0) * (x1 - x0) / (y1 - y0)
+                hits.append((x, 1 if y1 > y0 else -1))
+    hits.sort()
+    spans, wind, start = [], 0, None
+    for x, d in hits:
+        before = wind
+        wind += d
+        if before == 0 and wind != 0:
+            start = x
+        elif before != 0 and wind == 0:
+            spans.append((start, x))
+    return spans
+
+
+def top_anchor(base: str, wght: float, wdth: float) -> float:
+    """x of the centre of a top mark over a base."""
+    if base == "dotlessj":
+        p = G.Params(wght, wdth)
+        return p.sb + G.GLYPHS[base].width(p) - p.S / 2
+    return ink_center(base, wght, wdth)
+
+
+def bottom_anchor(base: str, wght: float, wdth: float) -> float:
+    """x of the centre of a mark below a base (r: under the stem)."""
+    if base == "r":
+        p = G.Params(wght, wdth)
+        return p.sb + p.S / 2
+    return ink_center(base, wght, wdth)
+
+
+def mark_width(mark: str, wght: float, wdth: float) -> float:
+    """Ink width of a mark (curves flattened, so handles do not count)."""
+    contours, _ = drawn(mark, wght, wdth)
+    xs = [x for c in contours for x, _ in R._flatten(c, 16)]
+    return max(xs) - min(xs)
+
+
+def mark_height(mark: str, wght: float, wdth: float) -> float:
+    contours, _ = drawn(mark, wght, wdth)
+    ys = [y for c in contours for _, y in R._flatten(c, 16)]
+    return max(ys) - min(ys)
+
+
+def _advance(name: str, wght: float, wdth: float) -> float:
+    return drawn(name, wght, wdth)[1]
+
+
 def composite(name: str, wght: float, wdth: float):
-    """Return ([(glyph, dx, dy)], advance) of an accented letter."""
-    _, base, acc = G.COMPOSITES[name]
-    _, adv = drawn(base, wght, wdth)
-    dx = ink_center(base, wght, wdth)
-    # A mark wider than a narrow base (i, I) widens the glyph, so that
-    # marks on neighbours do not touch. The base moves to the centre.
-    acc_contours, _ = drawn(acc, wght, wdth)
-    xs = [x for c in acc_contours for x, _, _ in c]
+    """Return ([(glyph, dx, dy)], advance) of a composite glyph.
+
+    Marks are drawn around x = 0 with advance 0; drawn glyphs include
+    their left sidebearing. See G.Comp for the places.
+    """
+    c = G.COMPOSITES[name]
     p = G.Params(wght, wdth)
-    need = (max(xs) - min(xs)) + p.sb
-    shift = max(0.0, (need - adv) / 2)
-    return [(base, shift, 0.0), (acc, dx + shift, 0.0)], adv + 2 * shift
+    if c.row:
+        if len(c.row) == 1 and c.row[0] in G.accent_names():
+            x0, _, x1, _ = ink_bounds(c.row[0], wght, wdth)
+            return [(c.row[0], p.sb - x0, 0.0)], (x1 - x0) + 2 * p.sb
+        comps, x = [], 0.0
+        for gname in c.row:
+            comps.append((gname, x, 0.0))
+            x += _advance(gname, wght, wdth)
+        return comps, x
+    base = c.base
+    adv = _advance(base, wght, wdth)
+    shift = 0.0
+    # A top mark wider than a narrow base widens the glyph, so that marks
+    # on neighbours do not touch; the base moves to the centre. The
+    # .narrow marks (0.2) fit: ï Ï Ĩ ĺ keep the advance of their base.
+    for mark, place in c.marks:
+        if place in ("top", "top-asc"):
+            need = mark_width(mark, wght, wdth) + 0.5 * p.sb
+            shift = max(shift, (need - adv) / 2)
+    shift = shift if shift > 0.5 else 0.0
+    comps = [(base, shift, 0.0)]
+    for mark, place in c.marks:
+        if place == "top":
+            comps.append((mark, top_anchor(base, wght, wdth) + shift, 0.0))
+        elif place == "top-asc":
+            comps.append((mark, top_anchor(base, wght, wdth) + shift, float(G.ASC - G.CAP)))
+        elif place == "bottom":
+            comps.append((mark, bottom_anchor(base, wght, wdth) + shift, 0.0))
+        elif place == "ogonek":
+            a, b = ink_spans(base, wght, wdth, 4.0)[-1]
+            wo = mark_width(mark, wght, wdth)
+            right = b if b - a >= wo else (a + b) / 2 + wo / 2
+            comps.append((mark, right + shift, 0.0))
+        elif place == "right":
+            # The vertical caron: its top at the ascender (lowercase) or
+            # the cap height, right of the ink it stands next to.
+            top = max(ink_bounds(base, wght, wdth)[3], G.CAP if base[0].isupper() else G.ASC)
+            y0 = top - mark_height(mark, wght, wdth)
+            btop = ink_bounds(base, wght, wdth)[3]
+            xr = max([sp[-1][1] for y in range(int(y0), int(top), 10)
+                      if (sp := ink_spans(base, wght, wdth, y + 0.5))]
+                     + [ink_spans(base, wght, wdth, btop - 20)[-1][1]])
+            x = xr + 0.45 * p.sb + 8
+            comps.append((mark, x + shift, top))
+            adv = max(adv, x + mark_width(mark, wght, wdth) + 0.6 * p.sb)
+        elif place == "dot":
+            top = ink_bounds(base, wght, wdth)[3]
+            x = ink_spans(base, wght, wdth, top - 20)[0][1] + 0.5 * p.sb + 12
+            dy = (G.CAP - G.XH) / 2 if base == "L" else 0.0
+            comps.append((mark, x - p.sb + shift, dy))
+            adv = max(adv, x + G.dot_size(p) + p.sb)
+        else:
+            raise ValueError(place)
+    return comps, adv + 2 * shift
 
 
 def structure(contours) -> tuple:
@@ -232,6 +343,30 @@ def set_info(font: ufoLib2.Font, wght: float, wdth: float, *, static: bool) -> N
     info.openTypeHheaLineGap = 0
     font.lib["com.github.googlei18n.ufo2ft.featureWriters"] = FEATURE_WRITERS
     font.lib["public.postscriptNames"] = {}
+    font.features.text = features()
+
+
+def features() -> str:
+    """OpenType feature code: frac, numr and dnom (0.2). ufo2ft adds kern."""
+    figs = " ".join(G.FIGURES)
+    numr = " ".join(f"{f}.numr" for f in G.FIGURES)
+    dnom = " ".join(f"{f}.dnom" for f in G.FIGURES)
+    return (
+        "languagesystem DFLT dflt;\n"
+        "languagesystem latn dflt;\n\n"
+        f"@figures = [{figs}];\n"
+        f"@numr = [{numr}];\n"
+        f"@dnom = [{dnom}];\n\n"
+        "# Fractions: figures before the slash become numerators, figures\n"
+        "# after it denominators; the slash becomes the fraction slash.\n"
+        "feature frac {\n"
+        "    lookup FRAC_SLASH { sub slash by fraction; } FRAC_SLASH;\n"
+        "    lookup FRAC_NUMR { sub @figures by @numr; } FRAC_NUMR;\n"
+        "    lookup FRAC_DNOM { sub [fraction @dnom] @numr' by @dnom; } FRAC_DNOM;\n"
+        "} frac;\n\n"
+        "feature numr { sub @figures by @numr; } numr;\n"
+        "feature dnom { sub @figures by @dnom; } dnom;\n"
+    )
 
 
 def set_unicodes(font: ufoLib2.Font) -> None:
@@ -377,62 +512,226 @@ def union(contours) -> pathops.Path:
     return path
 
 
-def groups(contours) -> list[list]:
-    """Split loom contours into primitives: a ring outer with its counter."""
-    out = []
-    for c in contours:
-        if signed_area(c) < 0 and out:
-            out[-1].append(c)
+def path_segments(path) -> list[list]:
+    """Return the contours of a pathops path as lists of (op, points)."""
+    from fontTools.pens.recordingPen import RecordingPen
+
+    rec = RecordingPen()
+    path.draw(rec)
+    out, cur = [], []
+    for op, args in rec.value:
+        if op == "moveTo":
+            cur = [("moveTo", [tuple(args[0])])]
+        elif op in ("closePath", "endPath"):
+            if cur:
+                out.append(cur)
+            cur = []
         else:
-            out.append([c])
+            cur.append((op, [tuple(a) for a in args]))
     return out
 
 
-def robust_union(contours, reference=None) -> pathops.Path:
-    """Return the union of loom contours, checked against a nonzero fill.
+def snap(path) -> list[list]:
+    """Round a union result to integer points, dropping degenerate segments.
 
-    pathops can drop a piece where two curves nearly coincide (the two
-    rings of S at the spine). When the result differs from the nonzero
-    fill of the raw contours, move each primitive by a tiny step (0.001
-    unit times its index; rounding removes it) and try again. Stop when
-    that fails too.
+    Where pathops splits curves near an intersection, two points can
+    round to the same place. A line of zero length or a curve whose
+    points are all one point is dropped; a contour with less than three
+    distinct points (on- or off-curve) is dropped.
     """
-    ref = R.nonzero_mask(contours) if reference is None else reference
+    out = []
+    for contour in path_segments(path):
+        start = (rnd(contour[0][1][0][0]), rnd(contour[0][1][0][1]))
+        segs, last = [], start
+        for op, pts in contour[1:]:
+            q = [(rnd(x), rnd(y)) for x, y in pts]
+            if all(pt == last for pt in q):
+                continue
+            if op == "lineTo" or (op == "curveTo" and q[0] in (last, q[-1]) and q[1] in (last, q[-1])):
+                segs.append(("lineTo", [q[-1]]))
+            else:
+                segs.append((op, q))
+            last = q[-1]
+        if segs and segs[-1][1][-1] == start and segs[-1][0] == "lineTo":
+            segs.pop()
+        if len({start} | {pt for s in segs for pt in s[1]}) >= 3:
+            out.append([("moveTo", [start])] + segs)
+    return out
+
+
+def split_touching(contours) -> list[list]:
+    """Split contours that touch themselves into simple loops.
+
+    pathops sometimes returns one contour that runs out to a counter and
+    back along a slit of zero width (where a ring is tangent to a bar,
+    as in Œ). Such a contour can wind the counter the wrong way for the
+    nonzero rule. Each loop between two visits of one point becomes its
+    own contour; loops of no area (the slits) are dropped. orient()
+    then sets the directions.
+    """
+    out = []
+    todo = [c for c in contours]
+    while todo:
+        c = todo.pop()
+        start = c[0][1][0]
+        ends = [start] + [seg[1][-1] for seg in c[1:]]
+        seen, split = {}, None
+        for i, pt in enumerate(ends[:-1] if ends[-1] == start else ends):
+            if pt in seen:
+                split = (seen[pt], i)
+                break
+            seen[pt] = i
+        if split is None:
+            out.append(c)
+            continue
+        i, j = split
+        segs = c[1:]
+        loop = [("moveTo", [ends[i]])] + segs[i:j]
+        rest_segs = segs[:i] + segs[j:]
+        todo.append(loop)
+        if rest_segs:
+            todo.append([("moveTo", [start])] + rest_segs)
+    return [c for c in out if abs(_flat_area([c])) >= 1.0]
+
+
+def _poly(contour) -> list:
+    return R._flatten(_seg_contours([contour])[0], 16)
+
+
+def _inside(pt, poly) -> bool:
+    x, y = pt
+    hit = False
+    for (x0, y0), (x1, y1) in zip(poly, poly[1:] + poly[:1]):
+        if (y0 > y) != (y1 > y) and x < x0 + (y - y0) * (x1 - x0) / (y1 - y0):
+            hit = not hit
+    return hit
+
+
+def orient(contours) -> list[list]:
+    """Wind each loop by its nesting depth: outer loops counter-clockwise,
+    counters clockwise (so nonzero and even-odd fill agree)."""
+    polys = [_poly(c) for c in contours]
+    out = []
+    for k, c in enumerate(contours):
+        depth = 0
+        for m, other in enumerate(polys):
+            if m == k:
+                continue
+            votes = sum(_inside(pt, other) for pt in polys[k][::4])
+            if 2 * votes > len(polys[k][::4]):
+                depth += 1
+        want_ccw = depth % 2 == 0
+        if (_flat_area([c]) > 0) != want_ccw:
+            c = _reverse_segments(c)
+        out.append(c)
+    return out
+
+
+def _reverse_segments(contour) -> list:
+    start = contour[0][1][0]
+    pts = [start] + [seg[1][-1] for seg in contour[1:]]
+    out = [("moveTo", [pts[-1]])]
+    for k in range(len(contour) - 1, 0, -1):
+        op, q = contour[k]
+        prev = pts[k - 1]
+        if op == "lineTo":
+            out.append(("lineTo", [prev]))
+        else:
+            out.append((op, list(reversed(q[:-1])) + [prev]))
+    if out[-1][1][-1] != pts[-1] or len(out) == 1:
+        out.append(("lineTo", [pts[-1]]))
+    # Drop a closing line back to the start (closePath draws it).
+    if out[-1][0] == "lineTo" and out[-1][1][0] == out[0][1][0]:
+        out.pop()
+    return out
+
+
+def _flat_area(contours) -> float:
+    """Signed area of (op, points) contours, curves flattened finely."""
+    total = 0.0
+    for contour in contours:
+        pts = [contour[0][1][0]]
+        for op, q in contour[1:]:
+            p0 = pts[-1]
+            if op == "lineTo":
+                pts.append(q[0])
+            elif op == "curveTo":
+                for k in range(1, 33):
+                    t = k / 32
+                    m = 1 - t
+                    pts.append((m ** 3 * p0[0] + 3 * m * m * t * q[0][0] + 3 * m * t * t * q[1][0] + t ** 3 * q[2][0],
+                                m ** 3 * p0[1] + 3 * m * m * t * q[0][1] + 3 * m * t * t * q[1][1] + t ** 3 * q[2][1]))
+            elif op == "qCurveTo":
+                # One or more quadratics with implied on-curve points.
+                offs, end = q[:-1], q[-1]
+                ons = [p0] + [((a[0] + b[0]) / 2, (a[1] + b[1]) / 2) for a, b in zip(offs, offs[1:])] + [end]
+                for i, c in enumerate(offs):
+                    a, b = ons[i], ons[i + 1]
+                    for k in range(1, 33):
+                        t = k / 32
+                        m = 1 - t
+                        pts.append((m * m * a[0] + 2 * m * t * c[0] + t * t * b[0],
+                                    m * m * a[1] + 2 * m * t * c[1] + t * t * b[1]))
+        for (x0, y0), (x1, y1) in zip(pts, pts[1:] + pts[:1]):
+            total += x0 * y1 - x1 * y0
+    return total / 2
+
+
+def _draw_segments(contours, pen) -> None:
+    for contour in contours:
+        for op, pts in contour:
+            getattr(pen, op)(*pts)
+        pen.closePath()
+
+
+def _seg_contours(contours) -> list:
+    """(op, points) contours as loom contours [(x, y, on)] (cubics only)."""
+    out = []
+    for contour in contours:
+        c = [(*contour[0][1][0], True)]
+        for op, q in contour[1:]:
+            if op == "lineTo":
+                c.append((*q[0], True))
+            else:
+                c += [(*q[0], False), (*q[1], False), (*q[2], True)]
+        if c[-1][:2] == c[0][:2] and len(c) > 1 and c[-1][2]:
+            c = c[:-1]
+        out.append(c)
+    return out
+
+
+class OverlapError(SystemExit):
+    pass
+
+
+def clean_union(name: str, contours) -> list:
+    """Return the overlap-free outline of loom contours, with integer points.
+
+    0.2 boolean step, no fallbacks:
+
+    1. union with skia-pathops (nonzero fill, one path);
+    2. snap: round to integers and drop the degenerate segments that
+       rounding makes (see snap);
+    3. split contours that touch themselves into simple loops and wind
+       each loop by its nesting depth (split_touching, orient);
+    4. check that the result equals the nonzero fill of the primitives
+       (raster, 4 units per pixel) and that it has no overlap left: its
+       signed area equals the signed area of its own union, within
+       2 square units.
+
+    Stops the build when a check fails.
+    """
+    ref = R.nonzero_mask(contours)
     path = union(contours)
-    if R.mismatch(ref, R.path_mask(path)) == 0:
-        return path
-    for eps in (1e-3, 1e-2):
-        moved = [[(x + eps * k, y + 0.7 * eps * k, on) for x, y, on in c]
-                 for k, grp in enumerate(groups(contours)) for c in grp]
-        path = union(moved)
-        if R.mismatch(ref, R.path_mask(path)) == 0:
-            return path
-    raise SystemExit("Overlap removal failed; the union differs from the nonzero fill.")
-
-
-class _RoundPen:
-    """A pen that rounds every point before it reaches the target pen."""
-
-    def __init__(self, pen):
-        self.pen = pen
-
-    def moveTo(self, p):
-        self.pen.moveTo((rnd(p[0]), rnd(p[1])))
-
-    def lineTo(self, p):
-        self.pen.lineTo((rnd(p[0]), rnd(p[1])))
-
-    def curveTo(self, *pts):
-        self.pen.curveTo(*[(rnd(x), rnd(y)) for x, y in pts])
-
-    def qCurveTo(self, *pts):
-        self.pen.qCurveTo(*[(rnd(x), rnd(y)) for x, y in pts])
-
-    def closePath(self):
-        self.pen.closePath()
-
-    def endPath(self):
-        self.pen.endPath()
+    snapped = orient(split_touching(snap(path)))
+    out = _seg_contours(snapped)
+    if R.mismatch(ref, R.path_mask(_to_path(out))) != 0:
+        raise OverlapError(f"Glyph {name!r}: the union differs from the nonzero fill.")
+    again = _to_path(out)
+    again.simplify(fix_winding=True, keep_starting_points=False, clockwise=False)
+    if abs(_flat_area(snapped) - _flat_area(path_segments(again))) > 2.0:
+        raise OverlapError(f"Glyph {name!r}: overlaps are left after snapping.")
+    return snapped
 
 
 def build_static(wght: float, wdth: float) -> ufoLib2.Font:
@@ -446,20 +745,7 @@ def build_static(wght: float, wdth: float) -> ufoLib2.Font:
         contours, adv = interpolated(name, wght, wdth)
         g.width = rnd(adv)
         if contours:
-            ref = R.nonzero_mask(contours)
-            path = robust_union(contours, ref)
-            # Rounding can make a new overlap: simplify again after it,
-            # unless pathops gets that wrong (then keep the rounded path).
-            rounded = pathops.Path()
-            path.draw(_RoundPen(rounded.getPen()))
-            tmp = pathops.Path()
-            rounded.draw(tmp.getPen())
-            tmp.simplify(fix_winding=True, keep_starting_points=False, clockwise=False)
-            if R.mismatch(ref, R.path_mask(tmp)) != 0:
-                tmp = rounded
-                if R.mismatch(ref, R.path_mask(tmp)) != 0:
-                    raise SystemExit(f"Glyph {name!r}: rounding after overlap removal changed the shape.")
-            tmp.draw(_RoundPen(g.getPen()))
+            _draw_segments(clean_union(name, contours), g.getPen())
     set_unicodes(font)
     font.groups.update(K.groups())
     # Kerning: the same interpolation as the variable font.
@@ -519,7 +805,7 @@ def build_designspace(masters: dict) -> DesignSpaceDocument:
 
 
 def main(argv: list[str] | None = None) -> int:
-    ap = argparse.ArgumentParser(description="Build the Heddle 0.1 UFO sources.")
+    ap = argparse.ArgumentParser(description="Build the Heddle UFO sources.")
     ap.add_argument("--out", default="build")
     ap.add_argument("--no-static", action="store_true", help="Do not write the static UFOs.")
     args = ap.parse_args(argv)

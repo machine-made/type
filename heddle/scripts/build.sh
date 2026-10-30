@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Build Heddle 0.1: UFO masters and statics, then the variable TTF, the
+# Build Heddle 0.2: UFO masters and statics, then the variable TTF, the
 # static TTF and WOFF2.
 # Usage: heddle/scripts/build.sh (from any directory)
 set -euo pipefail
@@ -24,6 +24,8 @@ python tools/finish.py --variable "$OUT/variable/$VF"
 # Static fonts. The generator removed the overlaps already.
 fontmake -u build/static/*.ufo -o ttf --keep-overlaps --output-dir "$OUT/ttf"
 python tools/finish.py --static "$OUT"/ttf/*.ttf
+# Hinting (statics only; ttfautohint does not hint variable fonts).
+python tools/finish.py --hint "$OUT"/ttf/*.ttf
 
 python tools/finish.py --woff2-dir "$OUT/webfonts" --woff2 \
   "$OUT/variable/$VF" \
