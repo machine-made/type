@@ -85,27 +85,31 @@
    [
     850,
     70
+   ],
+   [
+    800,
+    78
+   ],
+   [
+    900,
+    78
+   ],
+   [
+    900,
+    92
+   ],
+   [
+    650,
+    92
    ]
   ],
-  "max_shape": 0.1111,
-  "max_shape_sketch_glyphs": 0.1111,
-  "max_advance": 38.8,
-  "max_advance_sketch_glyphs": 35.3,
+  "max_shape": 0.0873,
+  "max_shape_sketch_glyphs": 0.0873,
+  "max_advance": 30.6,
+  "max_advance_sketch_glyphs": 30.6,
   "median_shape": 0.0
  },
  "worst_shape": {
-  "J": {
-   "shape": 0.1111,
-   "shape_at": [
-    900,
-    85
-   ],
-   "advance": 22.7,
-   "advance_at": [
-    900,
-    85
-   ]
-  },
   "hyphen": {
    "shape": 0.0873,
    "shape_at": [
@@ -118,124 +122,136 @@
     85
    ]
   },
-  "otilde": {
-   "shape": 0.066,
-   "shape_at": [
-    800,
-    85
-   ],
-   "advance": 38.8,
-   "advance_at": [
-    800,
-    85
-   ]
-  },
-  "z": {
-   "shape": 0.0646,
+  "J": {
+   "shape": 0.0675,
    "shape_at": [
     900,
-    85
+    78
    ],
-   "advance": 35.3,
+   "advance": 17.3,
    "advance_at": [
     900,
-    85
+    78
    ]
   },
-  "endash": {
-   "shape": 0.0546,
+  "Jcircumflex": {
+   "shape": 0.0592,
    "shape_at": [
     900,
-    85
+    78
    ],
-   "advance": 29.7,
+   "advance": 17.3,
    "advance_at": [
     900,
-    85
+    78
    ]
   },
-  "s": {
-   "shape": 0.0544,
+  "uni0163": {
+   "shape": 0.0592,
+   "shape_at": [
+    550,
+    85
+   ],
+   "advance": 26.3,
+   "advance_at": [
+    900,
+    120
+   ]
+  },
+  "uni021B": {
+   "shape": 0.0566,
+   "shape_at": [
+    550,
+    85
+   ],
+   "advance": 26.3,
+   "advance_at": [
+    900,
+    120
+   ]
+  },
+  "uogonek": {
+   "shape": 0.0406,
+   "shape_at": [
+    850,
+    70
+   ],
+   "advance": 14.6,
+   "advance_at": [
+    900,
+    78
+   ]
+  },
+  "aogonek": {
+   "shape": 0.0391,
    "shape_at": [
     900,
-    85
+    78
    ],
-   "advance": 29.7,
+   "advance": 17.3,
    "advance_at": [
     900,
-    85
+    78
    ]
   },
-  "adieresis": {
-   "shape": 0.0519,
-   "shape_at": [
-    900,
-    85
-   ],
-   "advance": 27.2,
-   "advance_at": [
-    900,
-    85
-   ]
-  },
-  "ydieresis": {
-   "shape": 0.0502,
-   "shape_at": [
-    900,
-    85
-   ],
-   "advance": 27.2,
-   "advance_at": [
-    900,
-    85
-   ]
-  },
-  "atilde": {
-   "shape": 0.0495,
-   "shape_at": [
-    700,
-    85
-   ],
-   "advance": 35.2,
-   "advance_at": [
-    700,
-    85
-   ]
-  },
-  "ntilde": {
-   "shape": 0.049,
-   "shape_at": [
-    700,
-    85
-   ],
-   "advance": 28.8,
-   "advance_at": [
-    800,
-    85
-   ]
-  },
-  "a": {
-   "shape": 0.0424,
-   "shape_at": [
-    900,
-    85
-   ],
-   "advance": 22.7,
-   "advance_at": [
-    900,
-    85
-   ]
-  },
-  "udieresis": {
+  "u": {
    "shape": 0.0387,
    "shape_at": [
-    900,
-    85
+    850,
+    70
    ],
-   "advance": 20.2,
+   "advance": 14.6,
    "advance_at": [
     900,
+    78
+   ]
+  },
+  "IJ": {
+   "shape": 0.0375,
+   "shape_at": [
+    900,
+    78
+   ],
+   "advance": 17.6,
+   "advance_at": [
+    900,
+    78
+   ]
+  },
+  "dcaron": {
+   "shape": 0.037,
+   "shape_at": [
+    850,
+    70
+   ],
+   "advance": 13.3,
+   "advance_at": [
+    850,
+    70
+   ]
+  },
+  "t": {
+   "shape": 0.0359,
+   "shape_at": [
+    550,
     85
+   ],
+   "advance": 26.3,
+   "advance_at": [
+    900,
+    120
+   ]
+  },
+  "slash": {
+   "shape": 0.0352,
+   "shape_at": [
+    900,
+    120
+   ],
+   "advance": 24.7,
+   "advance_at": [
+    900,
+    120
    ]
   }
  },
@@ -243,10 +259,10 @@
   ".notdef": {
    "shape": 0.0,
    "shape_at": null,
-   "advance": 0.3,
+   "advance": 0.5,
    "advance_at": [
-    800,
-    100
+    900,
+    85
    ]
   },
   "exclam": {
@@ -272,7 +288,7 @@
    "shape_at": null,
    "advance": 0.5,
    "advance_at": [
-    100,
+    700,
     85
    ]
   },
@@ -295,15 +311,12 @@
    ]
   },
   "ampersand": {
-   "shape": 0.0001,
-   "shape_at": [
-    550,
-    85
-   ],
-   "advance": 0.4,
+   "shape": 0.0,
+   "shape_at": null,
+   "advance": 0.5,
    "advance_at": [
-    850,
-    70
+    700,
+    85
    ]
   },
   "quotesingle": {
@@ -320,8 +333,8 @@
    "shape_at": null,
    "advance": 0.3,
    "advance_at": [
-    250,
-    100
+    700,
+    85
    ]
   },
   "parenright": {
@@ -329,8 +342,8 @@
    "shape_at": null,
    "advance": 0.3,
    "advance_at": [
-    250,
-    100
+    700,
+    85
    ]
   },
   "asterisk": {
@@ -338,8 +351,8 @@
    "shape_at": null,
    "advance": 0.4,
    "advance_at": [
-    300,
-    70
+    900,
+    85
    ]
   },
   "plus": {
@@ -529,23 +542,23 @@
    ]
   },
   "question": {
-   "shape": 0.0046,
+   "shape": 0.0001,
    "shape_at": [
-    800,
-    85
+    900,
+    78
    ],
-   "advance": 0.3,
+   "advance": 0.4,
    "advance_at": [
     100,
-    120
+    85
    ]
   },
   "at": {
    "shape": 0.0,
    "shape_at": null,
-   "advance": 0.3,
+   "advance": 0.4,
    "advance_at": [
-    100,
+    400,
     85
    ]
   },
@@ -554,8 +567,8 @@
    "shape_at": null,
    "advance": 0.3,
    "advance_at": [
-    100,
-    85
+    900,
+    78
    ]
   },
   "B": {
@@ -563,8 +576,8 @@
    "shape_at": null,
    "advance": 0.3,
    "advance_at": [
-    100,
-    85
+    900,
+    78
    ]
   },
   "C": {
@@ -572,8 +585,8 @@
    "shape_at": null,
    "advance": 0.3,
    "advance_at": [
-    100,
-    85
+    900,
+    92
    ]
   },
   "D": {
@@ -581,8 +594,8 @@
    "shape_at": null,
    "advance": 0.3,
    "advance_at": [
-    100,
-    85
+    900,
+    78
    ]
   },
   "E": {
@@ -598,15 +611,15 @@
    ]
   },
   "F": {
-   "shape": 0.0173,
+   "shape": 0.0152,
    "shape_at": [
     900,
-    85
+    78
    ],
-   "advance": 19.2,
+   "advance": 18.1,
    "advance_at": [
     900,
-    85
+    78
    ]
   },
   "G": {
@@ -623,8 +636,8 @@
    "shape_at": null,
    "advance": 0.3,
    "advance_at": [
-    100,
-    85
+    900,
+    92
    ]
   },
   "I": {
@@ -637,15 +650,15 @@
    ]
   },
   "J": {
-   "shape": 0.1111,
+   "shape": 0.0675,
    "shape_at": [
     900,
-    85
+    78
    ],
-   "advance": 22.7,
+   "advance": 17.3,
    "advance_at": [
     900,
-    85
+    78
    ]
   },
   "K": {
@@ -653,20 +666,20 @@
    "shape_at": null,
    "advance": 0.3,
    "advance_at": [
-    100,
-    85
+    900,
+    92
    ]
   },
   "L": {
-   "shape": 0.0138,
+   "shape": 0.0107,
    "shape_at": [
     900,
-    85
+    78
    ],
-   "advance": 22.7,
+   "advance": 17.3,
    "advance_at": [
     900,
-    85
+    78
    ]
   },
   "M": {
@@ -681,9 +694,9 @@
   "N": {
    "shape": 0.0,
    "shape_at": null,
-   "advance": 0.3,
+   "advance": 0.4,
    "advance_at": [
-    100,
+    400,
     85
    ]
   },
@@ -692,8 +705,8 @@
    "shape_at": null,
    "advance": 0.3,
    "advance_at": [
-    100,
-    85
+    900,
+    92
    ]
   },
   "P": {
@@ -710,16 +723,16 @@
    "shape_at": null,
    "advance": 0.3,
    "advance_at": [
-    100,
-    85
+    900,
+    92
    ]
   },
   "R": {
    "shape": 0.0,
    "shape_at": null,
-   "advance": 0.3,
+   "advance": 0.4,
    "advance_at": [
-    100,
+    400,
     85
    ]
   },
@@ -728,8 +741,8 @@
    "shape_at": null,
    "advance": 0.3,
    "advance_at": [
-    100,
-    85
+    900,
+    78
    ]
   },
   "T": {
@@ -746,8 +759,8 @@
    "shape_at": null,
    "advance": 0.3,
    "advance_at": [
-    100,
-    85
+    900,
+    92
    ]
   },
   "V": {
@@ -755,20 +768,17 @@
    "shape_at": null,
    "advance": 0.3,
    "advance_at": [
-    100,
-    85
+    900,
+    92
    ]
   },
   "W": {
-   "shape": 0.0002,
-   "shape_at": [
-    900,
-    85
-   ],
+   "shape": 0.0,
+   "shape_at": null,
    "advance": 0.3,
    "advance_at": [
-    100,
-    85
+    900,
+    92
    ]
   },
   "X": {
@@ -776,8 +786,8 @@
    "shape_at": null,
    "advance": 0.3,
    "advance_at": [
-    100,
-    85
+    900,
+    92
    ]
   },
   "Y": {
@@ -785,16 +795,16 @@
    "shape_at": null,
    "advance": 0.3,
    "advance_at": [
-    100,
-    85
+    900,
+    78
    ]
   },
   "Z": {
    "shape": 0.0,
    "shape_at": null,
-   "advance": 0.3,
+   "advance": 0.4,
    "advance_at": [
-    100,
+    400,
     85
    ]
   },
@@ -803,8 +813,8 @@
    "shape_at": null,
    "advance": 0.4,
    "advance_at": [
-    800,
-    100
+    700,
+    85
    ]
   },
   "backslash": {
@@ -821,13 +831,16 @@
    "shape_at": null,
    "advance": 0.4,
    "advance_at": [
-    800,
-    100
+    700,
+    85
    ]
   },
   "asciicircum": {
-   "shape": 0.0,
-   "shape_at": null,
+   "shape": 0.0002,
+   "shape_at": [
+    800,
+    78
+   ],
    "advance": 0.3,
    "advance_at": [
     100,
@@ -837,35 +850,35 @@
   "underscore": {
    "shape": 0.0,
    "shape_at": null,
-   "advance": 0.3,
+   "advance": 0.4,
    "advance_at": [
     100,
-    120
+    85
    ]
   },
   "grave": {
    "shape": 0.0,
    "shape_at": null,
-   "advance": 0.3,
+   "advance": 0.5,
    "advance_at": [
-    400,
+    100,
     85
    ]
   },
   "a": {
-   "shape": 0.0424,
+   "shape": 0.0313,
    "shape_at": [
     900,
-    85
+    78
    ],
-   "advance": 22.7,
+   "advance": 17.3,
    "advance_at": [
     900,
-    85
+    78
    ]
   },
   "b": {
-   "shape": 0.008,
+   "shape": 0.0064,
    "shape_at": [
     850,
     70
@@ -877,19 +890,19 @@
    ]
   },
   "c": {
-   "shape": 0.0131,
+   "shape": 0.0076,
    "shape_at": [
     900,
-    85
+    78
    ],
-   "advance": 22.7,
+   "advance": 17.3,
    "advance_at": [
     900,
-    85
+    78
    ]
   },
   "d": {
-   "shape": 0.0335,
+   "shape": 0.0344,
    "shape_at": [
     850,
     70
@@ -901,19 +914,19 @@
    ]
   },
   "e": {
-   "shape": 0.0085,
+   "shape": 0.0081,
    "shape_at": [
-    900,
-    85
+    850,
+    70
    ],
-   "advance": 15.7,
+   "advance": 14.6,
    "advance_at": [
     900,
-    85
+    78
    ]
   },
   "f": {
-   "shape": 0.027,
+   "shape": 0.0305,
    "shape_at": [
     550,
     85
@@ -925,7 +938,7 @@
    ]
   },
   "g": {
-   "shape": 0.0237,
+   "shape": 0.0241,
    "shape_at": [
     850,
     70
@@ -937,15 +950,15 @@
    ]
   },
   "h": {
-   "shape": 0.0265,
+   "shape": 0.026,
    "shape_at": [
     850,
     70
    ],
-   "advance": 15.7,
+   "advance": 14.6,
    "advance_at": [
     900,
-    85
+    78
    ]
   },
   "i": {
@@ -967,15 +980,15 @@
    ]
   },
   "k": {
-   "shape": 0.0099,
+   "shape": 0.0054,
    "shape_at": [
     900,
-    85
+    78
    ],
-   "advance": 22.7,
+   "advance": 17.3,
    "advance_at": [
     900,
-    85
+    78
    ]
   },
   "l": {
@@ -997,19 +1010,19 @@
    ]
   },
   "n": {
-   "shape": 0.0317,
+   "shape": 0.031,
    "shape_at": [
     850,
     70
    ],
-   "advance": 15.7,
+   "advance": 14.6,
    "advance_at": [
     900,
-    85
+    78
    ]
   },
   "o": {
-   "shape": 0.0103,
+   "shape": 0.0085,
    "shape_at": [
     850,
     70
@@ -1021,7 +1034,7 @@
    ]
   },
   "p": {
-   "shape": 0.0079,
+   "shape": 0.0064,
    "shape_at": [
     850,
     70
@@ -1033,7 +1046,7 @@
    ]
   },
   "q": {
-   "shape": 0.0336,
+   "shape": 0.0345,
    "shape_at": [
     850,
     70
@@ -1057,22 +1070,22 @@
    ]
   },
   "s": {
-   "shape": 0.0544,
+   "shape": 0.0085,
    "shape_at": [
-    900,
-    85
+    800,
+    78
    ],
-   "advance": 29.7,
+   "advance": 13.9,
    "advance_at": [
-    900,
-    85
+    800,
+    78
    ]
   },
   "t": {
-   "shape": 0.0175,
+   "shape": 0.0359,
    "shape_at": [
-    900,
-    120
+    550,
+    85
    ],
    "advance": 26.3,
    "advance_at": [
@@ -1081,32 +1094,35 @@
    ]
   },
   "u": {
-   "shape": 0.0378,
+   "shape": 0.0387,
    "shape_at": [
     850,
     70
    ],
-   "advance": 15.7,
+   "advance": 14.6,
    "advance_at": [
     900,
-    85
+    78
    ]
   },
   "v": {
-   "shape": 0.0351,
+   "shape": 0.0259,
    "shape_at": [
     900,
-    85
+    78
    ],
-   "advance": 22.7,
+   "advance": 17.3,
    "advance_at": [
     900,
-    85
+    78
    ]
   },
   "w": {
-   "shape": 0.0,
-   "shape_at": null,
+   "shape": 0.0002,
+   "shape_at": [
+    900,
+    78
+   ],
    "advance": 0.3,
    "advance_at": [
     100,
@@ -1114,39 +1130,39 @@
    ]
   },
   "x": {
-   "shape": 0.0255,
+   "shape": 0.0145,
    "shape_at": [
     900,
-    85
+    78
    ],
-   "advance": 22.7,
+   "advance": 17.3,
    "advance_at": [
     900,
-    85
+    78
    ]
   },
   "y": {
-   "shape": 0.0266,
+   "shape": 0.0197,
    "shape_at": [
     900,
-    85
+    78
    ],
-   "advance": 22.7,
+   "advance": 17.3,
    "advance_at": [
     900,
-    85
+    78
    ]
   },
   "z": {
-   "shape": 0.0646,
+   "shape": 0.0253,
    "shape_at": [
-    900,
-    85
+    800,
+    78
    ],
-   "advance": 35.3,
+   "advance": 17.7,
    "advance_at": [
-    900,
-    85
+    800,
+    78
    ]
   },
   "braceleft": {
@@ -1154,8 +1170,8 @@
    "shape_at": null,
    "advance": 0.4,
    "advance_at": [
-    800,
-    100
+    900,
+    92
    ]
   },
   "bar": {
@@ -1172,11 +1188,32 @@
    "shape_at": null,
    "advance": 0.4,
    "advance_at": [
-    800,
-    100
+    900,
+    92
    ]
   },
   "asciitilde": {
+   "shape": 0.0063,
+   "shape_at": [
+    550,
+    85
+   ],
+   "advance": 0.3,
+   "advance_at": [
+    100,
+    85
+   ]
+  },
+  "exclamdown": {
+   "shape": 0.0,
+   "shape_at": null,
+   "advance": 0.4,
+   "advance_at": [
+    400,
+    85
+   ]
+  },
+  "cent": {
    "shape": 0.0,
    "shape_at": null,
    "advance": 0.3,
@@ -1185,7 +1222,28 @@
     85
    ]
   },
-  "exclamdown": {
+  "sterling": {
+   "shape": 0.0002,
+   "shape_at": [
+    800,
+    78
+   ],
+   "advance": 0.3,
+   "advance_at": [
+    100,
+    85
+   ]
+  },
+  "yen": {
+   "shape": 0.0,
+   "shape_at": null,
+   "advance": 0.3,
+   "advance_at": [
+    100,
+    85
+   ]
+  },
+  "section": {
    "shape": 0.0,
    "shape_at": null,
    "advance": 0.4,
@@ -1230,6 +1288,24 @@
     85
    ]
   },
+  "plusminus": {
+   "shape": 0.0,
+   "shape_at": null,
+   "advance": 0.3,
+   "advance_at": [
+    100,
+    85
+   ]
+  },
+  "paragraph": {
+   "shape": 0.0,
+   "shape_at": null,
+   "advance": 0.5,
+   "advance_at": [
+    400,
+    85
+   ]
+  },
   "periodcentered": {
    "shape": 0.0,
    "shape_at": null,
@@ -1249,15 +1325,15 @@
    ]
   },
   "questiondown": {
-   "shape": 0.005,
+   "shape": 0.0001,
    "shape_at": [
-    800,
-    85
+    900,
+    78
    ],
-   "advance": 0.3,
+   "advance": 0.4,
    "advance_at": [
     100,
-    120
+    85
    ]
   },
   "AE": {
@@ -1278,13 +1354,22 @@
     85
    ]
   },
-  "Oslash": {
+  "multiply": {
    "shape": 0.0,
    "shape_at": null,
    "advance": 0.3,
    "advance_at": [
     100,
     85
+   ]
+  },
+  "Oslash": {
+   "shape": 0.0,
+   "shape_at": null,
+   "advance": 0.3,
+   "advance_at": [
+    900,
+    92
    ]
   },
   "Thorn": {
@@ -1306,15 +1391,12 @@
    ]
   },
   "ae": {
-   "shape": 0.0022,
-   "shape_at": [
-    800,
-    120
-   ],
+   "shape": 0.0,
+   "shape_at": null,
    "advance": 0.3,
    "advance_at": [
-    100,
-    85
+    900,
+    78
    ]
   },
   "eth": {
@@ -1324,6 +1406,15 @@
    "advance_at": [
     850,
     70
+   ]
+  },
+  "divide": {
+   "shape": 0.0,
+   "shape_at": null,
+   "advance": 0.3,
+   "advance_at": [
+    100,
+    85
    ]
   },
   "oslash": {
@@ -1344,6 +1435,33 @@
     70
    ]
   },
+  "dcroat": {
+   "shape": 0.0,
+   "shape_at": null,
+   "advance": 0.3,
+   "advance_at": [
+    100,
+    85
+   ]
+  },
+  "Hbar": {
+   "shape": 0.0,
+   "shape_at": null,
+   "advance": 0.3,
+   "advance_at": [
+    100,
+    85
+   ]
+  },
+  "hbar": {
+   "shape": 0.0,
+   "shape_at": null,
+   "advance": 0.3,
+   "advance_at": [
+    100,
+    85
+   ]
+  },
   "dotlessi": {
    "shape": 0.0,
    "shape_at": null,
@@ -1353,13 +1471,64 @@
     85
    ]
   },
+  "kgreenlandic": {
+   "shape": 0.0,
+   "shape_at": null,
+   "advance": 0.4,
+   "advance_at": [
+    100,
+    85
+   ]
+  },
+  "Lslash": {
+   "shape": 0.0,
+   "shape_at": null,
+   "advance": 0.3,
+   "advance_at": [
+    850,
+    70
+   ]
+  },
+  "lslash": {
+   "shape": 0.0,
+   "shape_at": null,
+   "advance": 0.5,
+   "advance_at": [
+    100,
+    85
+   ]
+  },
+  "Eng": {
+   "shape": 0.0007,
+   "shape_at": [
+    800,
+    100
+   ],
+   "advance": 0.4,
+   "advance_at": [
+    400,
+    85
+   ]
+  },
+  "eng": {
+   "shape": 0.0076,
+   "shape_at": [
+    550,
+    85
+   ],
+   "advance": 0.4,
+   "advance_at": [
+    400,
+    85
+   ]
+  },
   "OE": {
    "shape": 0.0,
    "shape_at": null,
    "advance": 0.3,
    "advance_at": [
-    100,
-    85
+    900,
+    92
    ]
   },
   "oe": {
@@ -1371,16 +1540,58 @@
     85
    ]
   },
-  "endash": {
-   "shape": 0.0546,
-   "shape_at": [
-    900,
-    85
-   ],
-   "advance": 29.7,
+  "Tbar": {
+   "shape": 0.0,
+   "shape_at": null,
+   "advance": 0.4,
    "advance_at": [
-    900,
+    700,
+    120
+   ]
+  },
+  "tbar": {
+   "shape": 0.0116,
+   "shape_at": [
+    550,
+    100
+   ],
+   "advance": 0.5,
+   "advance_at": [
+    400,
     85
+   ]
+  },
+  "longs": {
+   "shape": 0.0091,
+   "shape_at": [
+    250,
+    120
+   ],
+   "advance": 0.3,
+   "advance_at": [
+    700,
+    85
+   ]
+  },
+  "dotlessj": {
+   "shape": 0.0,
+   "shape_at": null,
+   "advance": 0.3,
+   "advance_at": [
+    250,
+    85
+   ]
+  },
+  "endash": {
+   "shape": 0.0198,
+   "shape_at": [
+    800,
+    78
+   ],
+   "advance": 13.9,
+   "advance_at": [
+    800,
+    78
    ]
   },
   "emdash": {
@@ -1482,6 +1693,15 @@
     85
    ]
   },
+  "fraction": {
+   "shape": 0.0,
+   "shape_at": null,
+   "advance": 0.3,
+   "advance_at": [
+    900,
+    78
+   ]
+  },
   "Euro": {
    "shape": 0.0,
    "shape_at": null,
@@ -1500,13 +1720,265 @@
     85
    ]
   },
-  "Agrave": {
+  "minus": {
    "shape": 0.0,
    "shape_at": null,
    "advance": 0.3,
    "advance_at": [
     100,
     85
+   ]
+  },
+  "eight.dnom": {
+   "shape": 0.0,
+   "shape_at": null,
+   "advance": 0.4,
+   "advance_at": [
+    400,
+    85
+   ]
+  },
+  "eight.numr": {
+   "shape": 0.0,
+   "shape_at": null,
+   "advance": 0.4,
+   "advance_at": [
+    400,
+    85
+   ]
+  },
+  "five.dnom": {
+   "shape": 0.0,
+   "shape_at": null,
+   "advance": 0.4,
+   "advance_at": [
+    400,
+    85
+   ]
+  },
+  "five.numr": {
+   "shape": 0.0,
+   "shape_at": null,
+   "advance": 0.4,
+   "advance_at": [
+    400,
+    85
+   ]
+  },
+  "four.dnom": {
+   "shape": 0.0,
+   "shape_at": null,
+   "advance": 0.4,
+   "advance_at": [
+    400,
+    85
+   ]
+  },
+  "four.numr": {
+   "shape": 0.0,
+   "shape_at": null,
+   "advance": 0.4,
+   "advance_at": [
+    400,
+    85
+   ]
+  },
+  "nine.dnom": {
+   "shape": 0.0,
+   "shape_at": null,
+   "advance": 0.4,
+   "advance_at": [
+    400,
+    85
+   ]
+  },
+  "nine.numr": {
+   "shape": 0.0,
+   "shape_at": null,
+   "advance": 0.4,
+   "advance_at": [
+    400,
+    85
+   ]
+  },
+  "one.dnom": {
+   "shape": 0.0,
+   "shape_at": null,
+   "advance": 0.4,
+   "advance_at": [
+    400,
+    85
+   ]
+  },
+  "one.numr": {
+   "shape": 0.0,
+   "shape_at": null,
+   "advance": 0.4,
+   "advance_at": [
+    400,
+    85
+   ]
+  },
+  "seven.dnom": {
+   "shape": 0.0,
+   "shape_at": null,
+   "advance": 0.4,
+   "advance_at": [
+    400,
+    85
+   ]
+  },
+  "seven.numr": {
+   "shape": 0.0,
+   "shape_at": null,
+   "advance": 0.4,
+   "advance_at": [
+    400,
+    85
+   ]
+  },
+  "six.dnom": {
+   "shape": 0.0,
+   "shape_at": null,
+   "advance": 0.4,
+   "advance_at": [
+    400,
+    85
+   ]
+  },
+  "six.numr": {
+   "shape": 0.0,
+   "shape_at": null,
+   "advance": 0.4,
+   "advance_at": [
+    400,
+    85
+   ]
+  },
+  "three.dnom": {
+   "shape": 0.0,
+   "shape_at": null,
+   "advance": 0.4,
+   "advance_at": [
+    400,
+    85
+   ]
+  },
+  "three.numr": {
+   "shape": 0.0,
+   "shape_at": null,
+   "advance": 0.4,
+   "advance_at": [
+    400,
+    85
+   ]
+  },
+  "two.dnom": {
+   "shape": 0.0,
+   "shape_at": null,
+   "advance": 0.4,
+   "advance_at": [
+    400,
+    85
+   ]
+  },
+  "two.numr": {
+   "shape": 0.0,
+   "shape_at": null,
+   "advance": 0.4,
+   "advance_at": [
+    400,
+    85
+   ]
+  },
+  "zero.dnom": {
+   "shape": 0.0,
+   "shape_at": null,
+   "advance": 0.4,
+   "advance_at": [
+    400,
+    85
+   ]
+  },
+  "zero.numr": {
+   "shape": 0.0,
+   "shape_at": null,
+   "advance": 0.4,
+   "advance_at": [
+    400,
+    85
+   ]
+  },
+  "dieresis": {
+   "shape": 0.0,
+   "shape_at": null,
+   "advance": 0.5,
+   "advance_at": [
+    700,
+    85
+   ]
+  },
+  "macron": {
+   "shape": 0.0,
+   "shape_at": null,
+   "advance": 0.4,
+   "advance_at": [
+    700,
+    85
+   ]
+  },
+  "acute": {
+   "shape": 0.0,
+   "shape_at": null,
+   "advance": 0.5,
+   "advance_at": [
+    100,
+    85
+   ]
+  },
+  "cedilla": {
+   "shape": 0.0,
+   "shape_at": null,
+   "advance": 0.5,
+   "advance_at": [
+    700,
+    85
+   ]
+  },
+  "onequarter": {
+   "shape": 0.0,
+   "shape_at": null,
+   "advance": 0.5,
+   "advance_at": [
+    700,
+    85
+   ]
+  },
+  "onehalf": {
+   "shape": 0.0,
+   "shape_at": null,
+   "advance": 0.5,
+   "advance_at": [
+    700,
+    85
+   ]
+  },
+  "threequarters": {
+   "shape": 0.0,
+   "shape_at": null,
+   "advance": 0.5,
+   "advance_at": [
+    700,
+    85
+   ]
+  },
+  "Agrave": {
+   "shape": 0.0,
+   "shape_at": null,
+   "advance": 0.3,
+   "advance_at": [
+    900,
+    78
    ]
   },
   "Aacute": {
@@ -1514,8 +1986,8 @@
    "shape_at": null,
    "advance": 0.3,
    "advance_at": [
-    100,
-    85
+    900,
+    78
    ]
   },
   "Acircumflex": {
@@ -1523,20 +1995,17 @@
    "shape_at": null,
    "advance": 0.3,
    "advance_at": [
-    100,
-    85
+    900,
+    78
    ]
   },
   "Atilde": {
-   "shape": 0.003,
-   "shape_at": [
-    900,
-    85
-   ],
-   "advance": 19.2,
+   "shape": 0.0,
+   "shape_at": null,
+   "advance": 0.3,
    "advance_at": [
     900,
-    85
+    78
    ]
   },
   "Adieresis": {
@@ -1544,8 +2013,8 @@
    "shape_at": null,
    "advance": 0.3,
    "advance_at": [
-    100,
-    85
+    900,
+    78
    ]
   },
   "Aring": {
@@ -1553,8 +2022,8 @@
    "shape_at": null,
    "advance": 0.3,
    "advance_at": [
-    100,
-    85
+    900,
+    78
    ]
   },
   "Ccedilla": {
@@ -1562,12 +2031,12 @@
    "shape_at": null,
    "advance": 0.3,
    "advance_at": [
-    100,
-    85
+    900,
+    92
    ]
   },
   "Egrave": {
-   "shape": 0.0139,
+   "shape": 0.0145,
    "shape_at": [
     850,
     70
@@ -1579,7 +2048,7 @@
    ]
   },
   "Eacute": {
-   "shape": 0.0139,
+   "shape": 0.0145,
    "shape_at": [
     850,
     70
@@ -1591,7 +2060,7 @@
    ]
   },
   "Ecircumflex": {
-   "shape": 0.0131,
+   "shape": 0.0141,
    "shape_at": [
     850,
     70
@@ -1603,12 +2072,12 @@
    ]
   },
   "Edieresis": {
-   "shape": 0.0104,
+   "shape": 0.0139,
    "shape_at": [
     850,
     70
    ],
-   "advance": 14.6,
+   "advance": 13.3,
    "advance_at": [
     850,
     70
@@ -1617,48 +2086,45 @@
   "Igrave": {
    "shape": 0.0,
    "shape_at": null,
-   "advance": 0.4,
+   "advance": 0.3,
    "advance_at": [
-    400,
+    250,
     85
    ]
   },
   "Iacute": {
    "shape": 0.0,
    "shape_at": null,
-   "advance": 0.4,
+   "advance": 0.3,
    "advance_at": [
-    400,
+    250,
     85
    ]
   },
   "Icircumflex": {
    "shape": 0.0,
    "shape_at": null,
-   "advance": 0.5,
+   "advance": 0.3,
    "advance_at": [
-    900,
+    250,
     85
    ]
   },
   "Idieresis": {
    "shape": 0.0,
    "shape_at": null,
-   "advance": 0.4,
+   "advance": 0.3,
    "advance_at": [
-    400,
+    250,
     85
    ]
   },
   "Ntilde": {
-   "shape": 0.0214,
-   "shape_at": [
-    900,
-    85
-   ],
-   "advance": 22.7,
+   "shape": 0.0,
+   "shape_at": null,
+   "advance": 0.4,
    "advance_at": [
-    900,
+    400,
     85
    ]
   },
@@ -1667,8 +2133,8 @@
    "shape_at": null,
    "advance": 0.3,
    "advance_at": [
-    100,
-    85
+    900,
+    92
    ]
   },
   "Oacute": {
@@ -1676,8 +2142,8 @@
    "shape_at": null,
    "advance": 0.3,
    "advance_at": [
-    100,
-    85
+    900,
+    92
    ]
   },
   "Ocircumflex": {
@@ -1685,8 +2151,8 @@
    "shape_at": null,
    "advance": 0.3,
    "advance_at": [
-    100,
-    85
+    900,
+    92
    ]
   },
   "Otilde": {
@@ -1694,8 +2160,8 @@
    "shape_at": null,
    "advance": 0.3,
    "advance_at": [
-    100,
-    85
+    900,
+    92
    ]
   },
   "Odieresis": {
@@ -1703,8 +2169,8 @@
    "shape_at": null,
    "advance": 0.3,
    "advance_at": [
-    100,
-    85
+    900,
+    92
    ]
   },
   "Ugrave": {
@@ -1712,8 +2178,8 @@
    "shape_at": null,
    "advance": 0.3,
    "advance_at": [
-    100,
-    85
+    900,
+    92
    ]
   },
   "Uacute": {
@@ -1721,8 +2187,8 @@
    "shape_at": null,
    "advance": 0.3,
    "advance_at": [
-    100,
-    85
+    900,
+    92
    ]
   },
   "Ucircumflex": {
@@ -1730,8 +2196,8 @@
    "shape_at": null,
    "advance": 0.3,
    "advance_at": [
-    100,
-    85
+    900,
+    92
    ]
   },
   "Udieresis": {
@@ -1739,8 +2205,8 @@
    "shape_at": null,
    "advance": 0.3,
    "advance_at": [
-    100,
-    85
+    900,
+    92
    ]
   },
   "Yacute": {
@@ -1748,157 +2214,157 @@
    "shape_at": null,
    "advance": 0.3,
    "advance_at": [
-    100,
-    85
+    900,
+    78
    ]
   },
   "agrave": {
-   "shape": 0.0357,
+   "shape": 0.0276,
    "shape_at": [
     900,
-    85
+    78
    ],
-   "advance": 22.7,
+   "advance": 17.3,
    "advance_at": [
     900,
-    85
+    78
    ]
   },
   "aacute": {
-   "shape": 0.0357,
+   "shape": 0.0276,
    "shape_at": [
     900,
-    85
+    78
    ],
-   "advance": 22.7,
+   "advance": 17.3,
    "advance_at": [
     900,
-    85
+    78
    ]
   },
   "acircumflex": {
-   "shape": 0.0324,
+   "shape": 0.026,
    "shape_at": [
     900,
-    85
+    78
    ],
-   "advance": 22.7,
+   "advance": 17.3,
    "advance_at": [
     900,
-    85
+    78
    ]
   },
   "atilde": {
-   "shape": 0.0495,
+   "shape": 0.0196,
    "shape_at": [
-    700,
-    85
+    800,
+    78
    ],
-   "advance": 35.2,
+   "advance": 18.8,
    "advance_at": [
-    700,
-    85
+    800,
+    78
    ]
   },
   "adieresis": {
-   "shape": 0.0519,
+   "shape": 0.0269,
    "shape_at": [
     900,
-    85
+    78
    ],
-   "advance": 27.2,
+   "advance": 17.3,
    "advance_at": [
     900,
-    85
+    78
    ]
   },
   "aring": {
-   "shape": 0.0325,
+   "shape": 0.026,
    "shape_at": [
     900,
-    85
+    78
    ],
-   "advance": 22.7,
+   "advance": 17.3,
    "advance_at": [
     900,
-    85
+    78
    ]
   },
   "ccedilla": {
-   "shape": 0.018,
+   "shape": 0.007,
    "shape_at": [
     900,
-    85
+    78
    ],
-   "advance": 22.7,
+   "advance": 17.3,
    "advance_at": [
     900,
-    85
+    78
    ]
   },
   "egrave": {
-   "shape": 0.0072,
+   "shape": 0.0071,
    "shape_at": [
-    900,
-    85
+    850,
+    70
    ],
-   "advance": 15.7,
+   "advance": 14.6,
    "advance_at": [
     900,
-    85
+    78
    ]
   },
   "eacute": {
-   "shape": 0.0072,
+   "shape": 0.0071,
    "shape_at": [
-    900,
-    85
+    850,
+    70
    ],
-   "advance": 15.7,
+   "advance": 14.6,
    "advance_at": [
     900,
-    85
+    78
    ]
   },
   "ecircumflex": {
-   "shape": 0.0065,
+   "shape": 0.0066,
    "shape_at": [
-    900,
-    85
+    850,
+    70
    ],
-   "advance": 15.7,
+   "advance": 14.6,
    "advance_at": [
     900,
-    85
+    78
    ]
   },
   "edieresis": {
-   "shape": 0.0165,
+   "shape": 0.0069,
    "shape_at": [
-    900,
-    85
+    850,
+    70
    ],
-   "advance": 20.2,
+   "advance": 14.6,
    "advance_at": [
     900,
-    85
+    78
    ]
   },
   "igrave": {
    "shape": 0.0,
    "shape_at": null,
-   "advance": 0.5,
+   "advance": 0.3,
    "advance_at": [
-    900,
+    250,
     85
    ]
   },
   "iacute": {
    "shape": 0.0,
    "shape_at": null,
-   "advance": 0.5,
+   "advance": 0.3,
    "advance_at": [
-    900,
+    250,
     85
    ]
   },
@@ -1907,33 +2373,33 @@
    "shape_at": null,
    "advance": 0.3,
    "advance_at": [
-    700,
+    250,
     85
    ]
   },
   "idieresis": {
    "shape": 0.0,
    "shape_at": null,
-   "advance": 0.4,
+   "advance": 0.3,
    "advance_at": [
-    400,
+    250,
     85
    ]
   },
   "ntilde": {
-   "shape": 0.049,
+   "shape": 0.017,
    "shape_at": [
-    700,
-    85
+    900,
+    78
    ],
-   "advance": 28.8,
+   "advance": 14.6,
    "advance_at": [
     800,
-    85
+    78
    ]
   },
   "ograve": {
-   "shape": 0.0086,
+   "shape": 0.0074,
    "shape_at": [
     850,
     70
@@ -1945,7 +2411,7 @@
    ]
   },
   "oacute": {
-   "shape": 0.0086,
+   "shape": 0.0074,
    "shape_at": [
     850,
     70
@@ -1957,7 +2423,7 @@
    ]
   },
   "ocircumflex": {
-   "shape": 0.0077,
+   "shape": 0.007,
    "shape_at": [
     850,
     70
@@ -1969,99 +2435,1215 @@
    ]
   },
   "otilde": {
-   "shape": 0.066,
+   "shape": 0.0157,
    "shape_at": [
-    800,
-    85
+    900,
+    78
    ],
-   "advance": 38.8,
+   "advance": 19.1,
    "advance_at": [
-    800,
-    85
+    900,
+    78
    ]
   },
   "odieresis": {
-   "shape": 0.0123,
+   "shape": 0.0073,
    "shape_at": [
     850,
     70
    ],
-   "advance": 14.6,
+   "advance": 13.3,
    "advance_at": [
     850,
     70
    ]
   },
   "ugrave": {
-   "shape": 0.0319,
+   "shape": 0.0344,
    "shape_at": [
     850,
     70
    ],
-   "advance": 15.7,
+   "advance": 14.6,
    "advance_at": [
     900,
-    85
+    78
    ]
   },
   "uacute": {
+   "shape": 0.0344,
+   "shape_at": [
+    850,
+    70
+   ],
+   "advance": 14.6,
+   "advance_at": [
+    900,
+    78
+   ]
+  },
+  "ucircumflex": {
+   "shape": 0.0325,
+   "shape_at": [
+    850,
+    70
+   ],
+   "advance": 14.6,
+   "advance_at": [
+    900,
+    78
+   ]
+  },
+  "udieresis": {
+   "shape": 0.0338,
+   "shape_at": [
+    850,
+    70
+   ],
+   "advance": 14.6,
+   "advance_at": [
+    900,
+    78
+   ]
+  },
+  "yacute": {
+   "shape": 0.0176,
+   "shape_at": [
+    900,
+    78
+   ],
+   "advance": 17.3,
+   "advance_at": [
+    900,
+    78
+   ]
+  },
+  "ydieresis": {
+   "shape": 0.025,
+   "shape_at": [
+    900,
+    78
+   ],
+   "advance": 17.3,
+   "advance_at": [
+    900,
+    78
+   ]
+  },
+  "Amacron": {
+   "shape": 0.0,
+   "shape_at": null,
+   "advance": 0.3,
+   "advance_at": [
+    900,
+    78
+   ]
+  },
+  "amacron": {
+   "shape": 0.0281,
+   "shape_at": [
+    900,
+    78
+   ],
+   "advance": 17.3,
+   "advance_at": [
+    900,
+    78
+   ]
+  },
+  "Abreve": {
+   "shape": 0.0,
+   "shape_at": null,
+   "advance": 0.3,
+   "advance_at": [
+    900,
+    78
+   ]
+  },
+  "abreve": {
+   "shape": 0.0278,
+   "shape_at": [
+    900,
+    78
+   ],
+   "advance": 17.3,
+   "advance_at": [
+    900,
+    78
+   ]
+  },
+  "Aogonek": {
+   "shape": 0.0,
+   "shape_at": null,
+   "advance": 0.3,
+   "advance_at": [
+    900,
+    78
+   ]
+  },
+  "aogonek": {
+   "shape": 0.0391,
+   "shape_at": [
+    900,
+    78
+   ],
+   "advance": 17.3,
+   "advance_at": [
+    900,
+    78
+   ]
+  },
+  "Cacute": {
+   "shape": 0.0,
+   "shape_at": null,
+   "advance": 0.3,
+   "advance_at": [
+    900,
+    92
+   ]
+  },
+  "cacute": {
+   "shape": 0.0065,
+   "shape_at": [
+    900,
+    78
+   ],
+   "advance": 17.3,
+   "advance_at": [
+    900,
+    78
+   ]
+  },
+  "Ccircumflex": {
+   "shape": 0.0,
+   "shape_at": null,
+   "advance": 0.3,
+   "advance_at": [
+    900,
+    92
+   ]
+  },
+  "ccircumflex": {
+   "shape": 0.006,
+   "shape_at": [
+    900,
+    78
+   ],
+   "advance": 17.3,
+   "advance_at": [
+    900,
+    78
+   ]
+  },
+  "Cdotaccent": {
+   "shape": 0.0,
+   "shape_at": null,
+   "advance": 0.3,
+   "advance_at": [
+    900,
+    92
+   ]
+  },
+  "cdotaccent": {
+   "shape": 0.0069,
+   "shape_at": [
+    900,
+    78
+   ],
+   "advance": 17.3,
+   "advance_at": [
+    900,
+    78
+   ]
+  },
+  "Ccaron": {
+   "shape": 0.0,
+   "shape_at": null,
+   "advance": 0.3,
+   "advance_at": [
+    900,
+    92
+   ]
+  },
+  "ccaron": {
+   "shape": 0.006,
+   "shape_at": [
+    900,
+    78
+   ],
+   "advance": 17.3,
+   "advance_at": [
+    900,
+    78
+   ]
+  },
+  "Dcaron": {
+   "shape": 0.0,
+   "shape_at": null,
+   "advance": 0.3,
+   "advance_at": [
+    900,
+    78
+   ]
+  },
+  "dcaron": {
+   "shape": 0.037,
+   "shape_at": [
+    850,
+    70
+   ],
+   "advance": 13.3,
+   "advance_at": [
+    850,
+    70
+   ]
+  },
+  "Emacron": {
+   "shape": 0.0146,
+   "shape_at": [
+    850,
+    70
+   ],
+   "advance": 13.3,
+   "advance_at": [
+    850,
+    70
+   ]
+  },
+  "emacron": {
+   "shape": 0.0072,
+   "shape_at": [
+    850,
+    70
+   ],
+   "advance": 14.6,
+   "advance_at": [
+    900,
+    78
+   ]
+  },
+  "Ebreve": {
+   "shape": 0.0149,
+   "shape_at": [
+    850,
+    70
+   ],
+   "advance": 13.3,
+   "advance_at": [
+    850,
+    70
+   ]
+  },
+  "ebreve": {
+   "shape": 0.0071,
+   "shape_at": [
+    850,
+    70
+   ],
+   "advance": 14.6,
+   "advance_at": [
+    900,
+    78
+   ]
+  },
+  "Edotaccent": {
+   "shape": 0.0147,
+   "shape_at": [
+    850,
+    70
+   ],
+   "advance": 13.3,
+   "advance_at": [
+    850,
+    70
+   ]
+  },
+  "edotaccent": {
+   "shape": 0.0074,
+   "shape_at": [
+    850,
+    70
+   ],
+   "advance": 14.6,
+   "advance_at": [
+    900,
+    78
+   ]
+  },
+  "Eogonek": {
+   "shape": 0.0192,
+   "shape_at": [
+    850,
+    70
+   ],
+   "advance": 13.3,
+   "advance_at": [
+    850,
+    70
+   ]
+  },
+  "eogonek": {
+   "shape": 0.009,
+   "shape_at": [
+    900,
+    78
+   ],
+   "advance": 14.6,
+   "advance_at": [
+    900,
+    78
+   ]
+  },
+  "Ecaron": {
+   "shape": 0.0141,
+   "shape_at": [
+    850,
+    70
+   ],
+   "advance": 13.3,
+   "advance_at": [
+    850,
+    70
+   ]
+  },
+  "ecaron": {
+   "shape": 0.0066,
+   "shape_at": [
+    850,
+    70
+   ],
+   "advance": 14.6,
+   "advance_at": [
+    900,
+    78
+   ]
+  },
+  "Gcircumflex": {
+   "shape": 0.0,
+   "shape_at": null,
+   "advance": 0.3,
+   "advance_at": [
+    100,
+    85
+   ]
+  },
+  "gcircumflex": {
+   "shape": 0.0211,
+   "shape_at": [
+    850,
+    70
+   ],
+   "advance": 13.3,
+   "advance_at": [
+    850,
+    70
+   ]
+  },
+  "Gbreve": {
+   "shape": 0.0,
+   "shape_at": null,
+   "advance": 0.3,
+   "advance_at": [
+    100,
+    85
+   ]
+  },
+  "gbreve": {
+   "shape": 0.0221,
+   "shape_at": [
+    850,
+    70
+   ],
+   "advance": 13.3,
+   "advance_at": [
+    850,
+    70
+   ]
+  },
+  "Gdotaccent": {
+   "shape": 0.0,
+   "shape_at": null,
+   "advance": 0.3,
+   "advance_at": [
+    100,
+    85
+   ]
+  },
+  "gdotaccent": {
+   "shape": 0.0228,
+   "shape_at": [
+    850,
+    70
+   ],
+   "advance": 13.3,
+   "advance_at": [
+    850,
+    70
+   ]
+  },
+  "uni0122": {
+   "shape": 0.0,
+   "shape_at": null,
+   "advance": 0.3,
+   "advance_at": [
+    100,
+    85
+   ]
+  },
+  "uni0123": {
+   "shape": 0.0223,
+   "shape_at": [
+    850,
+    70
+   ],
+   "advance": 13.3,
+   "advance_at": [
+    850,
+    70
+   ]
+  },
+  "Hcircumflex": {
+   "shape": 0.0,
+   "shape_at": null,
+   "advance": 0.3,
+   "advance_at": [
+    900,
+    92
+   ]
+  },
+  "hcircumflex": {
+   "shape": 0.0236,
+   "shape_at": [
+    850,
+    70
+   ],
+   "advance": 14.6,
+   "advance_at": [
+    900,
+    78
+   ]
+  },
+  "Itilde": {
+   "shape": 0.0,
+   "shape_at": null,
+   "advance": 0.3,
+   "advance_at": [
+    250,
+    85
+   ]
+  },
+  "itilde": {
+   "shape": 0.0,
+   "shape_at": null,
+   "advance": 0.3,
+   "advance_at": [
+    250,
+    85
+   ]
+  },
+  "Imacron": {
+   "shape": 0.0,
+   "shape_at": null,
+   "advance": 0.3,
+   "advance_at": [
+    250,
+    85
+   ]
+  },
+  "imacron": {
+   "shape": 0.0,
+   "shape_at": null,
+   "advance": 0.3,
+   "advance_at": [
+    250,
+    85
+   ]
+  },
+  "Ibreve": {
+   "shape": 0.0,
+   "shape_at": null,
+   "advance": 0.3,
+   "advance_at": [
+    250,
+    85
+   ]
+  },
+  "ibreve": {
+   "shape": 0.0,
+   "shape_at": null,
+   "advance": 0.3,
+   "advance_at": [
+    250,
+    85
+   ]
+  },
+  "Iogonek": {
+   "shape": 0.0,
+   "shape_at": null,
+   "advance": 0.3,
+   "advance_at": [
+    250,
+    85
+   ]
+  },
+  "iogonek": {
+   "shape": 0.0,
+   "shape_at": null,
+   "advance": 0.3,
+   "advance_at": [
+    250,
+    85
+   ]
+  },
+  "Idotaccent": {
+   "shape": 0.0,
+   "shape_at": null,
+   "advance": 0.3,
+   "advance_at": [
+    250,
+    85
+   ]
+  },
+  "IJ": {
+   "shape": 0.0375,
+   "shape_at": [
+    900,
+    78
+   ],
+   "advance": 17.6,
+   "advance_at": [
+    900,
+    78
+   ]
+  },
+  "ij": {
+   "shape": 0.0,
+   "shape_at": null,
+   "advance": 0.4,
+   "advance_at": [
+    250,
+    85
+   ]
+  },
+  "Jcircumflex": {
+   "shape": 0.0592,
+   "shape_at": [
+    900,
+    78
+   ],
+   "advance": 17.3,
+   "advance_at": [
+    900,
+    78
+   ]
+  },
+  "jcircumflex": {
+   "shape": 0.0,
+   "shape_at": null,
+   "advance": 0.3,
+   "advance_at": [
+    250,
+    85
+   ]
+  },
+  "uni0136": {
+   "shape": 0.0,
+   "shape_at": null,
+   "advance": 0.3,
+   "advance_at": [
+    900,
+    92
+   ]
+  },
+  "uni0137": {
+   "shape": 0.0068,
+   "shape_at": [
+    900,
+    78
+   ],
+   "advance": 17.3,
+   "advance_at": [
+    900,
+    78
+   ]
+  },
+  "Lacute": {
+   "shape": 0.0101,
+   "shape_at": [
+    900,
+    78
+   ],
+   "advance": 17.3,
+   "advance_at": [
+    900,
+    78
+   ]
+  },
+  "lacute": {
+   "shape": 0.0,
+   "shape_at": null,
+   "advance": 0.3,
+   "advance_at": [
+    250,
+    85
+   ]
+  },
+  "uni013B": {
+   "shape": 0.0119,
+   "shape_at": [
+    900,
+    78
+   ],
+   "advance": 17.3,
+   "advance_at": [
+    900,
+    78
+   ]
+  },
+  "uni013C": {
+   "shape": 0.0,
+   "shape_at": null,
+   "advance": 0.3,
+   "advance_at": [
+    250,
+    85
+   ]
+  },
+  "Lcaron": {
+   "shape": 0.0096,
+   "shape_at": [
+    900,
+    78
+   ],
+   "advance": 17.3,
+   "advance_at": [
+    900,
+    78
+   ]
+  },
+  "lcaron": {
+   "shape": 0.0,
+   "shape_at": null,
+   "advance": 0.4,
+   "advance_at": [
+    900,
+    85
+   ]
+  },
+  "Ldot": {
+   "shape": 0.0087,
+   "shape_at": [
+    900,
+    78
+   ],
+   "advance": 17.3,
+   "advance_at": [
+    900,
+    78
+   ]
+  },
+  "ldot": {
+   "shape": 0.0,
+   "shape_at": null,
+   "advance": 0.4,
+   "advance_at": [
+    900,
+    85
+   ]
+  },
+  "Nacute": {
+   "shape": 0.0,
+   "shape_at": null,
+   "advance": 0.4,
+   "advance_at": [
+    400,
+    85
+   ]
+  },
+  "nacute": {
+   "shape": 0.0276,
+   "shape_at": [
+    850,
+    70
+   ],
+   "advance": 14.6,
+   "advance_at": [
+    900,
+    78
+   ]
+  },
+  "uni0145": {
+   "shape": 0.0,
+   "shape_at": null,
+   "advance": 0.4,
+   "advance_at": [
+    400,
+    85
+   ]
+  },
+  "uni0146": {
+   "shape": 0.028,
+   "shape_at": [
+    850,
+    70
+   ],
+   "advance": 14.6,
+   "advance_at": [
+    900,
+    78
+   ]
+  },
+  "Ncaron": {
+   "shape": 0.0,
+   "shape_at": null,
+   "advance": 0.4,
+   "advance_at": [
+    400,
+    85
+   ]
+  },
+  "ncaron": {
+   "shape": 0.0261,
+   "shape_at": [
+    850,
+    70
+   ],
+   "advance": 14.6,
+   "advance_at": [
+    900,
+    78
+   ]
+  },
+  "napostrophe": {
+   "shape": 0.0245,
+   "shape_at": [
+    850,
+    70
+   ],
+   "advance": 14.6,
+   "advance_at": [
+    900,
+    78
+   ]
+  },
+  "Omacron": {
+   "shape": 0.0,
+   "shape_at": null,
+   "advance": 0.3,
+   "advance_at": [
+    900,
+    92
+   ]
+  },
+  "omacron": {
+   "shape": 0.0076,
+   "shape_at": [
+    850,
+    70
+   ],
+   "advance": 13.3,
+   "advance_at": [
+    850,
+    70
+   ]
+  },
+  "Obreve": {
+   "shape": 0.0,
+   "shape_at": null,
+   "advance": 0.3,
+   "advance_at": [
+    900,
+    92
+   ]
+  },
+  "obreve": {
+   "shape": 0.0075,
+   "shape_at": [
+    850,
+    70
+   ],
+   "advance": 13.3,
+   "advance_at": [
+    850,
+    70
+   ]
+  },
+  "Ohungarumlaut": {
+   "shape": 0.0,
+   "shape_at": null,
+   "advance": 0.3,
+   "advance_at": [
+    900,
+    92
+   ]
+  },
+  "ohungarumlaut": {
+   "shape": 0.0069,
+   "shape_at": [
+    850,
+    70
+   ],
+   "advance": 13.3,
+   "advance_at": [
+    850,
+    70
+   ]
+  },
+  "Racute": {
+   "shape": 0.0,
+   "shape_at": null,
+   "advance": 0.4,
+   "advance_at": [
+    400,
+    85
+   ]
+  },
+  "racute": {
+   "shape": 0.0203,
+   "shape_at": [
+    900,
+    120
+   ],
+   "advance": 26.3,
+   "advance_at": [
+    900,
+    120
+   ]
+  },
+  "uni0156": {
+   "shape": 0.0,
+   "shape_at": null,
+   "advance": 0.4,
+   "advance_at": [
+    400,
+    85
+   ]
+  },
+  "uni0157": {
+   "shape": 0.019,
+   "shape_at": [
+    900,
+    120
+   ],
+   "advance": 26.3,
+   "advance_at": [
+    900,
+    120
+   ]
+  },
+  "Rcaron": {
+   "shape": 0.0,
+   "shape_at": null,
+   "advance": 0.4,
+   "advance_at": [
+    400,
+    85
+   ]
+  },
+  "rcaron": {
+   "shape": 0.0261,
+   "shape_at": [
+    900,
+    120
+   ],
+   "advance": 26.3,
+   "advance_at": [
+    900,
+    120
+   ]
+  },
+  "Sacute": {
+   "shape": 0.0,
+   "shape_at": null,
+   "advance": 0.3,
+   "advance_at": [
+    900,
+    78
+   ]
+  },
+  "sacute": {
+   "shape": 0.0074,
+   "shape_at": [
+    800,
+    78
+   ],
+   "advance": 13.9,
+   "advance_at": [
+    800,
+    78
+   ]
+  },
+  "Scircumflex": {
+   "shape": 0.0,
+   "shape_at": null,
+   "advance": 0.3,
+   "advance_at": [
+    900,
+    78
+   ]
+  },
+  "scircumflex": {
+   "shape": 0.0069,
+   "shape_at": [
+    800,
+    78
+   ],
+   "advance": 13.9,
+   "advance_at": [
+    800,
+    78
+   ]
+  },
+  "Scedilla": {
+   "shape": 0.0,
+   "shape_at": null,
+   "advance": 0.3,
+   "advance_at": [
+    900,
+    78
+   ]
+  },
+  "scedilla": {
+   "shape": 0.0075,
+   "shape_at": [
+    800,
+    78
+   ],
+   "advance": 13.9,
+   "advance_at": [
+    800,
+    78
+   ]
+  },
+  "Scaron": {
+   "shape": 0.0,
+   "shape_at": null,
+   "advance": 0.3,
+   "advance_at": [
+    900,
+    78
+   ]
+  },
+  "scaron": {
+   "shape": 0.0069,
+   "shape_at": [
+    800,
+    78
+   ],
+   "advance": 13.9,
+   "advance_at": [
+    800,
+    78
+   ]
+  },
+  "uni0162": {
+   "shape": 0.0,
+   "shape_at": null,
+   "advance": 2.8,
+   "advance_at": [
+    850,
+    70
+   ]
+  },
+  "uni0163": {
+   "shape": 0.0592,
+   "shape_at": [
+    550,
+    85
+   ],
+   "advance": 26.3,
+   "advance_at": [
+    900,
+    120
+   ]
+  },
+  "Tcaron": {
+   "shape": 0.0,
+   "shape_at": null,
+   "advance": 2.8,
+   "advance_at": [
+    850,
+    70
+   ]
+  },
+  "tcaron": {
+   "shape": 0.0333,
+   "shape_at": [
+    550,
+    85
+   ],
+   "advance": 26.3,
+   "advance_at": [
+    900,
+    120
+   ]
+  },
+  "Utilde": {
+   "shape": 0.0,
+   "shape_at": null,
+   "advance": 0.3,
+   "advance_at": [
+    900,
+    92
+   ]
+  },
+  "utilde": {
+   "shape": 0.0229,
+   "shape_at": [
+    900,
+    78
+   ],
+   "advance": 14.6,
+   "advance_at": [
+    800,
+    78
+   ]
+  },
+  "Umacron": {
+   "shape": 0.0,
+   "shape_at": null,
+   "advance": 0.3,
+   "advance_at": [
+    900,
+    92
+   ]
+  },
+  "umacron": {
+   "shape": 0.035,
+   "shape_at": [
+    850,
+    70
+   ],
+   "advance": 14.6,
+   "advance_at": [
+    900,
+    78
+   ]
+  },
+  "Ubreve": {
+   "shape": 0.0,
+   "shape_at": null,
+   "advance": 0.3,
+   "advance_at": [
+    900,
+    92
+   ]
+  },
+  "ubreve": {
+   "shape": 0.0346,
+   "shape_at": [
+    850,
+    70
+   ],
+   "advance": 14.6,
+   "advance_at": [
+    900,
+    78
+   ]
+  },
+  "Uring": {
+   "shape": 0.0,
+   "shape_at": null,
+   "advance": 0.3,
+   "advance_at": [
+    900,
+    92
+   ]
+  },
+  "uring": {
+   "shape": 0.0322,
+   "shape_at": [
+    850,
+    70
+   ],
+   "advance": 14.6,
+   "advance_at": [
+    900,
+    78
+   ]
+  },
+  "Uhungarumlaut": {
+   "shape": 0.0,
+   "shape_at": null,
+   "advance": 0.3,
+   "advance_at": [
+    900,
+    92
+   ]
+  },
+  "uhungarumlaut": {
    "shape": 0.0319,
    "shape_at": [
     850,
     70
    ],
-   "advance": 15.7,
+   "advance": 14.6,
    "advance_at": [
     900,
-    85
+    78
    ]
   },
-  "ucircumflex": {
-   "shape": 0.0288,
+  "Uogonek": {
+   "shape": 0.0,
+   "shape_at": null,
+   "advance": 0.3,
+   "advance_at": [
+    900,
+    92
+   ]
+  },
+  "uogonek": {
+   "shape": 0.0406,
    "shape_at": [
     850,
     70
    ],
-   "advance": 15.7,
+   "advance": 14.6,
    "advance_at": [
     900,
+    78
+   ]
+  },
+  "Wcircumflex": {
+   "shape": 0.0,
+   "shape_at": null,
+   "advance": 0.3,
+   "advance_at": [
+    900,
+    92
+   ]
+  },
+  "wcircumflex": {
+   "shape": 0.0002,
+   "shape_at": [
+    900,
+    78
+   ],
+   "advance": 0.3,
+   "advance_at": [
+    100,
     85
    ]
   },
-  "udieresis": {
-   "shape": 0.0387,
-   "shape_at": [
-    900,
-    85
-   ],
-   "advance": 20.2,
+  "Ycircumflex": {
+   "shape": 0.0,
+   "shape_at": null,
+   "advance": 0.3,
    "advance_at": [
     900,
-    85
+    78
    ]
   },
-  "yacute": {
-   "shape": 0.0226,
+  "ycircumflex": {
+   "shape": 0.0167,
    "shape_at": [
     900,
-    85
+    78
    ],
-   "advance": 22.7,
+   "advance": 17.3,
    "advance_at": [
     900,
-    85
-   ]
-  },
-  "ydieresis": {
-   "shape": 0.0502,
-   "shape_at": [
-    900,
-    85
-   ],
-   "advance": 27.2,
-   "advance_at": [
-    900,
-    85
+    78
    ]
   },
   "Ydieresis": {
@@ -2069,7 +3651,184 @@
    "shape_at": null,
    "advance": 0.3,
    "advance_at": [
+    900,
+    78
+   ]
+  },
+  "Zacute": {
+   "shape": 0.0,
+   "shape_at": null,
+   "advance": 0.4,
+   "advance_at": [
+    400,
+    85
+   ]
+  },
+  "zacute": {
+   "shape": 0.0221,
+   "shape_at": [
+    800,
+    78
+   ],
+   "advance": 17.7,
+   "advance_at": [
+    800,
+    78
+   ]
+  },
+  "Zdotaccent": {
+   "shape": 0.0,
+   "shape_at": null,
+   "advance": 0.4,
+   "advance_at": [
+    400,
+    85
+   ]
+  },
+  "zdotaccent": {
+   "shape": 0.0258,
+   "shape_at": [
+    800,
+    78
+   ],
+   "advance": 17.7,
+   "advance_at": [
+    800,
+    78
+   ]
+  },
+  "Zcaron": {
+   "shape": 0.0,
+   "shape_at": null,
+   "advance": 0.4,
+   "advance_at": [
+    400,
+    85
+   ]
+  },
+  "zcaron": {
+   "shape": 0.0207,
+   "shape_at": [
+    800,
+    78
+   ],
+   "advance": 17.7,
+   "advance_at": [
+    800,
+    78
+   ]
+  },
+  "uni0218": {
+   "shape": 0.0,
+   "shape_at": null,
+   "advance": 0.3,
+   "advance_at": [
+    900,
+    78
+   ]
+  },
+  "uni0219": {
+   "shape": 0.0076,
+   "shape_at": [
+    800,
+    78
+   ],
+   "advance": 13.9,
+   "advance_at": [
+    800,
+    78
+   ]
+  },
+  "uni021A": {
+   "shape": 0.0,
+   "shape_at": null,
+   "advance": 2.8,
+   "advance_at": [
+    850,
+    70
+   ]
+  },
+  "uni021B": {
+   "shape": 0.0566,
+   "shape_at": [
+    550,
+    85
+   ],
+   "advance": 26.3,
+   "advance_at": [
+    900,
+    120
+   ]
+  },
+  "circumflex": {
+   "shape": 0.0,
+   "shape_at": null,
+   "advance": 0.5,
+   "advance_at": [
     100,
+    85
+   ]
+  },
+  "caron": {
+   "shape": 0.0,
+   "shape_at": null,
+   "advance": 0.5,
+   "advance_at": [
+    100,
+    85
+   ]
+  },
+  "breve": {
+   "shape": 0.0,
+   "shape_at": null,
+   "advance": 0.5,
+   "advance_at": [
+    900,
+    85
+   ]
+  },
+  "dotaccent": {
+   "shape": 0.0,
+   "shape_at": null,
+   "advance": 0.4,
+   "advance_at": [
+    900,
+    85
+   ]
+  },
+  "ring": {
+   "shape": 0.0,
+   "shape_at": null,
+   "advance": 0.4,
+   "advance_at": [
+    400,
+    85
+   ]
+  },
+  "ogonek": {
+   "shape": 0.0,
+   "shape_at": null,
+   "advance": 0.5,
+   "advance_at": [
+    100,
+    85
+   ]
+  },
+  "tilde": {
+   "shape": 0.0,
+   "shape_at": null,
+   "advance": 0.4,
+   "advance_at": [
+    100,
+    85
+   ]
+  },
+  "hungarumlaut": {
+   "shape": 0.0,
+   "shape_at": null,
+   "advance": 0.4,
+   "advance_at": [
+    900,
     85
    ]
   }

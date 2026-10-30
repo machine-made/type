@@ -169,12 +169,12 @@ def main(argv=None) -> int:
     width = 1800
     blocks = [block(PANGRAM, w, d, 60, width, f"wght {w}, wdth {d}" + (" (between masters)" if (w, d) in BETWEEN else ""))
               for w, d in CORNERS + BETWEEN]
-    s = render(args.font, "Heddle 0.1: sketch engine and font, pangram", key, blocks,
+    s = render(args.font, "Heddle 0.2: sketch engine and font, pangram", key, blocks,
                args.out / "heddle-sketch-vs-font-pangram.png", width)
     report["pangram"] = {f"{b['wght']},{b['wdth']}": v for b, v in zip(blocks, s)}
 
     blocks = [block(CHARSET, w, d, 56, width, f"wght {w}, wdth {d}") for w, d in CORNERS]
-    s = render(args.font, "Heddle 0.1: sketch engine and font, the 70 sketch characters", key, blocks,
+    s = render(args.font, "Heddle 0.2: sketch engine and font, the 70 sketch characters", key, blocks,
                args.out / "heddle-sketch-vs-font-charset.png", width)
     report["charset"] = {f"{b['wght']},{b['wdth']}": v for b, v in zip(blocks, s)}
 

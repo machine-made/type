@@ -35,6 +35,36 @@ Heddle exist, none in the font market.
 | Software named heddle: an AI-native version control CLI (MacPorts port `heddle`), and `heddle-mcp` on PyPI. | [ports.macports.org/port/heddle](https://ports.macports.org/port/heddle/), [socket.dev/pypi/package/heddle-mcp](https://socket.dev/pypi/package/heddle-mcp) | Low for a typeface. Not in the font market. |
 | Trademarks (web): Steel Heddle Manufacturing Company holds marks for loom parts (textile machinery). No "HEDDLE" mark for fonts or typefaces found. | [trademark.justia.com/owners/steel-heddle-manufacturing-company-239051](https://trademark.justia.com/owners/steel-heddle-manufacturing-company-239051), [gleanmark.com/search?q=HEDDLE](https://gleanmark.com/search?q=HEDDLE) | Low. Weaving equipment, not type. The pages did not load in full; not a register search. |
 
+## Register search: "HEDDLE" (2026-10-28, for 0.2)
+
+Result: **no HEDDLE mark for fonts, typefaces or software found** in
+what the web search reached. The two marks found are for loom parts and
+for textile decor. The family name stays "machine-made Heddle"; this
+search does not rename it.
+
+| Register | Finding | Link | Risk |
+| --- | --- | --- | --- |
+| USPTO (via Justia, a mirror of USPTO data) | HEDDLE & CO., serial 98277502, filed 2023-11-20 by Linger in the Gap, for household decor and garden ornaments made of textiles. Status not shown on the page. | [trademarks.justia.com/owners/linger-in-the-gap-5709250](https://trademarks.justia.com/owners/linger-in-the-gap-5709250) | Low. Other goods (textiles, decor), not class 9, 16 or 42. |
+| USPTO (via Justia) | STEEL HEDDLE (Steel Heddle Manufacturing Company), serials 76330022 and 75982481: loom parts. | [trademark.justia.com/763/30/steel-76330022.html](https://trademark.justia.com/763/30/steel-76330022.html), [trademarks.justia.com/759/82/steel-75982481.html](https://trademarks.justia.com/759/82/steel-75982481.html) | Low. Textile machinery. |
+| USPTO (web search) | Other "heddle" hits are patents for loom heddles (US 7185679, 7017620, 5152325 and more), not marks. A near name, HEDDON (reg. 0507613, fishing tackle, class 16 in the old system), is a different word. | [trademarkregistration.app/Trademark/Details/71534141](https://trademarkregistration.app/Trademark/Details/71534141) | None. |
+| EUIPO (web search) | No EU trade mark HEDDLE found. The hits are European patents for loom heddles (EP 1989346, EP 2422004 and others). | [data.epo.org/gpi/EP1989346B1](https://data.epo.org/gpi/EP1989346B1) | Low. |
+| Swissreg (web search) | No Swiss mark HEDDLE found. Hits are Swiss patents for heddles ("Weblitze", CH 468489, CH 423661). | [patents.google.com/patent/CH468489A](https://patents.google.com/patent/CH468489A/en) | Low. |
+| Font-name aggregator (GleanMark) | The search page for HEDDLE loaded without results in the text the tool could read. | [gleanmark.com/search?q=HEDDLE](https://gleanmark.com/search?q=HEDDLE) | Unknown; see limits. |
+
+Limits of the register search:
+
+* The register sites themselves (tmsearch.uspto.gov, euipo.europa.eu
+  eSearch, swissreg.ch, branddb.wipo.int) were not reachable from the
+  build machine (the network proxy refused the connection). The search
+  used WebSearch and pages that mirror register data (Justia). It is
+  not a clearance search.
+* Web search finds marks with web pages; a pending or little-known
+  mark can be missing. Before a commercial use of "Heddle" alone, a
+  person should search the registers directly for HEDDLE in classes 9,
+  16 and 42.
+* The shipped name is "machine-made Heddle", and the OFL Reserved Font
+  Name is "machine-made".
+
 Limits of this check:
 
 * A web search, not a trademark clearance. Before a public release, do
@@ -63,7 +93,7 @@ Limits of this check:
 | Typo / hhea ascender | 950 |
 | Typo / hhea descender | -250 |
 | Line gap | 0 (line height 1200) |
-| win ascent / descent | from the bounds of all masters (1051 / 295) |
+| win ascent / descent | from the bounds of all masters (0.2: 950 / 296; 0.1: 1051 / 295) |
 | Underline position / thickness | -120 / 71 |
 
 Stroke rules (from the sketch engine):
@@ -119,6 +149,54 @@ so a cut always ends in a horizontal (or vertical) terminal. When a
 counter closes (heavy weights, small hooks), the inner contour shrinks
 to a point at the centre, as the sketch drew no counter there.
 
+## 0.2 changes to the rules
+
+* Masters: 16, at wght 100, 400, 700, 900 x wdth 70, 85, 100, 140. The
+  wdth 85 masters cut the drift from the width floor near wdth 85.
+* Tabular figure width: the sketch value at every master width (0.8 at
+  70, 0.85 at 85, 1 at 100, 1.25 at 140), linear between them.
+* Minimum counter rule (`geom.counter_min`): a ring keeps an inner
+  radius of at least 0.25 S, at most 38 units (clamped per weight). The
+  ring gets thinner to keep it, never below 45 % of its stroke. Bowls
+  with bars (`bowl_d`) give the bars the same strokes.
+* Hooks (`glyphs.hook_span`: f, t, j, ſ, ŋ, Ŋ, £): the visible counter
+  between stem and terminal is at least two minimum radii. The hook
+  ring gets wider (j reaches left of its box at heavy weights), then the
+  terminal gets thinner. Nothing changes at Regular.
+* Marks: stroke `0.62 S + 12`, height `140 + 0.2 S` (lowercase) and
+  0.72 of that (capitals), gap `40 + 0.22 S` and `30 + 0.16 S`.
+  Capital marks stay below the typo ascender (950). ".narrow" marks on
+  dotless i, I, l and dotless j are at most `S + 1.45 sidebearings`
+  wide, so ï Ï Ĩ ĺ keep the advance of their base.
+* Static outlines: union with skia-pathops, round to integers, drop
+  degenerate segments, split self-touching contours into loops, wind
+  each loop by its nesting depth, then check against the nonzero fill
+  of the primitives and check that no overlap is left. No fallbacks.
+* Hinting: static TTF with ttfautohint 1.8.4 (ttfautohint-py 0.6.1),
+  no version string, head dates kept, so the build stays
+  byte-reproducible. The variable font is not hinted.
+
+## Glyph set (0.2)
+
+398 glyphs, 338 code points (336 visible characters, space, no-break
+space). 0.2 adds to the 0.1 set:
+
+| Set | Characters |
+| --- | --- |
+| Latin Extended-A | all of U+0100 to U+017F, as components where Unicode decomposes (ogonek, caron, breve, macron, dot above, double acute, comma below, cedilla); drawn: Đ đ (Đ shares the glyph of Ð), Ħ ħ, Ŧ ŧ, Ł ł, ĸ, Ŋ ŋ, ſ; rows of glyphs: Ĳ ĳ ŉ; middle dot: Ŀ ŀ |
+| Romanian | Ș ș Ț ț (comma below) |
+| Base | ȷ (dotless j, for ĵ) |
+| Symbols | `¢ £ ¥ § ¶ ± × ÷ −`, fraction slash `⁄`, `½ ¼ ¾` |
+| Spacing marks | `¨ ¯ ´ ¸ ˆ ˇ ˘ ˙ ˚ ˛ ˜ ˝` |
+| Unencoded | numerators and denominators (`zero.numr` ... `nine.dnom`), marks: macron, breve, dot above, caron, double acute, ogonek, comma below, turned comma above (ģ), vertical caron (ď ľ ť Ľ), and .narrow forms |
+
+Features: `frac` (figures before a slash become numerators, after it
+denominators; the slash becomes the fraction slash), `numr`, `dnom`,
+`kern`.
+
+Comma below, not cedilla, for Ģ Ķ ķ Ļ ļ Ņ ņ Ŗ ŗ (Latvian); ģ has a
+turned comma above. Ş ş Ţ ţ keep the cedilla (Turkish; Unicode).
+
 ## Glyph set (0.1)
 
 197 glyphs, 184 code points (182 visible characters, space, no-break
@@ -156,7 +234,7 @@ weight.
 | Step | Scope | Gate |
 | --- | --- | --- |
 | 1 | Port the engine to `loom/` (Python). Analytic cut rings, fixed topology. | Same advances as the sketch engine at every master (test with node). |
-| 2 | 12 masters: wght 100, 400, 700, 900 x wdth 70, 100, 140. Variable TTF with overlaps (overlap flags set). | `varLib.interpolatable` clean; drift report. |
+| 2 | 12 masters (0.2: 16, with wdth 85): wght 100, 400, 700, 900 x wdth 70, 100, 140. Variable TTF with overlaps (overlap flags set). | `varLib.interpolatable` clean; drift report. |
 | 3 | Statics from the masters (same interpolation), overlaps removed with skia-pathops, every union checked against a nonzero fill. | Fontspector universal: no FAIL. |
 | 4 | Rest of ASCII, Latin-1 letters, marks, symbols, kerning. | Glyph and kerning tests. |
 | 5 | Proofs, CI, release job, site page. | **Founder reviews the proofs by eye.** |

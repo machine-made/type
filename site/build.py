@@ -50,7 +50,7 @@ ORG_URL = "https://github.com/machine-made"
 RELEASES = {
     "weft": REPO_URL + "/releases/tag/weft-v0.2.0",
     "sans": REPO_URL + "/releases/tag/sans-v0.1.0",
-    "heddle": REPO_URL + "/releases/tag/heddle-v0.1.0",
+    "heddle": REPO_URL + "/releases/tag/heddle-v0.2.0",
     "warp": REPO_URL + "/releases/tag/warp-v0.2.0",
 }
 

@@ -1,5 +1,6 @@
-"""Tests for the Heddle 0.1 generator: metrics, glyph set, masters,
-the port of the sketch engine, kerning, drift, statics, names."""
+"""Tests for the Heddle generator (0.2): metrics, glyph set, masters,
+the port of the sketch engine, marks, counters, kerning, features,
+drift, statics, names."""
 
 from __future__ import annotations
 
@@ -105,9 +106,44 @@ def test_glyph_order_and_names():
 
 def test_composites_use_existing_glyphs():
     marks = set(G.accent_names())
-    for name, (cp, base, acc) in G.COMPOSITES.items():
-        assert base in G.GLYPHS and acc in marks, name
-        assert G.cmap()[cp] == name
+    for name, c in G.COMPOSITES.items():
+        assert c.base in G.GLYPHS or c.base in marks, name
+        for mark, place in c.marks:
+            assert mark in marks or mark in G.GLYPHS, name
+        for part in c.row:
+            assert part in G.GLYPHS or part in marks, name
+        assert G.cmap()[c.cp] == name
+
+
+def test_latin_extended_a_and_symbols():
+    cps = set(ENCODED)
+    assert set(range(0x100, 0x180)) <= cps
+    for ch in "ȘșȚț¢£¥§¶±×÷½¼¾⁄−":
+        assert ord(ch) in cps, ch
+
+
+CE_SAMPLES = {
+    "Polish": "Zażółć gęślą jaźń ŁÓDŹ",
+    "Czech": "Příliš žluťoučký kůň úpěl ďábelské ódy",
+    "Slovak": "Kŕdeľ šťastných ďatľov učí pri ústí Váhu mĺkveho koňa",
+    "Hungarian": "Árvíztűrő tükörfúrógép ŐŰ",
+    "Romanian": "Șirul țărilor înșiră ÎȘȚ",
+    "Turkish": "Pijamalı hasta yağız şoföre çabucak güvendi İĞŞ",
+    "Croatian": "Đurđa čuči žđ ĆČŠŽĐ",
+    "Slovenian": "Ščinkavec žvižga ŠČŽ",
+    "Latvian": "Glāžšķūņa rūķīši ĢĶĻŅ ģķļņ",
+    "Lithuanian": "Įlinkusi ąžuolų šaka ŲŪĖ ųūė",
+    "Estonian": "Põdur Zagrebi tšellomängija-följetonist Ciqo külmetas",
+    "Maltese": "Ċirku ħabib Ġużeppi Żebbuġ Ħ",
+    "Esperanto": "Ĉiuĵaŭde eĥoŝanĝo ĜĤĴŜŬ",
+}
+
+
+@pytest.mark.parametrize("lang", sorted(CE_SAMPLES))
+def test_central_european_text_is_covered(lang):
+    cm = G.cmap()
+    missing = {ch for ch in CE_SAMPLES[lang] if ch != " " and ord(ch) not in cm}
+    assert not missing, f"{lang}: {missing}"
 
 
 def test_space_and_nbsp_share_a_glyph():
@@ -254,19 +290,108 @@ def _outline(name, w, d):
 
 @pytest.mark.parametrize("loc", MASTERS)
 def test_kerned_pairs_do_not_touch(loc):
+    # Every member of every class, accented letters included, in every master.
     w, d = loc
     kern = K.kerning(G.Params(w, d))
-    reps = {k: v[0] for k, v in {**{f"1{k}": v for k, v in K.KERN1.items()},
-                                  **{f"2{k}": v for k, v in K.KERN2.items()}}.items()}
+    prof = {}
+
+    def get(name, side):
+        if (name, side) not in prof:
+            cs, adv = _outline(name, w, d)
+            prof[(name, side)] = (_profile(cs, side), adv)
+        return prof[(name, side)]
+
     for (a, b), v in kern.items():
-        left = reps["1" + a.split(".")[-1]]
-        right = reps["2" + b.split(".")[-1]]
-        lc, ladv = _outline(left, w, d)
-        rc, _ = _outline(right, w, d)
-        lp, rp = _profile(lc, "right"), _profile(rc, "left")
-        gaps = [ladv + v + rp[y] - lp[y] for y in lp if y in rp]
-        if gaps:
-            assert min(gaps) >= 12, f"{left}{right} at {loc}: gap {min(gaps):.0f}"
+        for left in K.KERN1[a.split(".")[-1]]:
+            for right in K.KERN2[b.split(".")[-1]]:
+                lp, ladv = get(left, "right")
+                rp, _ = get(right, "left")
+                gaps = [ladv + v + rp[y] - lp[y] for y in lp if y in rp]
+                if gaps:
+                    assert min(gaps) >= 12, f"{left}{right} at {loc}: gap {min(gaps):.0f}"
+
+
+def test_kerning_covers_lowercase_and_figures():
+    lefts = {a for a, _ in K.PAIRS}
+    assert {"v", "r", "or", "f", "k", "t", "seven", "figround"} <= lefts
+    tab = {n for n, gl in G.GLYPHS.items() if gl.kind == "tab"}
+    for a, b in K.PAIRS:
+        # Tabular glyphs do not kern with each other.
+        assert not (set(K.KERN1[a]) & tab and set(K.KERN2[b]) & tab), (a, b)
+
+
+# ------------------------------------------------------------- marks (0.2)
+
+NARROW_CASES = ["idieresis", "Idieresis", "iacute", "Iacute", "icircumflex", "Icircumflex",
+                "igrave", "Igrave", "itilde", "Itilde", "imacron", "Imacron", "ibreve", "Ibreve",
+                "lacute"]
+
+
+@pytest.mark.parametrize("loc", MASTERS)
+def test_narrow_bases_keep_their_advance(loc):
+    for name in NARROW_CASES:
+        _, adv = B.composite(name, *loc)
+        assert adv == pytest.approx(B.drawn(G.COMPOSITES[name].base, *loc)[1]), name
+
+
+def test_capital_marks_stay_below_the_typo_ascender():
+    for name, c in G.COMPOSITES.items():
+        if c.row or not c.base[:1].isupper():
+            continue
+        for w, d in MASTERS:
+            cs, _ = B.direct_outline(name, w, d)
+            top = max(y for c_ in cs for _, y, _ in c_)
+            assert top <= B.TYPO_ASCENDER, (name, w, d, top)
+
+
+def test_marks_are_lighter_than_0_1():
+    # 0.1 dieresis at Black: dots of 0.95 S (169 units). 0.2: 0.95 * mark_stem.
+    cs, _ = B.drawn("dieresiscomb", 900, 100)
+    xs = [x for c in cs for x, _, _ in c]
+    assert max(xs) - min(xs) < 330
+
+
+# ----------------------------------------------------------- counters (0.2)
+
+@pytest.mark.parametrize("name", ["a", "f", "j", "s", "t", "germandbls", "eth", "at",
+                                  "copyright", "registered", "percent", "ampersand"])
+def test_small_counters_stay_open(name):
+    for w, d in MASTERS:
+        geom.CLOSED.clear()
+        B.drawn.cache_clear()
+        B.drawn(name, w, d)
+        assert not geom.CLOSED, f"{name} at {(w, d)}: a counter closes"
+
+
+@pytest.mark.parametrize("name", ["f", "t", "j"])
+def test_hooks_have_an_open_counter_at_black(name):
+    # The visible counter between the stem and the terminal is at least
+    # two minimum counter radii wide.
+    p = G.Params(900, 100)
+    g = geom.Canvas(p.S, p.H)
+    wr, ts = G.hook_span(g, 0)
+    assert wr - p.S - ts >= 2 * geom.counter_min(p.S) - 1e-9
+
+
+def test_counter_rule_is_clamped_per_weight():
+    assert geom.counter_min(28) == pytest.approx(7)
+    assert geom.counter_min(178) == pytest.approx(geom.CMIN_MAX)
+
+
+# ----------------------------------------------------------- features (0.2)
+
+def test_frac_feature_compiles_and_substitutes():
+    from fontTools.feaLib.builder import addOpenTypeFeaturesFromString
+    from fontTools.fontBuilder import FontBuilder
+
+    order = G.glyph_order()
+    fb = FontBuilder(1000, isTTF=True)
+    fb.setupGlyphOrder(order)
+    fb.setupCharacterMap(G.cmap())
+    addOpenTypeFeaturesFromString(fb.font, B.features())
+    gsub = fb.font["GSUB"].table
+    tags = {fr.FeatureTag for fr in gsub.FeatureList.FeatureRecord}
+    assert {"frac", "numr", "dnom"} <= tags
 
 
 # ------------------------------------------------------------------- drift
@@ -331,11 +456,27 @@ def test_static_union_matches_nonzero_fill(black):
         assert R.mismatch(R.nonzero_mask(cs), R.path_mask(path)) == 0, name
 
 
-def test_robust_union_fixes_the_spine_of_S():
-    # pathops alone drops the upper ring here (curves nearly coincide).
-    cs, _ = B.direct_outline("S", 400, 120)
-    p = B.robust_union(cs)
-    assert R.mismatch(R.nonzero_mask(cs), R.path_mask(p)) == 0
+@pytest.mark.parametrize("name,loc", [("S", (400, 120)), ("OE", (800, 100)), ("oslash", (700, 70)),
+                                      ("b", (900, 100)), ("dcroat", (800, 100))])
+def test_clean_union_without_fallback(name, loc):
+    # 0.1 needed fallbacks here: the S spine (jitter) and rounded paths.
+    # 0.2 unions, snaps, splits self-touching contours and orients them.
+    cs, _ = B.interpolated(name, *loc)
+    out = B.clean_union(name, cs)
+    contours = B._seg_contours(out)
+    assert R.mismatch(R.nonzero_mask(cs), R.path_mask(B._to_path(contours))) == 0
+    # Overlap-free and wound for nonzero: outer loops CCW, counters CW,
+    # so the signed area equals the ink area.
+    ink = R.count(R.nonzero_mask(cs)) * R.PX * R.PX
+    assert abs(B._flat_area(out) - ink) / ink < 0.05
+    for c in out:
+        for op, pts in c:
+            assert all(isinstance(v, int) for pt in pts for v in pt)
+
+
+def test_build_has_no_overlap_fallback():
+    src = (HEDDLE / "loom" / "build.py").read_text()
+    assert "robust_union" not in src and "jitter" not in src
 
 
 # ------------------------------------------------------------------- names

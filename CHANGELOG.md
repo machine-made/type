@@ -9,6 +9,14 @@ Each family keeps its own changelog:
 
 Release tags: `weft-vX.Y.Z`, `sans-vX.Y.Z`, `heddle-vX.Y.Z`, `warp-vX.Y.Z`, `site-vX.Y.Z`.
 
+## 2026-10-28: Heddle 0.2
+
+- machine-made Heddle 0.2.0 (font version 0.200): Latin Extended-A,
+  Ș ș Ț ț, new symbols and fractions, lighter marks, open counters at
+  Black, masters at wdth 85, hinted statics. See `heddle/CHANGELOG.md`.
+- Site: the Heddle page and the download page link
+  `heddle-v0.2.0`.
+
 ## 2026-10-28: Weft 0.2
 
 - machine-made Weft 0.2.0 (font version 0.200): look-alikes, Latin

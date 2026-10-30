@@ -8,7 +8,7 @@
 | Visibility | public after the 0.1 release (founder approved) |
 | Stage | released 0.1: machine-made Weft 0.1.0, machine-made Sans 0.1.0, specimen site 0.1.0, machine-made Heddle 0.1.0. machine-made Warp 0.1 built on branch `warp/v0.1` |
 | Gate now | Warp: Jac reviews the PR from `warp/v0.1`; the founder reviews the proofs; then the tags `warp-v0.1.0` and a new `site-v*` |
-| Next task | Warp 0.2: the OpenType MATH table; Warp 0.3: the variable font (see `warp/STATUS.md`). Heddle 0.2 (see `heddle/STATUS.md`). Weft 0.2 is on branch `weft/v0.2` (see `weft/STATUS.md`); then the width axis and the Thread style. Sans 0.2: redraw in the style of Weft and match Weft's x-height (see `sans/STATUS.md`). npm packages for both families. |
+| Next task | Warp 0.2: the OpenType MATH table; Warp 0.3: the variable font (see `warp/STATUS.md`). Heddle 0.2 and Weft 0.2 done (see their STATUS.md); Weft next: the width axis and the Thread style. Sans 0.2: redraw in the style of Weft and match Weft's x-height (see `sans/STATUS.md`). npm packages for both families. |
 | Blocked by | none |
 | Last green CI | none yet (first runs are on the release PR). Local end-to-end run of all steps on 2026-10-26: green |
 | Owner model | to assign |

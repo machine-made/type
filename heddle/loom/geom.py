@@ -48,8 +48,20 @@ CUT_KEEP = 0.97
 # Smallest inner radius of a ring. A ring whose counter closes keeps a
 # tiny counter, so that the point structure does not change.
 MIN_INNER = 0.5
+# Minimum counter rule (0.2): a ring's counter keeps at least this inner
+# radius, as a share of the stem, clamped per weight (see counter_min).
+# The ring gets thinner to keep it. A ring never gets thinner than
+# THIN_LIMIT of its stroke; then its counter may still close.
+CMIN_K = 0.25
+CMIN_MAX = 38.0
+THIN_LIMIT = 0.45
 # Rings whose counter closed (for diagnostics; see tools/drift.py).
 CLOSED: list = []
+
+
+def counter_min(S: float) -> float:
+    """Smallest inner radius of a ring at stem S: 0.25 S, at most 38 units."""
+    return min(CMIN_MAX, CMIN_K * S)
 
 
 def _sp(v: float) -> float:
@@ -295,12 +307,25 @@ def polygon(pts):
     return c if signed_area(c) >= 0 else reverse(c)
 
 
-def ring_contours(x0, y0, x1, y1, cuts=(), ts=0.0, th=0.0, margin=AXIS_MARGIN) -> list:
-    """Return the contours of a superellipse ring with cuts."""
+def open_strokes(rx: float, ry: float, ts: float, th: float, cmin: float) -> tuple[float, float]:
+    """Return the stroke widths (ts, th) after the minimum counter rule."""
+    if cmin <= 0.0:
+        return ts, th
+    ts = max(min(ts, rx - cmin), THIN_LIMIT * ts)
+    th = max(min(th, ry - cmin), THIN_LIMIT * th)
+    return ts, th
+
+
+def ring_contours(x0, y0, x1, y1, cuts=(), ts=0.0, th=0.0, margin=AXIS_MARGIN, cmin=0.0) -> list:
+    """Return the contours of a superellipse ring with cuts.
+
+    cmin: the minimum counter radius (see counter_min); 0 turns it off.
+    """
     x0, x1 = min(x0, x1), max(x0, x1)
     y0, y1 = min(y0, y1), max(y0, y1)
     cx, cy = (x0 + x1) / 2.0, (y0 + y1) / 2.0
     rx, ry = (x1 - x0) / 2.0, (y1 - y0) / 2.0
+    ts, th = open_strokes(rx, ry, ts, th, cmin)
     irx, iry = rx - ts, ry - th
     if irx < MIN_INNER or iry < MIN_INNER:
         # The counter is closed. Keep it as a tiny point at the centre, so
@@ -347,9 +372,11 @@ def vee_points(x0, x1, yT, yB, t):
 class Canvas:
     """Collects contours. Mirrors the drawing tools of the sketch engine."""
 
-    def __init__(self, S: float, H: float):
+    def __init__(self, S: float, H: float, cmin: float | None = None):
         self.S = S
         self.H = H
+        # Minimum counter radius for every ring (0 turns the rule off).
+        self.cmin = counter_min(S) if cmin is None else cmin
         self.contours: list = []
         self._m = (1.0, 0.0, 0.0, 1.0, 0.0, 0.0)
 
@@ -391,11 +418,15 @@ class Canvas:
         y0, y1 = min(y0, y1), max(y0, y1)
         self.add(polygon([(x0, y0), (x1, y0), (x1, y1), (x0, y1)]))
 
-    def ring(self, x0, y0, x1, y1, cuts=(), ts=None, th=None, margin=AXIS_MARGIN):
-        """A ring. `margin`: a smaller value keeps axis points close to a cut."""
+    def ring(self, x0, y0, x1, y1, cuts=(), ts=None, th=None, margin=AXIS_MARGIN, cmin=None):
+        """A ring. `margin`: a smaller value keeps axis points close to a cut.
+
+        `cmin`: the minimum counter radius (default: the canvas value).
+        """
         ts = self.S if ts is None else ts
         th = self.H if th is None else th
-        for c in ring_contours(x0, y0, x1, y1, cuts, ts, th, margin):
+        cmin = self.cmin if cmin is None else cmin
+        for c in ring_contours(x0, y0, x1, y1, cuts, ts, th, margin, cmin):
             self.add(c)
 
     def disc(self, x0, y0, x1, y1):
