@@ -10,3 +10,8 @@ familyName: "machine-made Sans"
 outputDir: "../../build/sans"
 buildWebfont: false
 buildSmallCap: false
+# Static TTF: ttfautohint (gftools default). Static OTF: otfautohint
+# (afdko, see requirements-otf.txt). Variable fonts are not hinted
+# (see sans/STATUS.md).
+autohintTTF: true
+autohintOTF: true

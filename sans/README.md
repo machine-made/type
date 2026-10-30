@@ -1,10 +1,11 @@
 # machine-made Sans
 
-A reading sans for machine-made. Version 0.1 is a modified version of
+A reading sans for machine-made. It is a modified version of
 **Plus Jakarta Sans** with the straight (Lurus) alternates as the
 default forms, the sharp (Lancip) alternates in a stylistic set, and
-with line metrics that match machine-made Weft. Version 0.2 will redesign the shapes in the style of
-Weft.
+with line metrics that match machine-made Weft. Version 0.2 adds the
+italic Cyrillic, hinted OTF files, the rest of Latin Extended-A and
+kerning fixes. A redesign in the style of Weft is planned for 0.3.
 
 ![Default forms, upstream and machine-made Sans](../proofs/sans/sans-alternates-before-after.png)
 
@@ -16,8 +17,10 @@ Plus Jakarta Sans was designed by Gumpita Rahayu (Tokotype) and was
 first made for the +Jakarta City of Collaboration identity (6616 Studio,
 Jakarta Provincial Government, 2020). It is released under the SIL Open
 Font License 1.1 at <https://github.com/tokotype/PlusJakartaSans>.
-All outlines, spacing and kerning in machine-made Sans 0.1 are from that
-project. No outline comes from any other font.
+All outlines, spacing and kerning in machine-made Sans are from that
+project, or made from its outlines by the scripts in `scripts/` (the
+italic Cyrillic, ſ, ŉ, kerning exceptions). No outline comes from any
+other font.
 
 The upstream credit files are in [`upstream/`](upstream/), unchanged:
 `AUTHORS.txt`, `CONTRIBUTORS.txt`, `FONTLOG.txt`, `README.md` and
@@ -47,7 +50,7 @@ the pinned upstream sources. The script is deterministic, and a test
 checks that the committed sources are its output.
 
 1. **Name.** Family "machine-made Sans", file and PostScript prefix
-   `MachineMadeSans`, version 0.100, vendor `NONE`. The names "Plus
+   `MachineMadeSans`, version 0.200, vendor `NONE`. The names "Plus
    Jakarta Sans" and "Jakarta" are not in any name, file name or STAT
    record. They stay only in the credit text (copyright and
    description).
@@ -94,7 +97,22 @@ checks that the committed sources are its output.
      upright source. It is removed.
 8. **Build finish** ([`scripts/finish.py`](scripts/finish.py)): PostScript
    names without a hyphen, the WWS bit, a STAT table in each static
-   font, no TrueType `prep` table in the OTF fonts.
+   font, no TrueType `prep` table in the OTF fonts, CFF subroutines
+   again after hinting, short instance names in the italic variable
+   font (XLight Italic, SemiBd Italic, XBold Italic).
+9. **Italic Cyrillic** (0.2, [`scripts/extend.py`](scripts/extend.py)):
+   the upright Cyrillic, slanted by 8 degrees about half the x-height,
+   as upstream made its Latin italic. Components keep their reference,
+   so the Cyrillic look-alikes use the italic Latin glyphs. The
+   Bulgarian forms (locl BGR, ss04) come too.
+10. **Latin Extended-A** (0.2): ſ is the upstream f without its
+    crossbar; ŉ is quoteright and n as components.
+11. **Hinting** (0.2): static TTF by ttfautohint, static OTF by
+    otfautohint. The upright source gets the stem values of the italic
+    source. The variable fonts are not hinted (see `STATUS.md`).
+12. **Kerning** (0.2): exceptions so that no pair in the audit list of
+    [`scripts/kernaudit.py`](scripts/kernaudit.py) touches, and the
+    Latin kerning groups for the Cyrillic look-alikes.
 
 ### Default forms
 
@@ -141,10 +159,9 @@ with Reserved Font Name "machine-made".
   contribution, and anyone can still fork the upstream project.
 
 Source of the FAQ text: `OFL-FAQ.txt` in `silnrsi/font-andika` (commit
-`0fefb76`), which is the SIL copy of the FAQ. The build machine could
-not reach openfontlicense.org (the proxy blocks it), so the FAQ was read
-from that copy. A person should confirm on
-<https://openfontlicense.org/ofl-faq/> that entry 5.10 has not changed.
+`0fefb76`), which is the SIL copy of the FAQ. On 2026-10-28 the same
+question and answer were confirmed on openfontlicense.org, on the page
+<https://openfontlicense.org/ofl-reserved-font-names/>.
 
 The build and check code in `sans/scripts` and `sans/tests` follows the
 repository code licence (root `LICENSE`).
@@ -157,6 +174,10 @@ repository code licence (root `LICENSE`).
 | `sources/config.yaml` | gftools builder configuration. |
 | `upstream/` | Upstream credit files and the fork point (`UPSTREAM.txt`). |
 | `scripts/fork.py` | Makes the sources from the pinned upstream sources. |
+| `scripts/extend.py` | Glyphs added in 0.2 (italic Cyrillic, ſ, ŉ); used by `fork.py`. |
+| `scripts/kernaudit.py` | Measures the space between glyph pairs (kerning audit). |
+| `scripts/readability.py` | OCR readability gate (Tesseract), `proofs/sans/readability.json`. |
+| `requirements-otf.txt` | afdko for otfautohint (Python 3.13 environment). |
 | `scripts/glyphsfmt.py` | Reads and writes Glyphs files with the same text as Glyphs.app. |
 | `scripts/build.sh` | Builds all fonts into `fonts/sans/`. |
 | `scripts/finish.py` | Final name, STAT and WOFF2 steps. |
@@ -171,17 +192,23 @@ repository code licence (root `LICENSE`).
 
 ## How to build
 
-Needs Python 3.14, the packages in `requirements.txt`, and for the
-checks the Fontspector 1.9.0 binary.
+Needs Python 3.14, the packages in `requirements.txt`, the
+`otfautohint` command from `requirements-otf.txt` in a Python 3.13
+environment (afdko has no 3.14 wheel), and for the checks the
+Fontspector 1.9.0 binary and Tesseract.
 
 ```sh
 python -m pip install -r sans/requirements.txt
+python3.13 -m venv /tmp/otf && /tmp/otf/bin/pip install -r sans/requirements-otf.txt
+mkdir -p /tmp/otf-bin && ln -s /tmp/otf/bin/otfautohint /tmp/otf-bin/ && export PATH="$PATH:/tmp/otf-bin"
 sans/scripts/build.sh                      # fonts/sans/*
 sans/scripts/check.sh fontspector          # reports/sans/*
 git clone https://github.com/tokotype/PlusJakartaSans /tmp/pjs
 git -C /tmp/pjs checkout 18d1cd2f7ea10481919d2f05c1f7064b7307fc26
 SANS_UPSTREAM=/tmp/pjs python -m pytest -q sans/tests
-python sans/scripts/proof.py --upstream /tmp/pjs/fonts --weft fonts/weft/ttf/MachineMadeWeft-Regular.ttf
+python sans/scripts/readability.py --gate
+python sans/scripts/proof.py --upstream /tmp/pjs/fonts --weft fonts/weft/ttf/MachineMadeWeft-Regular.ttf \
+  --before /tmp/before/fonts/sans   # fonts/sans of the previous version, for the before/after sheets
 ```
 
 To make the sources again from upstream:
@@ -191,4 +218,5 @@ python sans/scripts/fork.py /tmp/pjs/sources sans/sources
 ```
 
 The build is repeatable: `SOURCE_DATE_EPOCH` is fixed (2026-10-26), so
-two builds with the same tool versions give the same bytes.
+two builds with the same tool versions give the same bytes, hinting
+included.

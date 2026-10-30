@@ -1,0 +1,1769 @@
+{
+ "about": "Kerning audit: pairs whose inks overlap, in each static TTF. Made with sans/scripts/kernaudit.py on the same pair list (11633 pairs).",
+ "before": {
+  "label": "machine-made Sans 0.1",
+  "pairs": 11633,
+  "fonts": {
+   "MachineMadeSans-Bold.ttf": {
+    "overlaps": 50,
+    "pairs": [
+     {
+      "pair": "Tĩ",
+      "min_gap": -72,
+      "kern": 0
+     },
+     {
+      "pair": "Ťĩ",
+      "min_gap": -72,
+      "kern": 0
+     },
+     {
+      "pair": "Ŧĩ",
+      "min_gap": -72,
+      "kern": 0
+     },
+     {
+      "pair": "fĩ",
+      "min_gap": -68,
+      "kern": -10
+     },
+     {
+      "pair": "Fĩ",
+      "min_gap": -66,
+      "kern": 0
+     },
+     {
+      "pair": "ĽY",
+      "min_gap": -59,
+      "kern": -90
+     },
+     {
+      "pair": "ĽÝ",
+      "min_gap": -59,
+      "kern": -90
+     },
+     {
+      "pair": "ĽŸ",
+      "min_gap": -59,
+      "kern": -90
+     },
+     {
+      "pair": "їђ",
+      "min_gap": -55,
+      "kern": 0
+     },
+     {
+      "pair": "їћ",
+      "min_gap": -55,
+      "kern": 0
+     },
+     {
+      "pair": "Wĩ",
+      "min_gap": -54,
+      "kern": 0
+     },
+     {
+      "pair": "Vĩ",
+      "min_gap": -52,
+      "kern": 0
+     },
+     {
+      "pair": "Yĩ",
+      "min_gap": -49,
+      "kern": 0
+     },
+     {
+      "pair": "Ýĩ",
+      "min_gap": -49,
+      "kern": 0
+     },
+     {
+      "pair": "Ÿĩ",
+      "min_gap": -49,
+      "kern": 0
+     },
+     {
+      "pair": "ťĩ",
+      "min_gap": -44,
+      "kern": 0
+     },
+     {
+      "pair": "Fȉ",
+      "min_gap": -43,
+      "kern": 60
+     },
+     {
+      "pair": "ĽW",
+      "min_gap": -41,
+      "kern": -70
+     },
+     {
+      "pair": "ĽV",
+      "min_gap": -40,
+      "kern": -70
+     },
+     {
+      "pair": "Гї",
+      "min_gap": -40,
+      "kern": 0
+     },
+     {
+      "pair": "Тї",
+      "min_gap": -40,
+      "kern": 0
+     },
+     {
+      "pair": "ґї",
+      "min_gap": -40,
+      "kern": 0
+     },
+     {
+      "pair": "ťȉ",
+      "min_gap": -39,
+      "kern": 70
+     },
+     {
+      "pair": "Уї",
+      "min_gap": -38,
+      "kern": 0
+     },
+     {
+      "pair": "Хї",
+      "min_gap": -35,
+      "kern": 0
+     },
+     {
+      "pair": "ľĩ",
+      "min_gap": -34,
+      "kern": 0
+     },
+     {
+      "pair": "ďĩ",
+      "min_gap": -33,
+      "kern": 0
+     },
+     {
+      "pair": "ĽT",
+      "min_gap": -32,
+      "kern": -60
+     },
+     {
+      "pair": "ĽŢ",
+      "min_gap": -32,
+      "kern": -60
+     },
+     {
+      "pair": "ĽŤ",
+      "min_gap": -32,
+      "kern": -60
+     },
+     {
+      "pair": "ĽȚ",
+      "min_gap": -32,
+      "kern": -60
+     },
+     {
+      "pair": "Жї",
+      "min_gap": -27,
+      "kern": 0
+     },
+     {
+      "pair": "Кї",
+      "min_gap": -27,
+      "kern": 0
+     },
+     {
+      "pair": "ľȉ",
+      "min_gap": -26,
+      "kern": 73
+     },
+     {
+      "pair": "ďȉ",
+      "min_gap": -25,
+      "kern": 73
+     },
+     {
+      "pair": "jĩ",
+      "min_gap": -23,
+      "kern": 0
+     },
+     {
+      "pair": "Еї",
+      "min_gap": -23,
+      "kern": 0
+     },
+     {
+      "pair": "Wȉ",
+      "min_gap": -18,
+      "kern": 90
+     },
+     {
+      "pair": "Yȉ",
+      "min_gap": -18,
+      "kern": 88
+     },
+     {
+      "pair": "Ýȉ",
+      "min_gap": -18,
+      "kern": 88
+     },
+     {
+      "pair": "Ÿȉ",
+      "min_gap": -18,
+      "kern": 88
+     },
+     {
+      "pair": "Fȋ",
+      "min_gap": -9,
+      "kern": 60
+     },
+     {
+      "pair": "fȉ",
+      "min_gap": -8,
+      "kern": 93
+     },
+     {
+      "pair": "Pĩ",
+      "min_gap": -6,
+      "kern": 0
+     },
+     {
+      "pair": "Vȉ",
+      "min_gap": -4,
+      "kern": 103
+     },
+     {
+      "pair": "Fî",
+      "min_gap": -3,
+      "kern": 60
+     },
+     {
+      "pair": "fì",
+      "min_gap": -2,
+      "kern": -10
+     },
+     {
+      "pair": "Tȉ",
+      "min_gap": -1,
+      "kern": 108
+     },
+     {
+      "pair": "Ťȉ",
+      "min_gap": -1,
+      "kern": 108
+     },
+     {
+      "pair": "Ŧȉ",
+      "min_gap": -1,
+      "kern": 108
+     }
+    ]
+   },
+   "MachineMadeSans-BoldItalic.ttf": {
+    "overlaps": 21,
+    "pairs": [
+     {
+      "pair": "ĽY",
+      "min_gap": -59,
+      "kern": -90
+     },
+     {
+      "pair": "ĽÝ",
+      "min_gap": -59,
+      "kern": -90
+     },
+     {
+      "pair": "ĽŸ",
+      "min_gap": -59,
+      "kern": -90
+     },
+     {
+      "pair": "ĽV",
+      "min_gap": -41,
+      "kern": -70
+     },
+     {
+      "pair": "ĽW",
+      "min_gap": -41,
+      "kern": -70
+     },
+     {
+      "pair": "ĽT",
+      "min_gap": -24,
+      "kern": -52
+     },
+     {
+      "pair": "ĽŢ",
+      "min_gap": -24,
+      "kern": -52
+     },
+     {
+      "pair": "ĽŤ",
+      "min_gap": -24,
+      "kern": -52
+     },
+     {
+      "pair": "ĽȚ",
+      "min_gap": -24,
+      "kern": -52
+     },
+     {
+      "pair": "Pî",
+      "min_gap": -20,
+      "kern": 0
+     },
+     {
+      "pair": "Yȉ",
+      "min_gap": -20,
+      "kern": 85
+     },
+     {
+      "pair": "Ýȉ",
+      "min_gap": -20,
+      "kern": 85
+     },
+     {
+      "pair": "Ÿȉ",
+      "min_gap": -20,
+      "kern": 85
+     },
+     {
+      "pair": "Fȉ",
+      "min_gap": -12,
+      "kern": 90
+     },
+     {
+      "pair": "Wȉ",
+      "min_gap": -12,
+      "kern": 95
+     },
+     {
+      "pair": "Vȉ",
+      "min_gap": -7,
+      "kern": 100
+     },
+     {
+      "pair": "ťȉ",
+      "min_gap": -5,
+      "kern": 103
+     },
+     {
+      "pair": "Tȉ",
+      "min_gap": -3,
+      "kern": 105
+     },
+     {
+      "pair": "Ťȉ",
+      "min_gap": -3,
+      "kern": 105
+     },
+     {
+      "pair": "Ŧȉ",
+      "min_gap": -3,
+      "kern": 105
+     },
+     {
+      "pair": "Pȋ",
+      "min_gap": -1,
+      "kern": 0
+     }
+    ]
+   },
+   "MachineMadeSans-ExtraBold.ttf": {
+    "overlaps": 59,
+    "pairs": [
+     {
+      "pair": "ĽY",
+      "min_gap": -92,
+      "kern": -90
+     },
+     {
+      "pair": "ĽÝ",
+      "min_gap": -92,
+      "kern": -90
+     },
+     {
+      "pair": "ĽŸ",
+      "min_gap": -92,
+      "kern": -90
+     },
+     {
+      "pair": "Fĩ",
+      "min_gap": -80,
+      "kern": 0
+     },
+     {
+      "pair": "Tĩ",
+      "min_gap": -80,
+      "kern": 0
+     },
+     {
+      "pair": "fĩ",
+      "min_gap": -80,
+      "kern": -10
+     },
+     {
+      "pair": "Ťĩ",
+      "min_gap": -80,
+      "kern": 0
+     },
+     {
+      "pair": "Ŧĩ",
+      "min_gap": -80,
+      "kern": 0
+     },
+     {
+      "pair": "ĽV",
+      "min_gap": -73,
+      "kern": -70
+     },
+     {
+      "pair": "ĽW",
+      "min_gap": -73,
+      "kern": -70
+     },
+     {
+      "pair": "ĽT",
+      "min_gap": -65,
+      "kern": -60
+     },
+     {
+      "pair": "ĽŢ",
+      "min_gap": -65,
+      "kern": -60
+     },
+     {
+      "pair": "ĽŤ",
+      "min_gap": -65,
+      "kern": -60
+     },
+     {
+      "pair": "ĽȚ",
+      "min_gap": -65,
+      "kern": -60
+     },
+     {
+      "pair": "Wĩ",
+      "min_gap": -63,
+      "kern": 0
+     },
+     {
+      "pair": "їђ",
+      "min_gap": -63,
+      "kern": 0
+     },
+     {
+      "pair": "їћ",
+      "min_gap": -63,
+      "kern": 0
+     },
+     {
+      "pair": "Fȉ",
+      "min_gap": -62,
+      "kern": 60
+     },
+     {
+      "pair": "Vĩ",
+      "min_gap": -61,
+      "kern": 0
+     },
+     {
+      "pair": "Yĩ",
+      "min_gap": -59,
+      "kern": 0
+     },
+     {
+      "pair": "Ýĩ",
+      "min_gap": -59,
+      "kern": 0
+     },
+     {
+      "pair": "Ÿĩ",
+      "min_gap": -59,
+      "kern": 0
+     },
+     {
+      "pair": "ťĩ",
+      "min_gap": -55,
+      "kern": 0
+     },
+     {
+      "pair": "Гї",
+      "min_gap": -49,
+      "kern": 0
+     },
+     {
+      "pair": "Тї",
+      "min_gap": -49,
+      "kern": 0
+     },
+     {
+      "pair": "ґї",
+      "min_gap": -49,
+      "kern": 0
+     },
+     {
+      "pair": "Уї",
+      "min_gap": -47,
+      "kern": 0
+     },
+     {
+      "pair": "Хї",
+      "min_gap": -46,
+      "kern": 0
+     },
+     {
+      "pair": "ďĩ",
+      "min_gap": -44,
+      "kern": 0
+     },
+     {
+      "pair": "ľĩ",
+      "min_gap": -44,
+      "kern": 0
+     },
+     {
+      "pair": "ťȉ",
+      "min_gap": -43,
+      "kern": 80
+     },
+     {
+      "pair": "Кї",
+      "min_gap": -39,
+      "kern": 0
+     },
+     {
+      "pair": "Еї",
+      "min_gap": -38,
+      "kern": 0
+     },
+     {
+      "pair": "Жї",
+      "min_gap": -38,
+      "kern": 0
+     },
+     {
+      "pair": "jĩ",
+      "min_gap": -36,
+      "kern": 0
+     },
+     {
+      "pair": "ďȉ",
+      "min_gap": -32,
+      "kern": 80
+     },
+     {
+      "pair": "ľȉ",
+      "min_gap": -32,
+      "kern": 80
+     },
+     {
+      "pair": "Fȋ",
+      "min_gap": -25,
+      "kern": 60
+     },
+     {
+      "pair": "Wȉ",
+      "min_gap": -20,
+      "kern": 100
+     },
+     {
+      "pair": "Pĩ",
+      "min_gap": -19,
+      "kern": 0
+     },
+     {
+      "pair": "Yȉ",
+      "min_gap": -19,
+      "kern": 100
+     },
+     {
+      "pair": "Ýȉ",
+      "min_gap": -19,
+      "kern": 100
+     },
+     {
+      "pair": "Ÿȉ",
+      "min_gap": -19,
+      "kern": 100
+     },
+     {
+      "pair": "fȉ",
+      "min_gap": -17,
+      "kern": 100
+     },
+     {
+      "pair": "Fî",
+      "min_gap": -16,
+      "kern": 60
+     },
+     {
+      "pair": "Tȉ",
+      "min_gap": -12,
+      "kern": 110
+     },
+     {
+      "pair": "Ťȉ",
+      "min_gap": -12,
+      "kern": 110
+     },
+     {
+      "pair": "Ŧȉ",
+      "min_gap": -12,
+      "kern": 110
+     },
+     {
+      "pair": "Vȉ",
+      "min_gap": -10,
+      "kern": 110
+     },
+     {
+      "pair": "Pȋ",
+      "min_gap": -8,
+      "kern": 20
+     },
+     {
+      "pair": "jȉ",
+      "min_gap": -8,
+      "kern": 70
+     },
+     {
+      "pair": "fì",
+      "min_gap": -7,
+      "kern": -10
+     },
+     {
+      "pair": "Fĭ",
+      "min_gap": -3,
+      "kern": 60
+     },
+     {
+      "pair": "ťì",
+      "min_gap": -3,
+      "kern": 0
+     },
+     {
+      "pair": "Fì",
+      "min_gap": -1,
+      "kern": 0
+     },
+     {
+      "pair": "Tì",
+      "min_gap": -1,
+      "kern": 0
+     },
+     {
+      "pair": "ĽX",
+      "min_gap": -1,
+      "kern": 0
+     },
+     {
+      "pair": "Ťì",
+      "min_gap": -1,
+      "kern": 0
+     },
+     {
+      "pair": "Ŧì",
+      "min_gap": -1,
+      "kern": 0
+     }
+    ]
+   },
+   "MachineMadeSans-ExtraBoldItalic.ttf": {
+    "overlaps": 26,
+    "pairs": [
+     {
+      "pair": "ĽY",
+      "min_gap": -92,
+      "kern": -90
+     },
+     {
+      "pair": "ĽÝ",
+      "min_gap": -92,
+      "kern": -90
+     },
+     {
+      "pair": "ĽŸ",
+      "min_gap": -92,
+      "kern": -90
+     },
+     {
+      "pair": "ĽW",
+      "min_gap": -74,
+      "kern": -70
+     },
+     {
+      "pair": "ĽV",
+      "min_gap": -73,
+      "kern": -70
+     },
+     {
+      "pair": "ĽT",
+      "min_gap": -55,
+      "kern": -50
+     },
+     {
+      "pair": "ĽŢ",
+      "min_gap": -55,
+      "kern": -50
+     },
+     {
+      "pair": "ĽŤ",
+      "min_gap": -55,
+      "kern": -50
+     },
+     {
+      "pair": "ĽȚ",
+      "min_gap": -55,
+      "kern": -50
+     },
+     {
+      "pair": "Pî",
+      "min_gap": -31,
+      "kern": 0
+     },
+     {
+      "pair": "Yȉ",
+      "min_gap": -28,
+      "kern": 90
+     },
+     {
+      "pair": "Ýȉ",
+      "min_gap": -28,
+      "kern": 90
+     },
+     {
+      "pair": "Ÿȉ",
+      "min_gap": -28,
+      "kern": 90
+     },
+     {
+      "pair": "Fȉ",
+      "min_gap": -21,
+      "kern": 100
+     },
+     {
+      "pair": "Vȉ",
+      "min_gap": -19,
+      "kern": 100
+     },
+     {
+      "pair": "Wȉ",
+      "min_gap": -19,
+      "kern": 100
+     },
+     {
+      "pair": "Pȋ",
+      "min_gap": -15,
+      "kern": 0
+     },
+     {
+      "pair": "ťȉ",
+      "min_gap": -13,
+      "kern": 110
+     },
+     {
+      "pair": "Tȉ",
+      "min_gap": -11,
+      "kern": 110
+     },
+     {
+      "pair": "Ťȉ",
+      "min_gap": -11,
+      "kern": 110
+     },
+     {
+      "pair": "Ŧȉ",
+      "min_gap": -11,
+      "kern": 110
+     },
+     {
+      "pair": "fȉ",
+      "min_gap": -9,
+      "kern": 100
+     },
+     {
+      "pair": "Pĩ",
+      "min_gap": -6,
+      "kern": 0
+     },
+     {
+      "pair": "ďȉ",
+      "min_gap": -2,
+      "kern": 110
+     },
+     {
+      "pair": "ľȉ",
+      "min_gap": -2,
+      "kern": 110
+     },
+     {
+      "pair": "ťì",
+      "min_gap": -2,
+      "kern": 0
+     }
+    ]
+   },
+   "MachineMadeSans-ExtraLight.ttf": {
+    "overlaps": 11,
+    "pairs": [
+     {
+      "pair": "Tĩ",
+      "min_gap": -18,
+      "kern": 0
+     },
+     {
+      "pair": "Ťĩ",
+      "min_gap": -18,
+      "kern": 0
+     },
+     {
+      "pair": "Ŧĩ",
+      "min_gap": -18,
+      "kern": 0
+     },
+     {
+      "pair": "Vȉ",
+      "min_gap": -10,
+      "kern": 40
+     },
+     {
+      "pair": "Wȉ",
+      "min_gap": -10,
+      "kern": 40
+     },
+     {
+      "pair": "ťȉ",
+      "min_gap": -9,
+      "kern": 30
+     },
+     {
+      "pair": "Wĩ",
+      "min_gap": -5,
+      "kern": 0
+     },
+     {
+      "pair": "Tȉ",
+      "min_gap": -2,
+      "kern": 50
+     },
+     {
+      "pair": "Ťȉ",
+      "min_gap": -2,
+      "kern": 50
+     },
+     {
+      "pair": "Ŧȉ",
+      "min_gap": -2,
+      "kern": 50
+     },
+     {
+      "pair": "Vĩ",
+      "min_gap": -1,
+      "kern": 0
+     }
+    ]
+   },
+   "MachineMadeSans-ExtraLightItalic.ttf": {
+    "overlaps": 0,
+    "pairs": []
+   },
+   "MachineMadeSans-Italic.ttf": {
+    "overlaps": 11,
+    "pairs": [
+     {
+      "pair": "Yȉ",
+      "min_gap": -4,
+      "kern": 70
+     },
+     {
+      "pair": "Ýȉ",
+      "min_gap": -4,
+      "kern": 70
+     },
+     {
+      "pair": "Ÿȉ",
+      "min_gap": -4,
+      "kern": 70
+     },
+     {
+      "pair": "Tì",
+      "min_gap": -2,
+      "kern": 0
+     },
+     {
+      "pair": "Ťì",
+      "min_gap": -2,
+      "kern": 0
+     },
+     {
+      "pair": "Ŧì",
+      "min_gap": -2,
+      "kern": 0
+     },
+     {
+      "pair": "Vì",
+      "min_gap": -1,
+      "kern": 0
+     },
+     {
+      "pair": "Wì",
+      "min_gap": -1,
+      "kern": 0
+     },
+     {
+      "pair": "Yř",
+      "min_gap": -1,
+      "kern": -70
+     },
+     {
+      "pair": "Ýř",
+      "min_gap": -1,
+      "kern": -70
+     },
+     {
+      "pair": "Ÿř",
+      "min_gap": -1,
+      "kern": -70
+     }
+    ]
+   },
+   "MachineMadeSans-Light.ttf": {
+    "overlaps": 22,
+    "pairs": [
+     {
+      "pair": "Tĩ",
+      "min_gap": -35,
+      "kern": 0
+     },
+     {
+      "pair": "Ťĩ",
+      "min_gap": -35,
+      "kern": 0
+     },
+     {
+      "pair": "Ŧĩ",
+      "min_gap": -35,
+      "kern": 0
+     },
+     {
+      "pair": "ťȉ",
+      "min_gap": -20,
+      "kern": 35
+     },
+     {
+      "pair": "Wĩ",
+      "min_gap": -17,
+      "kern": 0
+     },
+     {
+      "pair": "fĩ",
+      "min_gap": -16,
+      "kern": -10
+     },
+     {
+      "pair": "Vĩ",
+      "min_gap": -14,
+      "kern": 0
+     },
+     {
+      "pair": "Wȉ",
+      "min_gap": -14,
+      "kern": 50
+     },
+     {
+      "pair": "Fĩ",
+      "min_gap": -13,
+      "kern": 0
+     },
+     {
+      "pair": "їђ",
+      "min_gap": -12,
+      "kern": 0
+     },
+     {
+      "pair": "їћ",
+      "min_gap": -12,
+      "kern": 0
+     },
+     {
+      "pair": "ťĩ",
+      "min_gap": -7,
+      "kern": 0
+     },
+     {
+      "pair": "Yȉ",
+      "min_gap": -6,
+      "kern": 55
+     },
+     {
+      "pair": "Ýȉ",
+      "min_gap": -6,
+      "kern": 55
+     },
+     {
+      "pair": "Ÿȉ",
+      "min_gap": -6,
+      "kern": 55
+     },
+     {
+      "pair": "Vȉ",
+      "min_gap": -4,
+      "kern": 60
+     },
+     {
+      "pair": "Yĩ",
+      "min_gap": -4,
+      "kern": 0
+     },
+     {
+      "pair": "Ýĩ",
+      "min_gap": -4,
+      "kern": 0
+     },
+     {
+      "pair": "Ÿĩ",
+      "min_gap": -4,
+      "kern": 0
+     },
+     {
+      "pair": "ďĩ",
+      "min_gap": -3,
+      "kern": 0
+     },
+     {
+      "pair": "ľĩ",
+      "min_gap": -2,
+      "kern": 0
+     },
+     {
+      "pair": "ďȉ",
+      "min_gap": -1,
+      "kern": 50
+     }
+    ]
+   },
+   "MachineMadeSans-LightItalic.ttf": {
+    "overlaps": 0,
+    "pairs": []
+   },
+   "MachineMadeSans-Medium.ttf": {
+    "overlaps": 34,
+    "pairs": [
+     {
+      "pair": "Tĩ",
+      "min_gap": -56,
+      "kern": 0
+     },
+     {
+      "pair": "Ťĩ",
+      "min_gap": -56,
+      "kern": 0
+     },
+     {
+      "pair": "Ŧĩ",
+      "min_gap": -56,
+      "kern": 0
+     },
+     {
+      "pair": "fĩ",
+      "min_gap": -43,
+      "kern": -10
+     },
+     {
+      "pair": "Fĩ",
+      "min_gap": -39,
+      "kern": 0
+     },
+     {
+      "pair": "їђ",
+      "min_gap": -38,
+      "kern": 0
+     },
+     {
+      "pair": "їћ",
+      "min_gap": -38,
+      "kern": 0
+     },
+     {
+      "pair": "Wĩ",
+      "min_gap": -37,
+      "kern": 0
+     },
+     {
+      "pair": "Vĩ",
+      "min_gap": -34,
+      "kern": 0
+     },
+     {
+      "pair": "ťȉ",
+      "min_gap": -33,
+      "kern": 50
+     },
+     {
+      "pair": "Yĩ",
+      "min_gap": -27,
+      "kern": 0
+     },
+     {
+      "pair": "Ýĩ",
+      "min_gap": -27,
+      "kern": 0
+     },
+     {
+      "pair": "Ÿĩ",
+      "min_gap": -27,
+      "kern": 0
+     },
+     {
+      "pair": "ťĩ",
+      "min_gap": -26,
+      "kern": 0
+     },
+     {
+      "pair": "Гї",
+      "min_gap": -23,
+      "kern": 0
+     },
+     {
+      "pair": "Тї",
+      "min_gap": -23,
+      "kern": 0
+     },
+     {
+      "pair": "ґї",
+      "min_gap": -23,
+      "kern": 0
+     },
+     {
+      "pair": "Yȉ",
+      "min_gap": -22,
+      "kern": 63
+     },
+     {
+      "pair": "Ýȉ",
+      "min_gap": -22,
+      "kern": 63
+     },
+     {
+      "pair": "Ÿȉ",
+      "min_gap": -22,
+      "kern": 63
+     },
+     {
+      "pair": "Уї",
+      "min_gap": -21,
+      "kern": 0
+     },
+     {
+      "pair": "Wȉ",
+      "min_gap": -16,
+      "kern": 70
+     },
+     {
+      "pair": "ďĩ",
+      "min_gap": -15,
+      "kern": 0
+     },
+     {
+      "pair": "ľĩ",
+      "min_gap": -15,
+      "kern": 0
+     },
+     {
+      "pair": "ďȉ",
+      "min_gap": -14,
+      "kern": 58
+     },
+     {
+      "pair": "ľȉ",
+      "min_gap": -14,
+      "kern": 58
+     },
+     {
+      "pair": "Хї",
+      "min_gap": -14,
+      "kern": 0
+     },
+     {
+      "pair": "Fȉ",
+      "min_gap": -11,
+      "kern": 60
+     },
+     {
+      "pair": "Жї",
+      "min_gap": -4,
+      "kern": 0
+     },
+     {
+      "pair": "Кї",
+      "min_gap": -4,
+      "kern": 0
+     },
+     {
+      "pair": "Tì",
+      "min_gap": -2,
+      "kern": 0
+     },
+     {
+      "pair": "Ťì",
+      "min_gap": -2,
+      "kern": 0
+     },
+     {
+      "pair": "Ŧì",
+      "min_gap": -2,
+      "kern": 0
+     },
+     {
+      "pair": "Wì",
+      "min_gap": -1,
+      "kern": 0
+     }
+    ]
+   },
+   "MachineMadeSans-MediumItalic.ttf": {
+    "overlaps": 4,
+    "pairs": [
+     {
+      "pair": "Yȉ",
+      "min_gap": -9,
+      "kern": 75
+     },
+     {
+      "pair": "Ýȉ",
+      "min_gap": -9,
+      "kern": 75
+     },
+     {
+      "pair": "Ÿȉ",
+      "min_gap": -9,
+      "kern": 75
+     },
+     {
+      "pair": "Wȉ",
+      "min_gap": -1,
+      "kern": 85
+     }
+    ]
+   },
+   "MachineMadeSans-Regular.ttf": {
+    "overlaps": 34,
+    "pairs": [
+     {
+      "pair": "Tĩ",
+      "min_gap": -48,
+      "kern": 0
+     },
+     {
+      "pair": "Ťĩ",
+      "min_gap": -48,
+      "kern": 0
+     },
+     {
+      "pair": "Ŧĩ",
+      "min_gap": -48,
+      "kern": 0
+     },
+     {
+      "pair": "ťȉ",
+      "min_gap": -33,
+      "kern": 40
+     },
+     {
+      "pair": "їђ",
+      "min_gap": -29,
+      "kern": 0
+     },
+     {
+      "pair": "їћ",
+      "min_gap": -29,
+      "kern": 0
+     },
+     {
+      "pair": "Wĩ",
+      "min_gap": -28,
+      "kern": 0
+     },
+     {
+      "pair": "fĩ",
+      "min_gap": -28,
+      "kern": -10
+     },
+     {
+      "pair": "Fĩ",
+      "min_gap": -26,
+      "kern": 0
+     },
+     {
+      "pair": "Yȉ",
+      "min_gap": -26,
+      "kern": 50
+     },
+     {
+      "pair": "Ýȉ",
+      "min_gap": -26,
+      "kern": 50
+     },
+     {
+      "pair": "Ÿȉ",
+      "min_gap": -26,
+      "kern": 50
+     },
+     {
+      "pair": "Vĩ",
+      "min_gap": -25,
+      "kern": 0
+     },
+     {
+      "pair": "ťĩ",
+      "min_gap": -19,
+      "kern": 0
+     },
+     {
+      "pair": "Wȉ",
+      "min_gap": -18,
+      "kern": 60
+     },
+     {
+      "pair": "Yĩ",
+      "min_gap": -17,
+      "kern": 0
+     },
+     {
+      "pair": "Ýĩ",
+      "min_gap": -17,
+      "kern": 0
+     },
+     {
+      "pair": "Ÿĩ",
+      "min_gap": -17,
+      "kern": 0
+     },
+     {
+      "pair": "Гї",
+      "min_gap": -15,
+      "kern": 0
+     },
+     {
+      "pair": "Тї",
+      "min_gap": -15,
+      "kern": 0
+     },
+     {
+      "pair": "ґї",
+      "min_gap": -15,
+      "kern": 0
+     },
+     {
+      "pair": "ďȉ",
+      "min_gap": -12,
+      "kern": 50
+     },
+     {
+      "pair": "ľȉ",
+      "min_gap": -12,
+      "kern": 50
+     },
+     {
+      "pair": "Уї",
+      "min_gap": -10,
+      "kern": 0
+     },
+     {
+      "pair": "ďĩ",
+      "min_gap": -8,
+      "kern": 0
+     },
+     {
+      "pair": "ľĩ",
+      "min_gap": -8,
+      "kern": 0
+     },
+     {
+      "pair": "Tì",
+      "min_gap": -4,
+      "kern": 0
+     },
+     {
+      "pair": "Ťì",
+      "min_gap": -4,
+      "kern": 0
+     },
+     {
+      "pair": "Ŧì",
+      "min_gap": -4,
+      "kern": 0
+     },
+     {
+      "pair": "Wì",
+      "min_gap": -3,
+      "kern": 0
+     },
+     {
+      "pair": "Vì",
+      "min_gap": -2,
+      "kern": 0
+     },
+     {
+      "pair": "Yì",
+      "min_gap": -1,
+      "kern": 0
+     },
+     {
+      "pair": "Ýì",
+      "min_gap": -1,
+      "kern": 0
+     },
+     {
+      "pair": "Ÿì",
+      "min_gap": -1,
+      "kern": 0
+     }
+    ]
+   },
+   "MachineMadeSans-SemiBold.ttf": {
+    "overlaps": 42,
+    "pairs": [
+     {
+      "pair": "Tĩ",
+      "min_gap": -64,
+      "kern": 0
+     },
+     {
+      "pair": "Ťĩ",
+      "min_gap": -64,
+      "kern": 0
+     },
+     {
+      "pair": "Ŧĩ",
+      "min_gap": -64,
+      "kern": 0
+     },
+     {
+      "pair": "fĩ",
+      "min_gap": -55,
+      "kern": -10
+     },
+     {
+      "pair": "Fĩ",
+      "min_gap": -53,
+      "kern": 0
+     },
+     {
+      "pair": "Wĩ",
+      "min_gap": -46,
+      "kern": 0
+     },
+     {
+      "pair": "їђ",
+      "min_gap": -45,
+      "kern": 0
+     },
+     {
+      "pair": "їћ",
+      "min_gap": -45,
+      "kern": 0
+     },
+     {
+      "pair": "Vĩ",
+      "min_gap": -43,
+      "kern": 0
+     },
+     {
+      "pair": "Yĩ",
+      "min_gap": -38,
+      "kern": 0
+     },
+     {
+      "pair": "Ýĩ",
+      "min_gap": -38,
+      "kern": 0
+     },
+     {
+      "pair": "ťȉ",
+      "min_gap": -38,
+      "kern": 60
+     },
+     {
+      "pair": "Ÿĩ",
+      "min_gap": -38,
+      "kern": 0
+     },
+     {
+      "pair": "ťĩ",
+      "min_gap": -36,
+      "kern": 0
+     },
+     {
+      "pair": "Гї",
+      "min_gap": -32,
+      "kern": 0
+     },
+     {
+      "pair": "Тї",
+      "min_gap": -32,
+      "kern": 0
+     },
+     {
+      "pair": "ґї",
+      "min_gap": -32,
+      "kern": 0
+     },
+     {
+      "pair": "Уї",
+      "min_gap": -30,
+      "kern": 0
+     },
+     {
+      "pair": "Fȉ",
+      "min_gap": -28,
+      "kern": 60
+     },
+     {
+      "pair": "ĽY",
+      "min_gap": -27,
+      "kern": -90
+     },
+     {
+      "pair": "ĽÝ",
+      "min_gap": -27,
+      "kern": -90
+     },
+     {
+      "pair": "ĽŸ",
+      "min_gap": -27,
+      "kern": -90
+     },
+     {
+      "pair": "ďĩ",
+      "min_gap": -25,
+      "kern": 0
+     },
+     {
+      "pair": "ľĩ",
+      "min_gap": -25,
+      "kern": 0
+     },
+     {
+      "pair": "Хї",
+      "min_gap": -24,
+      "kern": 0
+     },
+     {
+      "pair": "ďȉ",
+      "min_gap": -22,
+      "kern": 65
+     },
+     {
+      "pair": "ľȉ",
+      "min_gap": -22,
+      "kern": 65
+     },
+     {
+      "pair": "Yȉ",
+      "min_gap": -21,
+      "kern": 75
+     },
+     {
+      "pair": "Ýȉ",
+      "min_gap": -21,
+      "kern": 75
+     },
+     {
+      "pair": "Ÿȉ",
+      "min_gap": -21,
+      "kern": 75
+     },
+     {
+      "pair": "Wȉ",
+      "min_gap": -18,
+      "kern": 80
+     },
+     {
+      "pair": "Жї",
+      "min_gap": -16,
+      "kern": 0
+     },
+     {
+      "pair": "Кї",
+      "min_gap": -16,
+      "kern": 0
+     },
+     {
+      "pair": "Еї",
+      "min_gap": -10,
+      "kern": 0
+     },
+     {
+      "pair": "jĩ",
+      "min_gap": -9,
+      "kern": 0
+     },
+     {
+      "pair": "ĽV",
+      "min_gap": -8,
+      "kern": -70
+     },
+     {
+      "pair": "ĽW",
+      "min_gap": -8,
+      "kern": -70
+     },
+     {
+      "pair": "Vȉ",
+      "min_gap": -2,
+      "kern": 95
+     },
+     {
+      "pair": "fȉ",
+      "min_gap": -2,
+      "kern": 85
+     },
+     {
+      "pair": "Tì",
+      "min_gap": -1,
+      "kern": 0
+     },
+     {
+      "pair": "Ťì",
+      "min_gap": -1,
+      "kern": 0
+     },
+     {
+      "pair": "Ŧì",
+      "min_gap": -1,
+      "kern": 0
+     }
+    ]
+   },
+   "MachineMadeSans-SemiBoldItalic.ttf": {
+    "overlaps": 12,
+    "pairs": [
+     {
+      "pair": "ĽY",
+      "min_gap": -25,
+      "kern": -90
+     },
+     {
+      "pair": "ĽÝ",
+      "min_gap": -25,
+      "kern": -90
+     },
+     {
+      "pair": "ĽŸ",
+      "min_gap": -25,
+      "kern": -90
+     },
+     {
+      "pair": "Yȉ",
+      "min_gap": -14,
+      "kern": 80
+     },
+     {
+      "pair": "Ýȉ",
+      "min_gap": -14,
+      "kern": 80
+     },
+     {
+      "pair": "Ÿȉ",
+      "min_gap": -14,
+      "kern": 80
+     },
+     {
+      "pair": "Pî",
+      "min_gap": -9,
+      "kern": 0
+     },
+     {
+      "pair": "ĽW",
+      "min_gap": -7,
+      "kern": -70
+     },
+     {
+      "pair": "Fȉ",
+      "min_gap": -6,
+      "kern": 80
+     },
+     {
+      "pair": "Wȉ",
+      "min_gap": -6,
+      "kern": 90
+     },
+     {
+      "pair": "ĽV",
+      "min_gap": -6,
+      "kern": -70
+     },
+     {
+      "pair": "ťȉ",
+      "min_gap": -1,
+      "kern": 95
+     }
+    ]
+   }
+  }
+ },
+ "after": {
+  "label": "machine-made Sans 0.2",
+  "pairs": 11633,
+  "fonts": {
+   "MachineMadeSans-Bold.ttf": {
+    "overlaps": 0,
+    "pairs": []
+   },
+   "MachineMadeSans-BoldItalic.ttf": {
+    "overlaps": 0,
+    "pairs": []
+   },
+   "MachineMadeSans-ExtraBold.ttf": {
+    "overlaps": 0,
+    "pairs": []
+   },
+   "MachineMadeSans-ExtraBoldItalic.ttf": {
+    "overlaps": 0,
+    "pairs": []
+   },
+   "MachineMadeSans-ExtraLight.ttf": {
+    "overlaps": 0,
+    "pairs": []
+   },
+   "MachineMadeSans-ExtraLightItalic.ttf": {
+    "overlaps": 0,
+    "pairs": []
+   },
+   "MachineMadeSans-Italic.ttf": {
+    "overlaps": 0,
+    "pairs": []
+   },
+   "MachineMadeSans-Light.ttf": {
+    "overlaps": 0,
+    "pairs": []
+   },
+   "MachineMadeSans-LightItalic.ttf": {
+    "overlaps": 0,
+    "pairs": []
+   },
+   "MachineMadeSans-Medium.ttf": {
+    "overlaps": 0,
+    "pairs": []
+   },
+   "MachineMadeSans-MediumItalic.ttf": {
+    "overlaps": 0,
+    "pairs": []
+   },
+   "MachineMadeSans-Regular.ttf": {
+    "overlaps": 0,
+    "pairs": []
+   },
+   "MachineMadeSans-SemiBold.ttf": {
+    "overlaps": 0,
+    "pairs": []
+   },
+   "MachineMadeSans-SemiBoldItalic.ttf": {
+    "overlaps": 0,
+    "pairs": []
+   }
+  }
+ }
+}

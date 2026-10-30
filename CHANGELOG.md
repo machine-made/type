@@ -9,6 +9,11 @@ Each family keeps its own changelog:
 
 Release tags: `weft-vX.Y.Z`, `sans-vX.Y.Z`, `heddle-vX.Y.Z`, `warp-vX.Y.Z`, `site-vX.Y.Z`.
 
+## 2026-10-28: Sans 0.2
+
+- machine-made Sans 0.2.0 (font version 0.200): italic Cyrillic, OTF
+  hinting, Latin Extended-A, kerning fixes. See `sans/CHANGELOG.md`.
+
 ## 2026-10-28: Heddle 0.2
 
 - machine-made Heddle 0.2.0 (font version 0.200): Latin Extended-A,

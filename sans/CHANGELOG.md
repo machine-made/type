@@ -1,5 +1,27 @@
 # machine-made Sans changelog
 
+## 0.200 (0.2), 2026-10-28
+
+- Add the Cyrillic to the italic: the 98 code points of the upright,
+  made from the upright Cyrillic slanted by 8 degrees about half the
+  x-height, as upstream made its Latin italic (`scripts/extend.py`).
+  The Bulgarian forms (locl BGR, ss04) work in the italic too.
+- Add ſ (U+017F) and ŉ (U+0149). Latin Extended-A is complete.
+- Hint the static OTF with otfautohint (afdko 5.0.1). Give the upright
+  source the stem values of the italic. Subroutinize the hinted CFF
+  again with cffsubr. The variable fonts stay unhinted.
+- Shorten three instance names of the italic variable font (XLight
+  Italic, SemiBd Italic, XBold Italic), so that family and style fit in
+  32 characters. STAT keeps the full names. Remove the Fontspector
+  override for this.
+- Kerning: 47 upright and 31 italic exceptions so that no pair in the
+  audit list touches (accented i after T V W Y F f P, Ľ before T V W Y,
+  Cyrillic ї). Cyrillic look-alikes kern with their Latin groups.
+- Add `scripts/kernaudit.py` (pair audit), `scripts/readability.py`
+  (OCR gate), new tests and proofs (italic Cyrillic, coverage, kerning,
+  OTF hinting).
+- Version 0.200.
+
 ## 0.100 (0.1), 2026-10-26
 
 First version. A modified version of Plus Jakarta Sans 2.071 by Gumpita
