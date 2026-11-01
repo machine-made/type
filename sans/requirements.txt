@@ -1,5 +1,5 @@
 # Build, check and proof tools for machine-made Sans. Python 3.14.
-gftools==0.10.6
+gftools==0.10.7
 fontmake==3.12.2
 fonttools[woff]==4.68.0
 glyphsLib==6.16.2
