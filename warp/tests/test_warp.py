@@ -668,3 +668,31 @@ def test_build_is_deterministic():
         assert [[(p.x, p.y, p.segmentType) for p in c] for c in ga.contours] == \
                [[(p.x, p.y, p.segmentType) for p in c] for c in gb.contours]
     assert a.kerning == b.kerning and a.features.text == b.features.text
+
+
+def test_curve_fit_does_not_depend_on_cpu_features():
+    """NumPy uses other code (AVX-512) for some functions on some CPUs. The
+    fitted outlines, and so the fonts, must not change with it: the CI
+    machines differ, and the committed fonts are checked against a fresh build."""
+    import subprocess
+    import sys
+    code = (
+        "import numpy as np\n"
+        "from loom import outline as O\n"
+        "t = np.random.default_rng(3).random(4000)\n"
+        "ctrl = np.array([[0, 0], [37.3, 211.9], [402.1, 98.7], [455.5, 12.4]])\n"
+        "pts = O._bez(ctrl, np.linspace(0, 1, 60))\n"
+        "u = O._chord_params(pts)\n"
+        "fit = O._generate(pts, u, O._unit(ctrl[1] - ctrl[0]), O._unit(ctrl[2] - ctrl[3]))\n"
+        "print(O._bez(ctrl, t).tobytes().hex(), fit.tobytes().hex())\n"
+    )
+
+    def run(disable):
+        env = {k: v for k, v in __import__("os").environ.items() if k != "NPY_DISABLE_CPU_FEATURES"}
+        if disable:
+            env["NPY_DISABLE_CPU_FEATURES"] = disable
+        r = subprocess.run([sys.executable, "-c", code], cwd=WARP, env=env, capture_output=True, text=True)
+        assert r.returncode == 0, r.stderr
+        return r.stdout
+
+    assert run("") == run("X86_V4 AVX512_ICL AVX512_SKX AVX512F")

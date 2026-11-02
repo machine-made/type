@@ -174,7 +174,9 @@ def corners(a: np.ndarray) -> list[int]:
 def _bez(ctrl, t):
     t = np.asarray(t)[:, None]
     m = 1 - t
-    return m ** 3 * ctrl[0] + 3 * m * m * t * ctrl[1] + 3 * m * t * t * ctrl[2] + t ** 3 * ctrl[3]
+    # Products, not ** 3: NumPy computes power with a different (AVX-512) code
+    # path on some CPUs, and its last-bit differences change the curve fit.
+    return m * m * m * ctrl[0] + 3 * m * m * t * ctrl[1] + 3 * m * t * t * ctrl[2] + t * t * t * ctrl[3]
 
 
 def _bez_d1(ctrl, t):
@@ -201,8 +203,8 @@ def _unit(v):
 
 def _generate(pts, u, t1, t2):
     p0, p3 = pts[0], pts[-1]
-    A1 = t1[None, :] * (3 * (1 - u) ** 2 * u)[:, None]
-    A2 = t2[None, :] * (3 * (1 - u) * u ** 2)[:, None]
+    A1 = t1[None, :] * (3 * (1 - u) * (1 - u) * u)[:, None]
+    A2 = t2[None, :] * (3 * (1 - u) * u * u)[:, None]
     C00 = (A1 * A1).sum()
     C01 = (A1 * A2).sum()
     C11 = (A2 * A2).sum()
