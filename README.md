@@ -73,7 +73,7 @@ come out of the pen. The font matches the approved sketch engine
 (`proofs/warp/warp-sketch-vs-font-regular.png`), every glyph matches
 its pen sweep (`proofs/warp/fidelity.json`), and an OCR gate compares
 it with DejaVu Serif (`proofs/warp/readability.json`). Statics in 0.1;
-the MATH table is planned for 0.2 and the variable font for 0.3.
+the MATH table is planned for 0.2 and the variable font for 0.3 (a two-master test is done on a branch; the full weight ladder and `opsz` are open, and the fallback is 0.4).
 Details: `warp/RELEASE-NOTES-0.1.md`.
 
 ## How to build

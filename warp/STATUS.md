@@ -7,14 +7,17 @@
 | Pull request | CPU build fix prepared for review |
 | Stage | Warp 0.2 built: 6 static styles (TTF hinted, OTF, WOFF2) with an OpenType MATH table |
 | Gate now | The founder reviews the rebuilt proof sheets by eye. The OCR gate runs on the hosted workflow. The MATH proof stays an open local check: it is not run in CI, and this machine cannot load `luaotfload` |
-| Next | Release 0.2 (tag `warp-v0.2.0`). The two-master topology test is verified; the full weight ladder, italics and optical sizes remain open |
+| Next | Release 0.2 (tag `warp-v0.2.0`). The two-master topology test is verified at its endpoints; the full weight ladder, italics and optical sizes remain open |
 | Last local run | 2026-11-07: topology tests (16 passed), all 18 default files byte-identical, CPU checks passed, compatible fidelity max 3.048 %, Fontspector 0 FAIL and 0 ERROR with 775 WARN |
-| Last green CI | Not run for this topology change |
+| Last green CI | See the pull request for the topology change |
 
 ## Regular and Bold variable-font test (2026-11-07)
 
-Verdict: **verified** for the Regular/Bold two-master test. All local pass
-conditions hold. This is not a production variable-font release.
+Verdict: **verified at the two endpoints** of the Regular/Bold test. The
+checks below compare each endpoint with the master that built it; they do not
+show that the interpolation between the masters is correct. `vf_spike.py` prints
+"inconclusive" until Fontspector has been run, because it does not run
+Fontspector itself. This is not a production variable-font release.
 
 All 890 glyphs now have matching contour and point structure. No glyph is
 excluded. The test font and its two static masters are under
@@ -100,7 +103,10 @@ resolved for the raster helper, which requires disjoint contours. The
 actual masters and variable font retain their overlaps. The 890-glyph
 structure and endpoint checks also cover the composites.
 
-Fontspector 1.9.0 uses the universal profile with network checks off. Its
+Fontspector 1.9.0 uses the universal profile with network checks off. It was run by
+hand on `build/warp-vf-spike/MachineMadeWarp-Spike[wght].ttf` with
+`fontspector -p universal --skip-network`; no report is committed, so this is a
+local result. Its
 archive matches the checksum in the workflow; its executable matches
 the archive. The two named instances have PostScript names. Adding these
 names left the outline, variation and advance-width tables byte-identical.
@@ -115,9 +121,10 @@ The variable TTF is about 3.24 MB. There is no size or speed claim.
 
 The proof sheets under `build/warp-vf-spike/` show the corrected glyphs at
 weights 400, 550 and 700 at 20, 40 and 80 pixels. A second sheet uses
-50 % opacity at 100 pixels. Visual inspection found no overlap gaps or
-extra darkening. The maximum alpha is 128. This is a local FreeType/Pillow
-check, not a test of every renderer.
+50 % opacity at 100 pixels. They were looked at by eye on one
+machine (FreeType and Pillow); the script and the images are not committed, so
+this is a local observation, not a reproducible check, and not a test of every
+renderer.
 
 All 18 default files match a fresh build: six styles in TTF, OTF and
 WOFF2. The OTF check uses the release command's CFF optimization level 2.
@@ -135,8 +142,7 @@ contours have positive area, and source order matches. No zero-area
 contour is added to make the masters agree. Ruff lint and format checks
 pass for the changed Python files. `git diff --check` passes.
 
-Independent code review found no remaining issue. Hosted CI was not run.
-No commit, branch change, push, tag or pull request was made.
+Hosted CI runs on the pull request.
 
 ## CPU build check (2026-11-07)
 

@@ -544,7 +544,8 @@ def build_font(style_key: str, compatible=False, method="sample") -> ufoLib2.Fon
             for base, dx, dy in comps:
                 g.components.append(Component(base, transformation=(1, 0, 0, 1, rnd(dx), rnd(dy))))
         else:
-            d = drawn(style_key, gl.name, compatible=compatible, method=method)
+            d = (drawn(style_key, gl.name, compatible=True, method=method)
+                 if compatible else drawn(style_key, gl.name))
             g.width = rnd(d.adv)
             O.draw(d.contours, g.getPen())
         for nm, x, y in anchors(style_key, gl.name):
