@@ -59,6 +59,18 @@ jobs:
             exit 1
           fi
 
+      - name: Check the build without AVX-512
+        env:
+          NPY_DISABLE_CPU_FEATURES: "X86_V4 AVX512_ICL AVX512_SKX AVX512F"
+          RAYON_NUM_THREADS: "2"
+        run: |
+          scripts/build.sh
+          if [ -n "$(git -C .. status --porcelain -- fonts/warp)" ]; then
+            git -C .. status --short -- fonts/warp
+            echo "::error::fonts/warp differs from a fresh build without AVX-512."
+            exit 1
+          fi
+
       - name: Check the outlines against the pen sweep (fidelity report)
         run: |
           python tools/fidelity.py --gate

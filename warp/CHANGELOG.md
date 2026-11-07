@@ -1,5 +1,9 @@
 # Warp changelog
 
+## Unreleased
+
+- Fixed the build so that its output does not depend on the CPU path used by NumPy.
+
 ## 0.200 (Warp 0.2)
 
 ### Added

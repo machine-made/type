@@ -7,6 +7,10 @@ from __future__ import annotations
 
 import json
 import math
+import os
+import subprocess
+import sys
+import textwrap
 from pathlib import Path
 
 import numpy as np
@@ -670,12 +674,17 @@ def test_build_is_deterministic():
     assert a.kerning == b.kerning and a.features.text == b.features.text
 
 
+def _cpu_env(disable):
+    env = {k: v for k, v in os.environ.items() if k != "NPY_DISABLE_CPU_FEATURES"}
+    if disable:
+        env["NPY_DISABLE_CPU_FEATURES"] = "X86_V4 AVX512_ICL AVX512_SKX AVX512F"
+    return env
+
+
 def test_curve_fit_does_not_depend_on_cpu_features():
     """NumPy uses other code (AVX-512) for some functions on some CPUs. The
     fitted outlines, and so the fonts, must not change with it: the CI
     machines differ, and the committed fonts are checked against a fresh build."""
-    import subprocess
-    import sys
     code = (
         "import numpy as np\n"
         "from loom import outline as O\n"
@@ -685,14 +694,71 @@ def test_curve_fit_does_not_depend_on_cpu_features():
         "u = O._chord_params(pts)\n"
         "fit = O._generate(pts, u, O._unit(ctrl[1] - ctrl[0]), O._unit(ctrl[2] - ctrl[3]))\n"
         "print(O._bez(ctrl, t).tobytes().hex(), fit.tobytes().hex())\n"
+        # Corner detection also uses CPU-dispatched trigonometry. This sample
+        # exercises that path even when cubic evaluation happens to agree.
+        "polygon = np.random.default_rng(3).random((4000, 2)) * 500\n"
+        "print(O.turning(polygon).tobytes().hex())\n"
     )
 
     def run(disable):
-        env = {k: v for k, v in __import__("os").environ.items() if k != "NPY_DISABLE_CPU_FEATURES"}
-        if disable:
-            env["NPY_DISABLE_CPU_FEATURES"] = disable
-        r = subprocess.run([sys.executable, "-c", code], cwd=WARP, env=env, capture_output=True, text=True)
+        r = subprocess.run([sys.executable, "-c", code], cwd=WARP,
+                           env=_cpu_env(disable), capture_output=True, text=True, check=True)
         assert r.returncode == 0, r.stderr
         return r.stdout
 
-    assert run("") == run("X86_V4 AVX512_ICL AVX512_SKX AVX512F")
+    assert run(False) == run(True)
+
+
+def test_font_bytes_do_not_depend_on_cpu_features(tmp_path):
+    """Compile the Xi regression with .notdef and the o needed for hinting.
+
+    Use fresh processes: NumPy chooses its CPU kernels at import time. Check
+    TTF, OTF and WOFF2 bytes, including TTF hinting and WOFF2 compression.
+    """
+    code = textwrap.dedent("""\
+        import subprocess
+        import sys
+        from pathlib import Path
+        import ufoLib2
+        from fontTools.ttLib import TTFont
+        from ufo2ft import compileOTF, compileTTF
+        from loom import build as B, charset as C, outline as O
+
+        out = Path(sys.argv[1])
+        font = ufoLib2.Font()
+        B.set_info(font, B.STYLES["Regular"])
+        names = [".notdef", C.glyph_name("Ξ"), "o"]
+        font.lib["public.glyphOrder"] = names
+        for name in names:
+            glyph = font.newGlyph(name)
+            glyph.unicodes = list(C.BY_NAME[name].unicodes)
+            drawn = B.drawn("Regular", name)
+            glyph.width = B.rnd(drawn.adv)
+            O.draw(drawn.contours, glyph.getPen())
+        ascent, descent = B.win_metrics([font])
+        font.info.openTypeOS2WinAscent = ascent
+        font.info.openTypeOS2WinDescent = descent
+        compileTTF(font, removeOverlaps=False).save(out / "raw.ttf")
+        compileOTF(font, removeOverlaps=False).save(out / "font.otf")
+        subprocess.run([sys.executable, "-m", "ttfautohint", "--no-info",
+                        str(out / "raw.ttf"), str(out / "font.ttf")], check=True)
+        with TTFont(out / "font.ttf") as ttf:
+            ttf.save(out / "font.ttf")
+            ttf.flavor = "woff2"
+            ttf.save(out / "font.woff2")
+        (out / "raw.ttf").unlink()
+    """)
+    folders = [tmp_path / "default", tmp_path / "no-avx512"]
+    for disable, folder in zip((False, True), folders):
+        folder.mkdir()
+        env = _cpu_env(disable)
+        env["SOURCE_DATE_EPOCH"] = "1793059200"
+        result = subprocess.run([sys.executable, "-c", code, str(folder)],
+                                cwd=WARP, env=env, capture_output=True, text=True)
+        assert result.returncode == 0, result.stderr
+    for name in ("font.ttf", "font.otf", "font.woff2"):
+        # Compare every byte, but never dump a font into a failure report.
+        assert (folders[0] / name).stat().st_size > 0
+        result = subprocess.run(["cmp", "--silent", str(folders[0] / name),
+                                 str(folders[1] / name)])
+        assert result.returncode == 0, f"CPU-dependent bytes in {name}"

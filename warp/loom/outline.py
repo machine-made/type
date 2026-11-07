@@ -21,6 +21,7 @@ Apache-2.0.
 from __future__ import annotations
 
 import math
+from itertools import accumulate
 
 import numpy as np
 import pathops
@@ -31,6 +32,35 @@ CORNER_MERGE = 7.0   # corners closer than this (arc length) are one corner
 MIN_SEG = 4.0        # no segment shorter than this
 MIN_AREA = 40.0      # contours with less area are dropped (union slivers)
 LINE_TOL = 0.35      # a run within this of its chord is a line
+
+
+# Use scalar libm and an explicit addition order wherever NumPy can select
+# a SIMD or BLAS kernel. Keep ordinary elementwise arithmetic as arrays.
+def _hypot(x, y):
+    """Elementwise length with the same scalar operation on every CPU path."""
+    x, y = np.broadcast_arrays(x, y)
+    return np.fromiter(
+        (math.hypot(float(a), float(b)) for a, b in zip(x.flat, y.flat)),
+        dtype=float, count=x.size,
+    ).reshape(x.shape)
+
+
+def _sum(values):
+    """Sum in row-major order without SIMD, BLAS, or pairwise reductions."""
+    total = 0.0
+    for value in values.flat:
+        total += float(value)
+    return total
+
+
+def _cumsum(values):
+    """Prefix sums in input order, using scalar float additions."""
+    return np.fromiter(accumulate(map(float, values)), dtype=float, count=len(values))
+
+
+def _dot2(a, b):
+    """Two-dimensional dot products with separate multiplies and addition."""
+    return a[..., 0] * b[..., 0] + a[..., 1] * b[..., 1]
 
 
 # ------------------------------------------------------------------ union
@@ -71,7 +101,7 @@ def path_polygons(path: pathops.Path) -> list[np.ndarray]:
 
 def signed_area(a: np.ndarray) -> float:
     x, y = a[:, 0], a[:, 1]
-    return 0.5 * float(np.dot(x, np.roll(y, -1)) - np.dot(np.roll(x, -1), y))
+    return 0.5 * (_sum(x * np.roll(y, -1)) - _sum(np.roll(x, -1) * y))
 
 
 # -------------------------------------------------------------- cleanup
@@ -79,10 +109,10 @@ def signed_area(a: np.ndarray) -> float:
 def dedupe(a: np.ndarray, eps: float = 0.05) -> np.ndarray:
     keep = [0]
     for i in range(1, len(a)):
-        if np.hypot(*(a[i] - a[keep[-1]])) > eps:
+        if math.hypot(*(a[i] - a[keep[-1]])) > eps:
             keep.append(i)
     a = a[keep]
-    if len(a) > 2 and np.hypot(*(a[0] - a[-1])) <= eps:
+    if len(a) > 2 and math.hypot(*(a[0] - a[-1])) <= eps:
         a = a[:-1]
     return a
 
@@ -98,7 +128,7 @@ def drop_collinear(a: np.ndarray, eps: float = 1e-3) -> np.ndarray:
             d1, d2 = p1 - p0, p2 - p1
             cross = d1[0] * d2[1] - d1[1] * d2[0]
             dot = d1[0] * d2[0] + d1[1] * d2[1]
-            if abs(cross) <= eps * np.hypot(*d1) * np.hypot(*d2) and dot > 0:
+            if abs(cross) <= eps * math.hypot(*d1) * math.hypot(*d2) and dot > 0:
                 changed = True
                 continue
             keep.append(i)
@@ -110,9 +140,12 @@ def turning(a: np.ndarray) -> np.ndarray:
     """Signed turning angle at each vertex, in degrees."""
     d_in = a - np.roll(a, 1, axis=0)
     d_out = np.roll(a, -1, axis=0) - a
-    ang = np.arctan2(d_in[:, 0] * d_out[:, 1] - d_in[:, 1] * d_out[:, 0],
-                     (d_in * d_out).sum(axis=1))
-    return np.degrees(ang)
+    ang = d_in[:, 0] * d_out[:, 1] - d_in[:, 1] * d_out[:, 0]
+    dot = _dot2(d_in, d_out)
+    return np.fromiter(
+        (math.degrees(math.atan2(float(y), float(x))) for y, x in zip(ang, dot)),
+        dtype=float, count=len(a),
+    )
 
 
 def corners(a: np.ndarray) -> list[int]:
@@ -125,7 +158,7 @@ def corners(a: np.ndarray) -> list[int]:
     """
     n = len(a)
     th = turning(a)
-    seg = np.hypot(*(np.roll(a, -1, axis=0) - a).T)
+    seg = _hypot(*(np.roll(a, -1, axis=0) - a).T)
     cand = []
     half = CORNER_MERGE / 2
     for i in range(n):
@@ -155,8 +188,8 @@ def corners(a: np.ndarray) -> list[int]:
     if not cand:
         return []
     # merge close candidates: keep the strongest of each cluster
-    pos = np.concatenate([[0], np.cumsum(seg)])[:n]
-    total = float(seg.sum())
+    pos = np.concatenate([[0], _cumsum(seg)])[:n]
+    total = _sum(seg)
     cand.sort()
     clusters = [[cand[0]]]
     for c in cand[1:]:
@@ -192,12 +225,12 @@ def _bez_d2(ctrl, t):
 
 
 def _chord_params(pts):
-    d = np.concatenate([[0.0], np.cumsum(np.hypot(*np.diff(pts, axis=0).T))])
+    d = np.concatenate([[0.0], _cumsum(_hypot(*np.diff(pts, axis=0).T))])
     return d / d[-1] if d[-1] > 0 else d
 
 
 def _unit(v):
-    n = np.hypot(*v)
+    n = math.hypot(*v)
     return v / n if n > 0 else v
 
 
@@ -205,15 +238,15 @@ def _generate(pts, u, t1, t2):
     p0, p3 = pts[0], pts[-1]
     A1 = t1[None, :] * (3 * (1 - u) * (1 - u) * u)[:, None]
     A2 = t2[None, :] * (3 * (1 - u) * u * u)[:, None]
-    C00 = (A1 * A1).sum()
-    C01 = (A1 * A2).sum()
-    C11 = (A2 * A2).sum()
+    C00 = _sum(A1 * A1)
+    C01 = _sum(A1 * A2)
+    C11 = _sum(A2 * A2)
     base = _bez(np.array([p0, p0, p3, p3]), u)
     tmp = pts - base
-    X0 = (A1 * tmp).sum()
-    X1 = (A2 * tmp).sum()
+    X0 = _sum(A1 * tmp)
+    X1 = _sum(A2 * tmp)
     det = C00 * C11 - C01 * C01
-    seg = np.hypot(*(p3 - p0))
+    seg = math.hypot(*(p3 - p0))
     if abs(det) > 1e-12:
         a1 = (X0 * C11 - X1 * C01) / det
         a2 = (C00 * X1 - C01 * X0) / det
@@ -226,7 +259,7 @@ def _generate(pts, u, t1, t2):
 
 
 def _max_error(pts, ctrl, u):
-    d = np.hypot(*(_bez(ctrl, u) - pts).T)
+    d = _hypot(*(_bez(ctrl, u) - pts).T)
     i = int(np.argmax(d))
     return float(d[i]), i
 
@@ -235,8 +268,8 @@ def _reparam(pts, ctrl, u):
     q = _bez(ctrl, u)
     d1 = _bez_d1(ctrl, u)
     d2 = _bez_d2(ctrl, u)
-    num = ((q - pts) * d1).sum(axis=1)
-    den = (d1 * d1).sum(axis=1) + ((q - pts) * d2).sum(axis=1)
+    num = _dot2(q - pts, d1)
+    den = _dot2(d1, d1) + _dot2(q - pts, d2)
     with np.errstate(divide="ignore", invalid="ignore"):
         nu = np.where(np.abs(den) > 1e-12, u - num / den, u)
     nu = np.clip(nu, 0, 1)
@@ -253,17 +286,17 @@ def _true_error(pts, ctrl, samples=24):
     tt = np.linspace(0, 1, samples * 4 + 1)
     cp = _bez(ctrl, tt)
     # vertex -> curve
-    d1 = np.min(np.hypot(pts[:, None, 0] - cp[None, :, 0], pts[:, None, 1] - cp[None, :, 1]), axis=1).max()
+    d1 = np.min(_hypot(pts[:, None, 0] - cp[None, :, 0], pts[:, None, 1] - cp[None, :, 1]), axis=1).max()
     # curve -> polyline segments
     a, b = pts[:-1], pts[1:]
     ab = b - a
-    L2 = (ab * ab).sum(axis=1)
+    L2 = _dot2(ab, ab)
     L2[L2 == 0] = 1
     best = np.full(len(cp), np.inf)
     for k in range(len(a)):
-        t = np.clip(((cp - a[k]) @ ab[k]) / L2[k], 0, 1)
+        t = np.clip(_dot2(cp - a[k], ab[k]) / L2[k], 0, 1)
         proj = a[k] + t[:, None] * ab[k]
-        best = np.minimum(best, np.hypot(*(cp - proj).T))
+        best = np.minimum(best, _hypot(*(cp - proj).T))
     return max(float(d1), float(best.max()))
 
 
@@ -300,7 +333,7 @@ def fit_cubics(pts, t1, t2, tol=TOL, depth=0):
 def _is_line(pts, tol=LINE_TOL) -> bool:
     a, b = pts[0], pts[-1]
     ab = b - a
-    L = np.hypot(*ab)
+    L = math.hypot(*ab)
     if L == 0:
         return False
     d = np.abs((pts[:, 0] - a[0]) * ab[1] - (pts[:, 1] - a[1]) * ab[0]) / L
@@ -311,7 +344,7 @@ def _tangent_out(run):
     """Direction leaving the start of a run (first 3 units of arc)."""
     acc = 0.0
     for k in range(1, len(run)):
-        acc += np.hypot(*(run[k] - run[k - 1]))
+        acc += math.hypot(*(run[k] - run[k - 1]))
         if acc >= 3.0:
             return _unit(run[k] - run[0])
     return _unit(run[-1] - run[0])
@@ -360,7 +393,7 @@ def _split_at(c, t):
 
 def _arc_len(c):
     q = _bez(c, np.linspace(0, 1, 9))
-    return float(np.hypot(*np.diff(q, axis=0).T).sum())
+    return _sum(_hypot(*np.diff(q, axis=0).T))
 
 
 def fit_contour(a: np.ndarray, tol=TOL) -> list:
@@ -406,7 +439,7 @@ def fit_contour(a: np.ndarray, tol=TOL) -> list:
 
 
 def _seg_len(s):
-    return float(np.hypot(*(s[2] - s[1]))) if s[0] == "line" else _arc_len(s[1])
+    return float(math.hypot(*(s[2] - s[1]))) if s[0] == "line" else _arc_len(s[1])
 
 
 def merge_short(segs: list) -> list:
