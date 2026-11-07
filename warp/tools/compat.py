@@ -253,7 +253,7 @@ def main(argv=None):
     )
     ap.add_argument("--out", type=Path, default=REPORT)
     args = ap.parse_args(argv)
-    if args.glyphs and args.out == REPORT:
+    if args.glyphs and args.out.resolve() == REPORT.resolve():
         # A subset must never replace the committed full report.
         args.out = REPORT.parents[2] / "build/compat-subset.json"
     report = compare(

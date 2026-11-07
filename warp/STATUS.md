@@ -9,7 +9,7 @@
 | Gate now | The founder reviews the rebuilt proof sheets by eye. The OCR gate runs on the hosted workflow. The MATH proof stays an open local check: it is not run in CI, and this machine cannot load `luaotfload` |
 | Next | Release 0.2 (tag `warp-v0.2.0`). The two-master topology test is verified at its endpoints; the full weight ladder, italics and optical sizes remain open |
 | Last local run | 2026-11-07: topology tests (16 passed), all 18 default files byte-identical, CPU checks passed, compatible fidelity max 3.048 %, Fontspector 0 FAIL and 0 ERROR with 775 WARN |
-| Last green CI | See the pull request for the topology change |
+| Last green CI | Pending: the hosted run of the pull request for the topology change (type#24) is the first check on another machine |
 
 ## Regular and Bold variable-font test (2026-11-07)
 
@@ -153,7 +153,7 @@ and the fit limits stay the same.
 The build is reproducible across the two tested CPU paths. A fresh build
 with the default features and a fresh build with AVX-512 off each matched
 all 18 rebuilt font files, byte for byte. This was checked on one machine.
-The hosted CI run is still needed as a check on another machine.
+The hosted CI run of type#24 is the check on another machine.
 
 The outline fidelity gate passes: the maximum ink difference is 4.016 %
 (limit 5 %). Fontspector 1.9.0 passes on all 12 TTF and OTF files, with
