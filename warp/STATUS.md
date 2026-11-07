@@ -6,7 +6,7 @@
 | Version | 0.2 (font version 0.200) |
 | Pull request | CPU build fix prepared for review |
 | Stage | Warp 0.2 built: 6 static styles (TTF hinted, OTF, WOFF2) with an OpenType MATH table |
-| Gate now | The founder reviews the rebuilt proof sheets by eye. The OCR gate and MATH proof run on the hosted workflow (this machine has no Tesseract or luaotfload) |
+| Gate now | The founder reviews the rebuilt proof sheets by eye. The OCR gate runs on the hosted workflow. The MATH proof stays an open local check: it is not run in CI, and this machine cannot load `luaotfload` |
 | Next | Release 0.2 (tag `warp-v0.2.0`). Then 0.3 (variable font, branch `warp/v0.3`) |
 | Last local run | 2026-11-07: pytest (90 passed), 3 full builds, both CPU comparisons byte-identical, fidelity (max 4.016 %), Fontspector 1.9.0 (0 FAIL, 0 ERROR), proof sheets rebuilt except MATH; OCR and MATH checks blocked by missing tools |
 | Last green CI | Pending for the CPU build fix |

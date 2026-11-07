@@ -35,7 +35,7 @@
 
 ### Changed
 
-- The build output no longer depends on the CPU path used by NumPy. `fonts/warp` and `proofs/warp` were rebuilt (the fonts differ in the last bits of some outlines).
+- The build output no longer depends on the CPU path used by NumPy. `fonts/warp` and `proofs/warp` were rebuilt. Most outlines change only in the last bits of their coordinates; the largest known change is in the Xi (Regular) outline, which moved by up to 2 font units because of the CPU-dependent curve fit.
 - g: the lower loop closes on the link (OCR read it as a comma).
 - f, ﬀ: a firmer hook with a larger drop. ﬁ ﬂ: the bar stops short of
   the i and the l; the f of ﬂ ends in its own drop.
