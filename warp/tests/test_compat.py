@@ -79,18 +79,28 @@ def test_compat_cpu_features():
     """Check both methods, all hard contours, and rounding on both CPU paths."""
     code = """
 import hashlib
+import json
+import numpy as np
+import vf_spike
 from loom import build as B
-from loom.compatible import pair
+from loom.compatible import TOPOLOGY, pair
 from compat import HARD
 h = hashlib.sha256()
 for method in ('sample', 'refit'):
-    for name in HARD:
+    for name in sorted(set(HARD) | TOPOLOGY):
         for cs in pair(name, method):
             for c in cs:
                 for s in c:
                     h.update(s[0].encode())
                     for p in s[1:]:
                         h.update(p.tobytes())
+class Font:
+    def getGlyphOrder(self):
+        return ['a']
+a, b = Font(), Font()
+square = np.array([(0, 0), (10, 0), (10, 10), (0, 10), (0, 0)], dtype=float)
+vf_spike.boundary = lambda f, n: [square + (0.6 if f is a else 0)]
+h.update(json.dumps(vf_spike.endpoint_difference(a, b), sort_keys=True).encode())
 print(h.hexdigest())
 """
     hashes = []
@@ -111,13 +121,60 @@ print(h.hexdigest())
     assert hashes[0] == hashes[1], "Compatible outlines depend on CPU features"
 
 
+def test_compat_keeps_previous_875_outlines():
+    """Frozen float-coordinate hashes from the first sampling experiment."""
+    from loom import charset as CS
+    from loom.compatible import TOPOLOGY
+
+    changed = TOPOLOGY | {"iotadieresistonos", "upsilondieresistonos"}
+    names = sorted(set(CS.ORDER) - changed)
+    assert len(names) == 875
+    expected = {
+        "Regular": "c6a2ee0e36f73b7aa505f3c0bce59c67ea44e72ff0447a5157502b60bd99024f",
+        "Bold": "37d277bfa532d1e428fb560ace6e87433d02d30f0454edc3d9ff77c812cd3038",
+    }
+    for style, digest in expected.items():
+        total = hashlib.sha256()
+        for name in names:
+            h = hashlib.sha256()
+            for contour in compat.contours(style, name, True):
+                for segment in contour:
+                    h.update(segment[0].encode())
+                    for points in segment[1:]:
+                        h.update(points.tobytes())
+            total.update(f"{style}/{name}".encode())
+            total.update(h.hexdigest().encode())
+        assert total.hexdigest() == digest, style
+
+
 def test_compat_preserves_contour_topology():
-    """A change in winding must not be hidden by adding a zero-area contour."""
-    for name in ("germandbls", "fi", "f_f_l"):
+    """Use real stroke contours, with every source hull kept exactly once."""
+    from loom import outline as O
+    from loom.compatible import (
+        TOPOLOGY,
+        contour_key,
+        polygon,
+        stroke_contours,
+        stroke_groups,
+    )
+
+    for name in TOPOLOGY:
+        report = compat.compare([name], compatible=True)
+        assert report["point_compatible"] == 1
+        source_orders = []
         for style in ("Regular", "Bold"):
-            default = compat.structure(Bd.drawn(style, name).contours)
-            fixed = compat.structure(Bd.drawn(style, name, compatible=True).contours)
-            assert default == fixed
+            d = Bd.drawn(style, name)
+            hulls = [p for group in stroke_groups(d, name) for p in group]
+            assert hulls == d.sweep.polys
+            fixed = Bd.drawn(style, name, compatible=True).contours
+            assert all(O.signed_area(polygon(c)[0]) > 0 for c in fixed)
+            source = stroke_contours(d, name)
+            source_orders.append(
+                sorted(
+                    range(len(source)), key=lambda i: contour_key(polygon(source[i])[0])
+                )
+            )
+        assert source_orders[0] == source_orders[1], name
 
 
 def test_compat_detects_contour_order():
@@ -171,8 +228,66 @@ def test_compat_difference_has_error_bound(monkeypatch):
         def getGlyphOrder(self):
             return ["a"]
 
-    monkeypatch.setattr(vf_spike, "boundary", lambda font, name: [])
+    import numpy as np
+
+    instance, static = Font(), Font()
+    monkeypatch.setattr(
+        vf_spike, "boundary", lambda font, name: [np.array([[font is instance, 0]])]
+    )
     monkeypatch.setattr(vf_spike, "directed_distance", lambda source, target: 1.0)
-    result = vf_spike.difference(Font(), Font())
+    result = vf_spike.difference(instance, static)
     assert result["sampled_max_units"] == 1.0
     assert result["max_units"] > 1.0
+
+
+def test_compat_identical_boundaries(monkeypatch):
+    import numpy as np
+    import vf_spike
+
+    class Font:
+        def getGlyphOrder(self):
+            return ["a"]
+
+    monkeypatch.setattr(vf_spike, "boundary", lambda font, name: [np.array([[1, 2]])])
+    result = vf_spike.difference(Font(), Font())
+    assert result["sampled_max_units"] == 0
+
+
+def test_compat_fidelity_subset(monkeypatch):
+    """The hard-glyph trial contains only part of the full glyph set."""
+    import ufoLib2
+    import vf_spike
+    from ufo2ft import compileTTF
+
+    ufo = ufoLib2.Font()
+    Bd.set_info(ufo, Bd.STYLES["Regular"])
+    ufo.newGlyph(".notdef")
+    font = compileTTF(ufo, removeOverlaps=False)
+    monkeypatch.setattr(
+        vf_spike.fidelity, "compare", lambda style, f: {"a": {"16": 0.0}}
+    )
+    assert vf_spike.fidelity_report([font], ["Regular"])["Regular"]["pass"]
+
+
+def test_compat_endpoint_bound(monkeypatch):
+    import numpy as np
+    import pytest
+    import vf_spike
+
+    class Font:
+        def getGlyphOrder(self):
+            return ["a"]
+
+    a, b = Font(), Font()
+    square = np.array([(0, 0), (10, 0), (10, 10), (0, 10), (0, 0)], dtype=float)
+    monkeypatch.setattr(
+        vf_spike, "boundary", lambda f, n: [square + (0.6 if f is a else 0)]
+    )
+    result = vf_spike.endpoint_difference(a, b)
+    assert result["vertex_bound_units"] == pytest.approx(0.6 * 2**0.5)
+    assert result["max_units"] > result["vertex_bound_units"]
+    monkeypatch.setattr(
+        vf_spike, "boundary", lambda f, n: [square if f is a else square[:3]]
+    )
+    with pytest.raises(ValueError, match="Endpoint structure differs"):
+        vf_spike.endpoint_difference(a, b)

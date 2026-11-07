@@ -8,6 +8,7 @@ import json
 import math
 import os
 import sys
+from copy import deepcopy
 from itertools import pairwise
 from pathlib import Path
 
@@ -16,10 +17,13 @@ from fontmake.font_project import FontProject
 from fontTools.designspaceLib import (
     AxisDescriptor,
     DesignSpaceDocument,
+    InstanceDescriptor,
     SourceDescriptor,
 )
 from fontTools.pens.basePen import BasePen
 from fontTools.ttLib import TTFont
+from fontTools.ttLib.removeOverlaps import removeOverlaps
+from fontTools.ttLib.tables._g_l_y_f import flagOverlapSimple
 from fontTools.varLib.instancer import instantiateVariableFont
 from ufo2ft import compileTTF
 
@@ -30,9 +34,17 @@ from compat import HARD, compare, summary
 from loom import build as Bd
 from loom import charset as CS
 from loom import outline as O
+from loom.compatible import TOPOLOGY
 
 ROOT = Path(__file__).resolve().parents[2]
 OUT = ROOT / "build/warp-vf-spike"
+CHANGED = sorted(TOPOLOGY | {"iotadieresistonos", "upsilondieresistonos"})
+
+
+def mark_overlaps(font):
+    """Tell rasterisers which simple glyphs retain stroke overlaps."""
+    for name in TOPOLOGY.intersection(font.getGlyphOrder()):
+        font["glyf"][name].flags[0] |= flagOverlapSimple
 
 
 class BoundaryPen(BasePen):
@@ -116,12 +128,14 @@ def directed_distance(source, target):
     return maximum
 
 
-def difference(instance, static):
+def difference(instance, static, names=None):
     if instance.getGlyphOrder() != static.getGlyphOrder():
         raise ValueError("The instance and static glyph orders differ")
     maximum, worst = 0.0, None
-    for name in static.getGlyphOrder():
+    for name in static.getGlyphOrder() if names is None else names:
         a, b = boundary(instance, name), boundary(static, name)
+        if len(a) == len(b) and all(np.array_equal(x, y) for x, y in zip(a, b)):
+            continue
         d = max(directed_distance(a, b), directed_distance(b, a))
         if d > maximum:
             maximum, worst = d, name
@@ -136,10 +150,44 @@ def difference(instance, static):
     }
 
 
+def endpoint_difference(instance, static):
+    """Bound the distance between matching master polylines.
+
+    The distance between corresponding points on two line segments is
+    at most the larger endpoint displacement. Thus the largest vertex
+    displacement bounds both directed boundary distances, without a
+    sampling gap. Keep 0.02 units for the two curve-flattening bounds.
+    """
+    if instance.getGlyphOrder() != static.getGlyphOrder():
+        raise ValueError("The instance and static glyph orders differ")
+    maximum, worst = 0.0, None
+    for name in static.getGlyphOrder():
+        a, b = boundary(instance, name), boundary(static, name)
+        if len(a) != len(b) or any(x.shape != y.shape for x, y in zip(a, b)):
+            raise ValueError(f"Endpoint structure differs: {name}")
+        for x, y in zip(a, b):
+            for delta in x - y:
+                distance = math.hypot(*delta)
+                if distance > maximum:
+                    maximum, worst = distance, name
+    return {
+        "max_units": maximum + 0.02,
+        "vertex_bound_units": maximum,
+        "glyph": worst,
+        "curve_flatness_units": 0.01,
+        "method": "Corresponding vertices bound the full flattened boundaries",
+    }
+
+
 def fidelity_report(fonts, styles):
     result = {}
     for style, font in zip(styles, fonts):
-        glyphs = fidelity.compare(style, font)
+        # The raster helper expects disjoint outlines. Resolve nonzero
+        # fill on a copy read from the compiled font; keep overlaps in
+        # the masters and VF. The reference remains the independent sweep.
+        raster_font = deepcopy(font)
+        removeOverlaps(raster_font, TOPOLOGY.intersection(font.getGlyphOrder()))
+        glyphs = fidelity.compare(style, raster_font)
         maximum, name, ppem = max(
             (v, n, s) for n, row in glyphs.items() for s, v in row.items()
         )
@@ -176,7 +224,9 @@ def trial(method, out):
             g = ufo.newGlyph(name)
             g.width = Bd.rnd(d.adv)
             O.draw(d.contours, g.getPen())
-        fonts.append(compileTTF(ufo, removeOverlaps=False))
+        font = compileTTF(ufo, removeOverlaps=False)
+        mark_overlaps(font)
+        fonts.append(font)
     original = CS.GLYPHS
     try:
         CS.GLYPHS = [CS.BY_NAME[n] for n in HARD]
@@ -230,7 +280,17 @@ def main(argv=None):
                 location={"Weight": Bd.STYLES[style].weight},
             )
         )
+        ds.addInstance(
+            InstanceDescriptor(
+                name=style,
+                familyName=Bd.FAMILY,
+                styleName=style,
+                postScriptFontName=Bd.ps_name(Bd.STYLES[style]),
+                location={"Weight": Bd.STYLES[style].weight},
+            )
+        )
         static = compileTTF(ufo, removeOverlaps=False)
+        mark_overlaps(static)
         static.save(out / f"{style}.ttf")
         statics.append(static)
     report["fidelity"] = fidelity_report(statics, ("Regular", "Bold"))
@@ -261,15 +321,35 @@ def main(argv=None):
             check_compatibility=True,
         )
         vf = TTFont(target)
+        mark_overlaps(vf)
+        vf.save(target)
         report["instances"] = {}
-        for weight, style in ((400, "Regular"), (700, "Bold")):
+        report["instance_reference"] = (
+            "Compiled compatible static masters, all 890 glyphs"
+        )
+        report["default_differences"] = {}
+        for weight, static in zip((400, 700), statics):
             instance = instantiateVariableFont(vf, {"wght": weight}, inplace=False)
-            with TTFont(ROOT / f"fonts/warp/ttf/MachineMadeWarp-{style}.ttf") as static:
-                report["instances"][str(weight)] = difference(instance, static)
+            report["instances"][str(weight)] = endpoint_difference(instance, static)
         d1, d2 = [report["instances"][str(w)]["max_units"] for w in (400, 700)]
         print(
-            f"instance 400: max difference {d1:.3f} units, instance 700: max difference {d2:.3f} units"
+            f"instance 400: max difference {d1:.3f} units, instance 700: max difference {d2:.3f} units",
+            flush=True,
         )
+        for style, static in zip(("Regular", "Bold"), statics):
+            ink = deepcopy(static)
+            removeOverlaps(ink, TOPOLOGY)
+            with TTFont(
+                ROOT / f"fonts/warp/ttf/MachineMadeWarp-{style}.ttf"
+            ) as default:
+                report["default_differences"][style] = {}
+                for name in CHANGED:
+                    delta = difference(ink, default, [name])
+                    report["default_differences"][style][name] = delta
+                    print(
+                        f"default {style} {name}: {delta['max_units']:.3f} units",
+                        flush=True,
+                    )
         passed = (
             d1 <= 1.0
             and d2 <= 1.0

@@ -4,7 +4,8 @@
 Contours are ordered by winding and position. Each starts at its
 lowest segment end. Arc fractions, rather than nearby point indices, give
 the correspondence. A change in contour count or winding is left visible.
-No contour is added or removed to make the masters agree.
+For the few shapes whose union changes topology, keep stroke groups
+separate in both masters. Their overlaps remain ink under nonzero fill.
 """
 
 from __future__ import annotations
@@ -17,6 +18,64 @@ from itertools import pairwise
 import numpy as np
 
 from loom import outline as O
+
+TOPOLOGY = frozenset(
+    (
+        "germandbls",
+        "f_f",
+        "fi",
+        "fl",
+        "f_f_i",
+        "f_f_l",
+        "gamma",
+        "kappa",
+        "dieresistonos",
+        "dieresistonoscomb",
+        "u1D43F",
+        "u1D6FE",
+        "u1D705",
+    )
+)
+
+
+def stroke_groups(d, name):
+    """Keep each stroke and each terminal from the original sweep.
+
+    Compose emits one hull per pair of stroke samples, then dots and
+    fills. Split gamma at the bottom node of its loop: the two runs
+    overlap at the shared nib, but neither run closes its own counter.
+    No hull is moved, dropped, or copied.
+    """
+    sw = d.sweep
+    groups, offset = [], 0
+    for i, stroke in enumerate(sw.strokes):
+        count = max(1, len(stroke["pts"]) - 1)
+        hulls = sw.polys[offset : offset + count]
+        offset += count
+        if name in ("gamma", "u1D6FE") and i == 0:
+            node = stroke["nodes"][3]
+            cut = next(j for j, p in enumerate(stroke["pts"]) if p[:2] == node)
+            groups.extend((hulls[:cut], hulls[cut:]))
+        else:
+            groups.append(hulls)
+    groups.extend([poly] for poly in sw.polys[offset:])
+    return groups
+
+
+def stroke_contours(d, name):
+    result = []
+    for group in stroke_groups(d, name):
+        for points in O.path_polygons(O.union(group)):
+            # Keep the small brackets too. Use their polygon edges so no
+            # fit can remove a narrow piece at a stroke junction.
+            points = points + (d.dx, 0)
+            result.append(
+                [
+                    ("line", p, points[(i + 1) % len(points)])
+                    for i, p in enumerate(points)
+                ]
+            )
+    return result
 
 
 def polygon(contour):
@@ -127,6 +186,10 @@ def pair(name, method="sample"):
     from loom.build import drawn
 
     originals = [drawn(style, name).contours for style in ("Regular", "Bold")]
+    if name in TOPOLOGY:
+        originals = [
+            stroke_contours(drawn(style, name), name) for style in ("Regular", "Bold")
+        ]
     a, b = [canonical(cs) for cs in originals]
     if len(a) != len(b) or any((ca[0] > 0) != (cb[0] > 0) for ca, cb in zip(a, b)):
         return originals

@@ -37,10 +37,13 @@ Limits of this check:
 
 Six static fonts. Pen sweeps are unions of nib hulls; their point
 structure changes with the stem, the contrast and the optical size, so
-masters are not point-compatible. Shared arc sampling makes 875 of 890
-Regular and Bold glyphs point-compatible, but 15 still have different
-contour counts or winding. This test does not verify a variable font.
-The plan's fallback is static fonts for 0.3 and a variable font in 0.4.
+the default masters are not point-compatible. Shared arc sampling and
+separate stroke contours make all 890 Regular and Bold glyphs
+point-compatible. The test font has one weight axis from 400 to 700 at
+opsz 10. It keeps overlaps in the 15 glyphs whose unions change topology.
+The endpoint checks pass. Interpolation warnings remain.
+This test does not cover lighter weights, italics or optical sizes.
+The six default static fonts keep the same outlines and build path.
 
 | Family | Style | File | opsz | Weight class |
 | --- | --- | --- | --- | --- |

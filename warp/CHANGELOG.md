@@ -2,8 +2,10 @@
 
 ## Unreleased
 
-- Added a Regular and Bold outline report and two methods behind `--compatible`. Fifteen glyphs still block the variable font.
-- Added checks for the default font bytes and for CPU-independent output from the new methods.
+- Added a Regular and Bold outline report and two methods behind `--compatible`.
+- Fixed the 15 contour mismatches with separate stroke contours on the compatible path. All 890 glyphs now have matching point structure.
+- Added a two-master variable-font test, measured topology changes, endpoint checks and a check that the other 875 outlines stay the same.
+- Added checks for the default font bytes and for CPU-independent output from the compatible path.
 
 ## 0.200 (Warp 0.2)
 
