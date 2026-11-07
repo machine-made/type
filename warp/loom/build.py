@@ -217,7 +217,14 @@ def band_center(sw: E.Swept, lo: float, hi: float) -> float | None:
 
 
 @lru_cache(maxsize=None)
-def drawn(style_key: str, name: str) -> Drawn:
+def drawn(style_key: str, name: str, compatible=False, method="sample") -> Drawn:
+    if compatible:
+        from dataclasses import replace
+
+        from loom.compatible import pair
+        if style_key not in ("Regular", "Bold"):
+            raise ValueError("Compatible outlines support Regular and Bold only")
+        return replace(drawn(style_key, name), contours=pair(name, method)[style_key == "Bold"])
     st = STYLES[style_key]
     p = st.p()
     gl = CS.BY_NAME[name]
@@ -515,7 +522,7 @@ def set_info(font: ufoLib2.Font, st: Style) -> None:
     ]
 
 
-def build_font(style_key: str) -> ufoLib2.Font:
+def build_font(style_key: str, compatible=False, method="sample") -> ufoLib2.Font:
     st = STYLES[style_key]
     font = ufoLib2.Font()
     set_info(font, st)
@@ -537,7 +544,7 @@ def build_font(style_key: str) -> ufoLib2.Font:
             for base, dx, dy in comps:
                 g.components.append(Component(base, transformation=(1, 0, 0, 1, rnd(dx), rnd(dy))))
         else:
-            d = drawn(style_key, gl.name)
+            d = drawn(style_key, gl.name, compatible=compatible, method=method)
             g.width = rnd(d.adv)
             O.draw(d.contours, g.getPen())
         for nm, x, y in anchors(style_key, gl.name):
@@ -566,18 +573,22 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--out", default="build")
     ap.add_argument("--styles", default=",".join(STYLES))
     ap.add_argument("--jobs", type=int, default=1, help="Build styles in parallel processes.")
+    ap.add_argument("--compatible", action="store_true", help="Use the Regular/Bold outline experiment.")
     args = ap.parse_args(argv)
+    keys = [k for k in args.styles.split(",") if k]
+    if args.compatible and any(k not in ("Regular", "Bold") for k in keys):
+        ap.error("--compatible needs --styles Regular,Bold (or one of those styles)")
     out = Path(args.out) / "ufo"
     if out.exists():
         shutil.rmtree(out)
     out.mkdir(parents=True)
-    keys = [k for k in args.styles.split(",") if k]
     if args.jobs > 1:
         from concurrent.futures import ProcessPoolExecutor
         with ProcessPoolExecutor(args.jobs) as ex:
-            fonts = dict(zip(keys, ex.map(build_font, keys)))
+            from functools import partial
+            fonts = dict(zip(keys, ex.map(partial(build_font, compatible=args.compatible), keys)))
     else:
-        fonts = {k: build_font(k) for k in keys}
+        fonts = {k: build_font(k, compatible=args.compatible) for k in keys}
     metrics = win_metrics(fonts.values())
     for k, f in fonts.items():
         f.info.openTypeOS2WinAscent, f.info.openTypeOS2WinDescent = metrics

@@ -37,8 +37,10 @@ Limits of this check:
 
 Six static fonts. Pen sweeps are unions of nib hulls; their point
 structure changes with the stem, the contrast and the optical size, so
-masters are not point-compatible. 0.1 ships statics. The variable font
-(wght and opsz) is planned for 0.3.
+masters are not point-compatible. Shared arc sampling makes 875 of 890
+Regular and Bold glyphs point-compatible, but 15 still have different
+contour counts or winding. This test does not verify a variable font.
+The plan's fallback is static fonts for 0.3 and a variable font in 0.4.
 
 | Family | Style | File | opsz | Weight class |
 | --- | --- | --- | --- | --- |

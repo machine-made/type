@@ -1,5 +1,10 @@
 # Warp changelog
 
+## Unreleased
+
+- Added a Regular and Bold outline report and two methods behind `--compatible`. Fifteen glyphs still block the variable font.
+- Added checks for the default font bytes and for CPU-independent output from the new methods.
+
 ## 0.200 (Warp 0.2)
 
 ### Added

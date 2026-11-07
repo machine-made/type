@@ -7,9 +7,113 @@
 | Pull request | CPU build fix prepared for review |
 | Stage | Warp 0.2 built: 6 static styles (TTF hinted, OTF, WOFF2) with an OpenType MATH table |
 | Gate now | The founder reviews the rebuilt proof sheets by eye. The OCR gate runs on the hosted workflow. The MATH proof stays an open local check: it is not run in CI, and this machine cannot load `luaotfload` |
-| Next | Release 0.2 (tag `warp-v0.2.0`). Then 0.3 (variable font, branch `warp/v0.3`) |
+| Next | Release 0.2 (tag `warp-v0.2.0`). The variable-font test is not verified; the plan's fallback is statics for 0.3 and a variable font in 0.4 |
 | Last local run | 2026-11-07: pytest (90 passed), 3 full builds, both CPU comparisons byte-identical, fidelity (max 4.016 %), Fontspector 1.9.0 (0 FAIL, 0 ERROR), proof sheets rebuilt except MATH; OCR and MATH checks blocked by missing tools |
 | Last green CI | Pending for the CPU build fix |
+
+## Regular and Bold variable-font test (2026-11-07)
+
+Verdict: **not verified**. Shared arc sampling gives 875 point-compatible
+glyphs out of 890. Fifteen glyphs still have different contour counts or
+winding. The default font files have not changed.
+
+`proofs/warp/compat.json` has one row per glyph for each path, with the
+contour counts, spatial order, winding, point counts, segment types and
+first mismatch. It records the method and glyph scope.
+
+| Path | Glyphs | Contours compatible | Points compatible |
+| --- | --- | --- | --- |
+| Default | 890 | 851 | 28 |
+| Shared arc sampling | 890 | 875 | 875 |
+
+The contour check includes order and winding, not just the number of
+contours. For example, Xi has three outer contours in each master, but
+the default contour order differs. Sorting resolves such order changes;
+it does not resolve the 15 changes in topology.
+
+The pen sweep is a union of nib hulls. A change in weight can join two
+shapes or close a counter. The union can thus change the contour count
+before the curve fit starts. The fit then finds corners and splits a
+curve until its error is small enough. `fit_cubics` makes this recursive
+split decision. Extrema splits, line conversion and the short-segment
+merge also change the final point count. Fixed sampling can remove these
+fit differences. It cannot remove a change in contour topology.
+
+Two methods were checked on g, a, e, s, ß, &, ?, @, fi, ffl, Ξ, Σ, ∫, ∑,
+√, ı, ȷ, Q, R and k. Both keep 17 of the 20 point-compatible. Neither
+adds or removes a contour to make the counts agree.
+
+| Method | Regular maximum ink difference | Bold maximum ink difference | Limit |
+| --- | --- | --- | --- |
+| Refit with the Regular segment boundaries at shared arc fractions | 2.658 % (s) | 31.231 % (∑) | 5 % |
+| Sample at shared arc fractions, with both sets of segment ends | 1.671 % (ı) | 1.044 % (∑) | 5 % |
+
+Sampling has the smaller error. It uses intervals of at most two units
+and keeps corners from both masters. The contour order is set by winding
+and position; each contour starts at its lowest segment end. This is a
+structural correspondence rule. It does not prove that intermediate
+weights will have the right shape. The output is large: each test static
+TTF is about 1.6 MB. This test makes no speed or size claim.
+
+The full sampling check uses `tools/fidelity.py` on the compiled test
+statics, with the existing 5 % gate. It checks 555 drawn glyphs in each
+style. The maximum is 3.048 % for Regular (N at 128 ppem) and 2.327 % for
+Bold (radical.bot at 128 ppem). Glyphs with a topology change keep their
+default outline in this check; the report marks them incompatible.
+Composites are covered by the 890-glyph structure check, not by the
+drawn-glyph raster check.
+
+The incompatible glyphs are:
+
+```text
+germandbls f_f fi fl f_f_i f_f_l gamma kappa
+iotadieresistonos upsilondieresistonos dieresistonos dieresistonoscomb
+u1D43F u1D6FE u1D705
+```
+
+Thirteen have different contour counts. The other two, f_f_i and f_f_l,
+have three contours in both masters. Regular has two outer contours and
+one counter; Bold has one outer contour and two counters. These are not
+just changes in contour order.
+
+`tools/vf_spike.py` writes the two UFO masters, test statics and the
+400–700 designspace under `build/warp-vf-spike/`. It then refuses to
+build a variable font with incompatible glyphs. Thus the 400 and 700
+instance differences are unavailable. Fontspector cannot check the
+spike file because that file does not exist. The cached Fontspector
+1.9.0 archive matches the SHA-256 in the workflow. No Fontspector pass
+is claimed for the spike.
+
+The fresh default Regular build matches every byte of the committed
+TTF. The one-style test uses the release's shared Windows ascent and
+descent; it rebuilds all outlines, layout, hinting, STAT and MATH. In a
+separate test process, the default of `build_font` was set to use the
+new path. The byte test then failed at its hash check. That process
+ended; the source default remains off.
+
+The hard-glyph test still requires all 20 to be point-compatible. It is
+not skipped and its assertion is not weakened. It fails for germandbls,
+fi and f_f_l. This branch is evidence for the plan's static-font fallback,
+not a merge-ready variable-font implementation. No fonts, tags, releases
+or other font families were changed.
+
+Final local check:
+
+```text
+compat.py: glyphs 890, contours-compatible 851, point-compatible 28
+compat.py --fixed: glyphs 890, contours-compatible 875, point-compatible 875
+vf_spike.py: instance 400: unavailable, instance 700: unavailable (incompatible masters)
+pytest -k "compat or deterministic or cpu": 1 failed, 11 passed, 87 deselected
+```
+
+The failed test is the unchanged 20-glyph pass condition above. The
+default-byte test, the existing determinism and CPU tests, and the new
+CPU test all pass. The new CPU test checks both methods on all 20 hard
+glyphs in fresh processes, with and without AVX-512. Ruff lint and format
+checks pass for the four new Python files. The existing build module has
+five lint findings that are also present in the committed version; this
+change adds none. `git diff --check` passes. Independent review findings
+were fixed. Hosted CI was not run, and no commit or pull request was made.
 
 ## CPU build check (2026-11-07)
 
@@ -151,7 +255,7 @@ styles; references in the italics).
 - No hinting in the OTF (CFF) files; the TTF are hinted.
 - Polytonic Greek.
 
-## Planned for 0.3
+## Variable-font follow-up (0.4 fallback)
 
 - The variable font, axes `wght` and `opsz`, from the same pen model,
   with a fixed outline topology per glyph (an analytic sweep: each
