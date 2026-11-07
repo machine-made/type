@@ -64,6 +64,13 @@ jobs:
           NPY_DISABLE_CPU_FEATURES: "X86_V4 AVX512_ICL AVX512_SKX AVX512F"
           RAYON_NUM_THREADS: "2"
         run: |
+          # On a runner without AVX-512 this build repeats the first one and
+          # proves nothing new; the CPU tests in pytest cover that case.
+          if grep -qw avx512f /proc/cpuinfo; then
+            echo "AVX-512 is present: this build uses the other NumPy code path."
+          else
+            echo "::warning::This runner has no AVX-512, so this build repeats the default build."
+          fi
           scripts/build.sh
           if [ -n "$(git -C .. status --porcelain -- fonts/warp)" ]; then
             git -C .. status --short -- fonts/warp

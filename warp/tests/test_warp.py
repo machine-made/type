@@ -759,6 +759,5 @@ def test_font_bytes_do_not_depend_on_cpu_features(tmp_path):
     for name in ("font.ttf", "font.otf", "font.woff2"):
         # Compare every byte, but never dump a font into a failure report.
         assert (folders[0] / name).stat().st_size > 0
-        result = subprocess.run(["cmp", "--silent", str(folders[0] / name),
-                                 str(folders[1] / name)])
-        assert result.returncode == 0, f"CPU-dependent bytes in {name}"
+        assert (folders[0] / name).read_bytes() == (folders[1] / name).read_bytes(), \
+            f"CPU-dependent bytes in {name}"

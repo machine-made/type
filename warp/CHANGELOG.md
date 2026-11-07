@@ -1,9 +1,5 @@
 # Warp changelog
 
-## Unreleased
-
-- Fixed the build so that its output does not depend on the CPU path used by NumPy.
-
 ## 0.200 (Warp 0.2)
 
 ### Added
@@ -39,6 +35,7 @@
 
 ### Changed
 
+- The build output no longer depends on the CPU path used by NumPy. `fonts/warp` and `proofs/warp` were rebuilt (the fonts differ in the last bits of some outlines).
 - g: the lower loop closes on the link (OCR read it as a comma).
 - f, ﬀ: a firmer hook with a larger drop. ﬁ ﬂ: the bar stops short of
   the i and the l; the f of ﬂ ends in its own drop.
