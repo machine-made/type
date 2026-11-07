@@ -7,9 +7,142 @@
 | Pull request | CPU build fix prepared for review |
 | Stage | Warp 0.2 built: 6 static styles (TTF hinted, OTF, WOFF2) with an OpenType MATH table |
 | Gate now | The founder reviews the rebuilt proof sheets by eye. The OCR gate runs on the hosted workflow. The MATH proof stays an open local check: it is not run in CI, and this machine cannot load `luaotfload` |
-| Next | Release 0.2 (tag `warp-v0.2.0`). Then 0.3 (variable font, branch `warp/v0.3`) |
-| Last local run | 2026-11-07: pytest (90 passed), 3 full builds, both CPU comparisons byte-identical, fidelity (max 4.016 %), Fontspector 1.9.0 (0 FAIL, 0 ERROR), proof sheets rebuilt except MATH; OCR and MATH checks blocked by missing tools |
-| Last green CI | Pending for the CPU build fix |
+| Next | Release 0.2 (tag `warp-v0.2.0`). The two-master topology test is verified at its endpoints; the full weight ladder, italics and optical sizes remain open |
+| Last local run | 2026-11-07: topology tests (16 passed), all 18 default files byte-identical, CPU checks passed, compatible fidelity max 3.048 %, Fontspector 0 FAIL and 0 ERROR with 775 WARN |
+| Last green CI | Pending: the hosted run of the pull request for the topology change (type#24) is the first check on another machine |
+
+## Regular and Bold variable-font test (2026-11-07)
+
+Verdict: **verified at the two endpoints** of the Regular/Bold test. The
+checks below compare each endpoint with the master that built it; they do not
+show that the interpolation between the masters is correct. `vf_spike.py` prints
+"inconclusive" until Fontspector has been run, because it does not run
+Fontspector itself. This is not a production variable-font release.
+
+All 890 glyphs now have matching contour and point structure. No glyph is
+excluded. The test font and its two static masters are under
+`build/warp-vf-spike/`; no font file in `fonts/warp` was changed.
+
+| Path | Glyphs | Contours compatible | Points compatible |
+| --- | --- | --- | --- |
+| Default | 890 | 851 | 28 |
+| Shared arc sampling before the topology fix | 890 | 875 | 875 |
+| Shared arc sampling with separate stroke contours | 890 | 890 | 890 |
+
+Policy **a** applies to all 15 glyphs below: retain overlapping stroke
+contours. Each stroke, dot, terminal and bracket keeps its source hulls.
+Gamma's loop is cut at its existing bottom node into two stroke runs.
+Each hull is used once; none is moved or dropped. Both runs keep the
+shared nib. The two accented Greek letters keep their existing components
+and use the corrected mark. Policies b and c are not needed.
+
+The compatible build keeps `removeOverlaps` off. Its simple glyphs have
+the overlap flag set. The other 875 compatible glyphs keep every point:
+frozen coordinate hashes for both masters match, and their 875 report
+rows have zero changes. Contour order also keeps the same source-stroke
+order in the two masters.
+
+`proofs/warp/compat.json` records each cause, original contour counts,
+contour bounds and signed areas on both sides of each transition. The
+weight scan interpolates the engine parameters from Regular to Bold at
+opsz 10. It checks each integer weight and brackets each detected change
+to 1/128 of a weight unit. These are changes in generated sweeps, not
+measurements of intermediate variable-font instances.
+
+Counts below are Regular/Bold. Weights are rounded here; the JSON has
+the brackets. The last column is the maximum boundary difference between
+the compatible and default compiled outlines, in font units, including
+a 0.07-unit error bound. Internal overlap edges are removed from a copy
+before this ink-boundary comparison.
+
+| Glyph | Policy | Default contours | Fixed contours | Weight of change | Default difference R / B |
+| --- | --- | --- | --- | --- | --- |
+| germandbls | a | 1/2 | 5/5 | 530.80 | 2.485 / 2.070 |
+| f_f | a | 2/3 | 10/10 | 480.04 | 2.070 / 2.069 |
+| fi | a | 2/1 | 10/10 | 495.67 | 4.032 / 2.055 |
+| fl | a | 2/1 | 10/10 | 537.82 | 3.467 / 2.055 |
+| f_f_i | a | 3/3 | 15/15 | 480.04, 495.67 | 3.827 / 2.993 |
+| f_f_l | a | 3/3 | 15/15 | 480.04, 537.82 | 3.291 / 2.069 |
+| gamma | a | 2/1 | 3/3 | 419.89 | 3.070 / 1.663 |
+| kappa | a | 1/2 | 4/4 | 611.44 | 3.311 / 2.009 |
+| iotadieresistonos | a | 4/3 | 4/4 | 683.87 | 2.090 / 1.579 |
+| upsilondieresistonos | a | 4/3 | 4/4 | 683.87 | 2.090 / 1.579 |
+| dieresistonos | a | 3/2 | 3/3 | 683.87 | 1.761 / 1.622 |
+| dieresistonoscomb | a | 3/2 | 3/3 | 683.87 | 2.090 / 1.579 |
+| u1D43F | a | 1/2 | 4/4 | 685.83 | 2.049 / 2.424 |
+| u1D6FE | a | 2/1 | 3/3 | 421.47 | 2.070 / 1.895 |
+| u1D705 | a | 1/2 | 4/4 | 610.58 | 1.651 / 2.006 |
+
+The two gamma counters fall below the existing 40 square unit area filter;
+that event is not their geometric closure. The other events are joins:
+the lower bowl and foot of ß, the feet and terminals of the ligatures,
+the arms and stem of kappa, the foot curl of the italic L, and the right
+dieresis dot with the tonos. The JSON has the cause for each glyph.
+
+The endpoint reference is the compiled compatible static master for all
+890 glyphs, including the 15 corrected glyphs. The maximum displacement
+of corresponding vertices bounds both directions of the full polyline
+distance. The gate adds 0.02 units for curve flattening. It does not
+round away the small interpolation residuals. The largest raw displacement
+is 0 at 400 and 0.5 units at 700 (oslash).
+
+```text
+compat.py: glyphs 890, contours-compatible 851, point-compatible 28
+compat.py --fixed: glyphs 890, contours-compatible 890, point-compatible 890
+pytest -k "compat or deterministic or cpu": 16 passed, 87 deselected
+vf_spike.py: instance 400: max difference 0.020 units, instance 700: max difference 0.520 units
+Fontspector: SKIP 23, INFO 1, PASS 95, WARN 775, FAIL 0, FATAL 0, ERROR 0
+Default build: 18/18 files byte-identical
+```
+
+Fidelity passes the unchanged 5 % limit: Regular 3.048 % (N, 128 ppem),
+Bold 2.327 % (radical.bot, 128 ppem). The gate checks all 555 drawn glyphs
+in each compiled compatible static against an independent fill of the
+original pen sweep. A copy of each compiled glyph has its overlaps
+resolved for the raster helper, which requires disjoint contours. The
+actual masters and variable font retain their overlaps. The 890-glyph
+structure and endpoint checks also cover the composites.
+
+Fontspector 1.9.0 uses the universal profile with network checks off. It was run by
+hand on `build/warp-vf-spike/MachineMadeWarp-Spike[wght].ttf` with
+`fontspector -p universal --skip-network`; no report is committed, so this is a
+local result. Its
+archive matches the checksum in the workflow; its executable matches
+the archive. The two named instances have PostScript names. Adding these
+names left the outline, variation and advance-width tables byte-identical.
+
+The 775 warnings are 770 interpolation findings, one unusual contour
+count check, one file-size check, one missing avar check, one unreachable
+glyph check and one advance-width variation check. The interpolation
+findings include start points and uneven weight. They remain open before
+a production variable font can ship. This test verifies two endpoints;
+it does not prove the full weight range, italics or optical-size axis.
+The variable TTF is about 3.24 MB. There is no size or speed claim.
+
+The proof sheets under `build/warp-vf-spike/` show the corrected glyphs at
+weights 400, 550 and 700 at 20, 40 and 80 pixels. A second sheet uses
+50 % opacity at 100 pixels. They were looked at by eye on one
+machine (FreeType and Pillow); the script and the images are not committed, so
+this is a local observation, not a reproducible check, and not a test of every
+renderer.
+
+All 18 default files match a fresh build: six styles in TTF, OTF and
+WOFF2. The OTF check uses the release command's CFF optimization level 2.
+The compatible flag stays off by default. In a separate process, setting
+the default of `build_font` to true made the byte test fail at its hash
+assertion: 1 failed, 12 deselected. The source was not changed. With the
+default off, that test passes.
+
+The final selected test run has 16 passes, including the unchanged
+hard-glyph test. It checks both CPU feature paths, all 13 drawn topology
+fixes, the endpoint bound, and the frozen coordinates of the other 875
+glyphs. Their changed-point count is zero in both masters. The old
+fallback assertion now checks that every hull is kept once, all stroke
+contours have positive area, and source order matches. No zero-area
+contour is added to make the masters agree. Ruff lint and format checks
+pass for the changed Python files. `git diff --check` passes.
+
+Hosted CI runs on the pull request.
 
 ## CPU build check (2026-11-07)
 
@@ -20,7 +153,7 @@ and the fit limits stay the same.
 The build is reproducible across the two tested CPU paths. A fresh build
 with the default features and a fresh build with AVX-512 off each matched
 all 18 rebuilt font files, byte for byte. This was checked on one machine.
-The hosted CI run is still needed as a check on another machine.
+The hosted CI run of type#24 is the check on another machine.
 
 The outline fidelity gate passes: the maximum ink difference is 4.016 %
 (limit 5 %). Fontspector 1.9.0 passes on all 12 TTF and OTF files, with
@@ -151,7 +284,7 @@ styles; references in the italics).
 - No hinting in the OTF (CFF) files; the TTF are hinted.
 - Polytonic Greek.
 
-## Planned for 0.3
+## Variable-font follow-up (0.4 fallback)
 
 - The variable font, axes `wght` and `opsz`, from the same pen model,
   with a fixed outline topology per glyph (an analytic sweep: each
