@@ -4,12 +4,54 @@
 | --- | --- |
 | Family | machine-made Warp, machine-made Warp Display |
 | Version | 0.2 (font version 0.200) |
-| Pull request | branch `warp/v0.2` (PR open for review) |
+| Pull request | CPU build fix prepared for review |
 | Stage | Warp 0.2 built: 6 static styles (TTF hinted, OTF, WOFF2) with an OpenType MATH table |
-| Gate now | Jac reviews the PR; the founder reviews the proofs by eye |
+| Gate now | The founder reviews the rebuilt proof sheets by eye. The OCR gate runs on the hosted workflow. The MATH proof stays an open local check: it is not run in CI, and this machine cannot load `luaotfload` |
 | Next | Release 0.2 (tag `warp-v0.2.0`). Then 0.3 (variable font, branch `warp/v0.3`) |
-| Last local run | 2026-10-28: build twice (byte-identical), fidelity (max 4.0 %), OCR gate, Fontspector 1.9.0 (0 FAIL, 0 ERROR), LuaLaTeX maths proof, site build, pytest (88 passed) |
-| Last green CI | see the PR |
+| Last local run | 2026-11-07: pytest (90 passed), 3 full builds, both CPU comparisons byte-identical, fidelity (max 4.016 %), Fontspector 1.9.0 (0 FAIL, 0 ERROR), proof sheets rebuilt except MATH; OCR and MATH checks blocked by missing tools |
+| Last green CI | Pending for the CPU build fix |
+
+## CPU build check (2026-11-07)
+
+The outline fit uses products for powers, scalar math for distances and
+angles, and a fixed order for sums. It does not use BLAS. The pen model
+and the fit limits stay the same.
+
+The build is reproducible across the two tested CPU paths. A fresh build
+with the default features and a fresh build with AVX-512 off each matched
+all 18 rebuilt font files, byte for byte. This was checked on one machine.
+The hosted CI run is still needed as a check on another machine.
+
+The outline fidelity gate passes: the maximum ink difference is 4.016 %
+(limit 5 %). Fontspector 1.9.0 passes on all 12 TTF and OTF files, with
+0 FAIL and 0 ERROR. The checks used the universal profile with network
+checks off. JSON reports were written; Markdown export could not write
+its template cache.
+
+The proof sheets were rebuilt. Two local checks remain open: Tesseract
+is not installed, so the OCR gate could not run. LuaLaTeX cannot load
+`luaotfload-main`, so the MATH proof could not be rebuilt. The old OCR
+report and MATH image stay in place; they are not evidence for this run.
+
+Two tests use separate processes with the default CPU features and with
+AVX-512 off. One checks curve points, the fit, and corner angles. The
+other builds the small glyph set needed to check the Greek capital Xi:
+Xi, .notdef, and o for hinting. It compares every byte of the hinted TTF,
+OTF, and WOFF2 files. Both tests fail with the old arithmetic and pass
+with the fixed code.
+
+From the repo root, with the build tools on PATH, run:
+
+```sh
+RAYON_NUM_THREADS=2 WARP_JOBS=1 warp/scripts/build.sh
+NPY_DISABLE_CPU_FEATURES="X86_V4 AVX512_ICL AVX512_SKX AVX512F" \
+  RAYON_NUM_THREADS=2 WARP_JOBS=1 warp/scripts/build.sh
+RAYON_NUM_THREADS=2 python -m pytest warp/tests -k cpu_features
+```
+
+CI checks each build against the committed fonts. Any byte change fails
+the check. GNU cmp has no recursive mode: for a local folder check,
+compare the file lists, then run `cmp` on each pair of files.
 
 ## Proven (local run, 2026-10-28)
 
@@ -25,7 +67,7 @@
 - Fontspector 1.9.0, universal profile: 0 FAIL, 0 ERROR on the 6 TTF and
   the 6 OTF (accepted WARNs below).
 - Outline fidelity (`proofs/warp/fidelity.json`): every drawn glyph of
-  every style against an independent fill of its pen sweep; FIDMAX.
+  every style against an independent fill of its pen sweep.
   Limit 5 %.
 - OCR readability gate (`proofs/warp/readability.json`): see below.
 - LuaLaTeX and unicode-math set a page of formulas with the MATH table
@@ -35,6 +77,8 @@
   accents, cases. No missing character.
 
 ## Readability (OCR)
+
+Results of 2026-10-28, from the 0.2 build before the CPU-independent rebuild of 2026-11-07. The hosted workflow reruns the gate on every change.
 
 | Style | Warp 0.2 CER | Warp 0.1 CER | DejaVu Serif | Limit | Result |
 | --- | --- | --- | --- | --- | --- |
