@@ -1,6 +1,6 @@
-# machine-made type
+[![License](https://img.shields.io/badge/license-OFL--1.1%20(fonts)%20%7C%20Apache--2.0%20(code)-blue.svg)](LICENSING.md)
 
-Four typefaces made by code, free under the SIL Open Font License.
+`type` holds four typefaces made by code, free under the SIL Open Font License.
 
 - **machine-made Weft**: a grid-built monospace. Variable font with a
   weight axis (`wght` 100 to 900) and a fragmentation axis (`FRAG` 0
