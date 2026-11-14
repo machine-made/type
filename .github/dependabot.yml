@@ -6,6 +6,8 @@ updates:
     open-pull-requests-limit: 5
     schedule:
       interval: monthly
+    cooldown:
+      default-days: 7
     groups:
       github-actions-updates:
         patterns:
@@ -16,6 +18,8 @@ updates:
     open-pull-requests-limit: 5
     schedule:
       interval: monthly
+    cooldown:
+      default-days: 7
     groups:
       pip-heddle-updates:
         patterns:
@@ -26,6 +30,8 @@ updates:
     open-pull-requests-limit: 5
     schedule:
       interval: monthly
+    cooldown:
+      default-days: 7
     groups:
       pip-sans-updates:
         patterns:
@@ -36,6 +42,8 @@ updates:
     open-pull-requests-limit: 5
     schedule:
       interval: monthly
+    cooldown:
+      default-days: 7
     groups:
       pip-site-updates:
         patterns:
@@ -46,6 +54,8 @@ updates:
     open-pull-requests-limit: 5
     schedule:
       interval: monthly
+    cooldown:
+      default-days: 7
     groups:
       pip-warp-updates:
         patterns:
@@ -56,6 +66,8 @@ updates:
     open-pull-requests-limit: 5
     schedule:
       interval: monthly
+    cooldown:
+      default-days: 7
     groups:
       pip-weft-updates:
         patterns:
