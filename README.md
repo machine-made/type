@@ -1,3 +1,5 @@
+![type banner](https://raw.githubusercontent.com/machine-made/type/main/assets/readme-banner-v3.jpg)
+
 [![License](https://img.shields.io/badge/license-OFL--1.1%20(fonts)%20%7C%20Apache--2.0%20(code)-blue.svg)](LICENSING.md)
 
 `type` holds four typefaces made by code, free under the SIL Open Font License.
