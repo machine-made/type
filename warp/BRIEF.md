@@ -35,15 +35,56 @@ Limits of this check:
 
 ## Styles
 
-Six static fonts. Pen sweeps are unions of nib hulls; their point
+Six static fonts ship. Pen sweeps are unions of nib hulls; their point
 structure changes with the stem, the contrast and the optical size, so
 the default masters are not point-compatible. Shared arc sampling and
-separate stroke contours make all 890 Regular and Bold glyphs
-point-compatible. The test font has one weight axis from 400 to 700 at
-opsz 10. It keeps overlaps in the 15 glyphs whose unions change topology.
-The endpoint checks pass. Interpolation warnings remain.
-This test does not cover lighter weights, italics or optical sizes.
-The six default static fonts keep the same outlines and build path.
+separate stroke contours make all 890 glyphs point-compatible across
+seven source weights, in Roman and Italic. The five named text weights
+remain Light, Regular, Medium, Demi and Bold. The two test fonts have a
+weight axis from 300 to 700 at opsz 10. These are build artifacts.
+See STATUS for the measured limits. The six default static fonts
+keep the same outlines and build path. The optical-size axis remains open.
+
+### Text weight ladder
+
+The compatible path adds five text weights, each with Roman and Italic
+forms. The default build still writes only the six released styles.
+
+| Weight | Style | Stem input | Stem in font units |
+| --- | --- | --- | --- |
+| 300 | Light, Light Italic | 67.333333 | 69.712317 |
+| 400 | Regular, Italic | 84 | 86.967841 |
+| 500 | Medium, Medium Italic | 100.666667 | 104.223365 |
+| 600 | Demi, Demi Italic | 117.333333 | 121.478889 |
+| 700 | Bold, Bold Italic | 134 | 138.734413 |
+
+`weight_params` uses `t = (weight - 400) / 300`. For each of `stem`,
+`contrast`, `serifw`, `serif` and `width`, the value is the Regular value
+plus `t` times the Bold offset. It returns the exact existing values at
+400 and 700. The pen then applies the existing optical-size scale at
+opsz 10. At 300 the hairline is 14.455981 units and the serif thickness
+is 17.521152 units. The 5-unit hairline floor does not bind; the serif
+stays thicker than the hairline throughout the range.
+
+The code key `SemiBold` uses the menu word `Demi`. The full name
+"machine-made Warp Demi Italic" has 29 characters and fits the limit of 32.
+The typographic family remains "machine-made Warp" for every weight.
+
+Each variable font has masters at 300, 350, 400, 450, 500, 600 and 700.
+The extra sources at 350 and 450 use the same parameter rule and topology
+policies. They do not add named instances. The raster gate derives its
+weights from adjacent masters: `(left + right) / 2`. It thus checks 325,
+375, 425, 475, 550 and 650. The earlier checks at 350 and 450 stay in the
+report as well. Each result must be at most 5 percent against an
+independent fill of the pen sweep, including results at source weights.
+A source weight can have a small raster difference from the sweep because
+the compatible outline is sampled and its compiled points are rounded.
+
+Variation supports use the stored axis grid of 1/16384. Each support
+coordinate is rounded down before the table is built. A peak rounded up
+can put a gap midpoint just below half a font unit and make both edges
+of a thin stroke round inward. The source weights and raster test weights
+stay the same. The instance checks still bound the stored result.
 
 | Family | Style | File | opsz | Weight class |
 | --- | --- | --- | --- | --- |

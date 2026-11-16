@@ -4,20 +4,192 @@
 | --- | --- |
 | Family | machine-made Warp, machine-made Warp Display |
 | Version | 0.2 (font version 0.200) |
-| Pull request | CPU build fix prepared for review |
+| Pull request | Weight ladder, branch warp-wght-ladder |
 | Stage | Warp 0.2 built: 6 static styles (TTF hinted, OTF, WOFF2) with an OpenType MATH table |
-| Gate now | The founder reviews the rebuilt proof sheets by eye. The OCR gate runs on the hosted workflow. The MATH proof stays an open local check: it is not run in CI, and this machine cannot load `luaotfload` |
-| Next | Release 0.2 (tag `warp-v0.2.0`). The two-master topology test is verified at its endpoints; the full weight ladder, italics and optical sizes remain open |
-| Last local run | 2026-11-07: topology tests (16 passed), all 18 default files byte-identical, CPU checks passed, compatible fidelity max 3.048 %, Fontspector 0 FAIL and 0 ERROR with 775 WARN |
-| Last green CI | Pending: the hosted run of the pull request for the topology change (type#24) is the first check on another machine |
+| Gate now | The seven-master numerical gates pass. The full Fontspector run gives 0 ERROR and 1 FAIL on each variable font: file size, 11.35 MB (Roman) and 12.57 MB (Italic) against a limit of 9.44 MB |
+| Next | Bring both variable fonts under 9.44 MB with seven masters and the same limits; the optical-size axis remains open |
+| Last local run | 2026-11-17: ladder tests 27 passed; named-instance difference at most 0.547 units; raster difference at most 4.990 percent (at weight 325); interpolation findings 0; start points 0; verdict not verified because of the file size |
+| Last green CI | Hosted CI was not run for this uncommitted work |
+
+## Text weight ladder (2026-11-16)
+
+Verdict: **not verified**. Both files pass all named-instance and raster
+checks, show 0 interpolation findings and 0 start-point findings, and
+have 0 FATAL and 0 ERROR results in the full Fontspector profile. Each
+file has one FAIL, the file-size check: 11.35 MB for Roman and 12.57 MB
+for Italic, against a limit of 9.44 MB. The variation table is 83 percent
+of the Roman file. No limit was raised.
+
+Each variable font has masters at 300, 350, 400, 450, 500, 600 and 700,
+with axis range 300 to 700 and default 400. The five named weights remain
+Light, Regular, Medium, Demi and Bold. All 14 sources have 890 of 890
+glyphs with matching contours and points within their slope. This covers
+the ten named styles and both new source weights. No glyph is excluded.
+The default build still emits only the six released styles.
+
+Policy a keeps overlapping stroke contours. Gamma uses its existing
+bottom node to split its loop into two stroke runs. Policies b and c
+are not needed. The table applies at all seven weights; a source name
+in parentheses identifies the corrected part of a composite.
+`proofs/warp/compat.json` records the glyph, style, weight and counts.
+
+| Glyph | Roman policy (all seven weights) | Italic policy (all seven weights) |
+| --- | --- | --- |
+| L | — | a (L) |
+| Lacute | — | a (L) |
+| Lcaron | — | a (L) |
+| Lcommaaccent | — | a (L) |
+| Ldot | — | a (L) |
+| Lslash | — | a (Lslash) |
+| Ohungarumlaut | — | a (hungarumlautcomb.case) |
+| Uhungarumlaut | — | a (hungarumlautcomb.case) |
+| dieresistonos | a (dieresistonos) | a (dieresistonos) |
+| dieresistonoscomb | a (dieresistonoscomb) | a (dieresistonoscomb) |
+| f_f | a (f_f) | a (f_f) |
+| f_f_i | a (f_f_i) | a (f_f_i) |
+| f_f_l | a (f_f_l) | a (f_f_l) |
+| fi | a (fi) | a (fi) |
+| fl | a (fl) | a (fl) |
+| gamma | a (gamma) | a (gamma) |
+| germandbls | a (germandbls) | a (germandbls) |
+| hbar.sc | — | a (hbar.sc) |
+| hungarumlautcomb.case | — | a (hungarumlautcomb.case) |
+| iotadieresistonos | a (dieresistonoscomb) | a (dieresistonoscomb) |
+| kappa | a (kappa) | a (kappa) |
+| l.sc | — | a (l.sc) |
+| lacute.sc | — | a (l.sc) |
+| lcaron.sc | — | a (l.sc) |
+| lcommaaccent.sc | — | a (l.sc) |
+| ldot.sc | — | a (l.sc) |
+| lslash.sc | — | a (lslash.sc) |
+| ohungarumlaut.sc | — | a (hungarumlautcomb.case) |
+| u1D43F | a (u1D43F) | a (L) |
+| u1D6FE | a (u1D6FE) | a (gamma) |
+| u1D705 | a (u1D705) | a (kappa) |
+| uhungarumlaut.sc | — | a (hungarumlautcomb.case) |
+| upsilondieresistonos | a (dieresistonoscomb) | a (dieresistonoscomb) |
+
+A batch union drops ink in Roman iota at weight 450. The compatible
+sources at 300, 350, 450, 500 and 600 union each stroke hull in fixed
+order; its composites inherit that repair. Every hull is kept. The
+Regular and Bold source coordinates stay frozen.
+
+The earlier three-source trial needed extra sources at 500 and 600:
+its Roman maximum differences were 37.346 and 40.824 units; its Italic
+maxima were 141.710 and 70.400 units. Those sources remain. The new
+350 and 450 sources use the same engine-parameter rule as the named
+weights. BRIEF gives the rule and the stem widths.
+
+Every named-instance check reads the saved variable font and compares
+all 890 glyphs with the compiled compatible static at the same weight.
+The bound includes 0.02 units for curve flattening. The Regular and
+Bold bounds still equal the earlier endpoint result.
+
+| Weight | Roman, units | Italic, units |
+| --- | --- | --- |
+| 300 | 0.520 | 0.520 |
+| 400 | 0.020 | 0.020 |
+| 500 | 0.520 | 0.520 |
+| 600 | 0.547 | 0.547 |
+| 700 | 0.520 | 0.520 |
+
+The raster gate derives the middle of every adjacent master gap with
+`(left + right) / 2`. It compares every drawn glyph with an independent
+fill of the pen sweep at 16, 32, 64 and 128 pixels per em. All maxima
+below occur at 128 pixels per em. The limit stays at 5 percent.
+
+| Masters | Gap | Midpoint | Roman, percent | Italic, percent |
+| --- | --- | --- | --- | --- |
+| 300 to 350 | 50 | 325 | 4.990 | 4.990 |
+| 350 to 400 | 50 | 375 | 4.088 | 4.087 |
+| 400 to 450 | 50 | 425 | 4.383 | 4.108 |
+| 450 to 500 | 50 | 475 | 3.286 | 2.943 |
+| 500 to 600 | 100 | 550 | 3.439 | 3.439 |
+| 600 to 700 | 100 | 650 | 3.434 | 3.434 |
+
+The earlier checks at 350 and 450 remain in the report as well. At a
+source weight, the residual includes arc sampling and integer rounding
+relative to the independent sweep.
+
+| Source weight | Roman, percent | Italic, percent |
+| --- | --- | --- |
+| 350 | 3.098 | 2.942 |
+| 450 | 2.703 | 2.703 |
+
+The first Roman measurement gave 5.737 percent for underscore at 425.
+The stored 450 support had rounded up on the axis grid. This put both
+edges of the bar just inside a half-unit boundary; integer rounding
+then made the bar too thin. Supports now round down on the stored
+1/16384 grid before interpolation. Source weights, test weights and
+limits stay the same. The second round passes every raster check in
+both files; the maximum is 4.990 percent at 325 for radical.ext.
+
+Fontspector 1.9.0 is the cached release named by the workflow. Its
+archive SHA-256 matches the workflow, and its executable matches the
+archive. The full universal profile uses network checks off and one
+worker, with two Rayon threads. Three Roman runs were killed with
+exit -9 before a report was written. Timed attempts reached about
+9.2 GiB resident memory. The shared agent group has a 13 GiB limit.
+The complete run used a machine with more memory and the same
+profile, one worker and two Rayon threads.
+
+| Final profile | Complete | SKIP | INFO | PASS | WARN | FAIL | ERROR |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| Roman | yes | 23 | 1 | 96 | 4 | 1 | 0 |
+| Italic | yes | 22 | 1 | 96 | 8 | 1 | 0 |
+
+The one FAIL of each file is the file-size check.
+
+The pinned inspector's [contour comparison](https://github.com/simoncozens/interpolatable/blob/ad22fffde7407ed3136a8ee3723a99b9786ead01/interpolatable-lib/src/isomorphism.rs)
+builds all cyclic contour vectors. Their memory
+use grows with the square of the point count; the largest contour has
+6,842 points. Font build, correction and measurement now run in separate
+processes that exit before inspection. The inspection allocator also
+returns large freed buffers between glyphs. These changes reduce retained
+memory but do not remove the large-contour allocation.
+
+Interpolation findings were 770 in the two-master report and 1 in the
+previous five-master report. The current count is 0. The previous
+finding was Italic uni2080, a zero.dnom component translated by (0, -150).
+The old correction loop skipped composite glyphs. The new correction
+resolves a reported composite in every master, keeps its contour order,
+and rotates the requested contour without changing its shared base.
+The previous finding was replayed only after an exact cyclic comparison
+of the old and new compiled contours; no rebase shift was needed. The
+full-profile result shows zero findings.
+
+| Variable font | Five-master bytes | Seven-master bytes |
+| --- | --- | --- |
+| Roman | 7,419,520 | 10,184,020 |
+| Italic | 6,386,772 | 8,762,720 |
+
+All 130 tests passed serially. With AVX-512 off, 43 selected compatibility,
+ladder, deterministic and CPU tests passed, with 87 deselected. The
+unchanged hard-glyph test passes, as do the frozen coordinate hashes of
+the 875 Regular and Bold glyphs. The byte guard also detects the expected
+mismatch when the compatible flag is forced on.
+
+A fresh default build emitted exactly six styles. All 18 TTF, OTF and
+WOFF2 files match HEAD byte for byte. OTF uses CFF optimization level 2.
+No tracked font file was written. Focused Ruff lint and format checks
+pass, and the three older files have no added lint finding. Diff
+whitespace checks pass. Agent review found no remaining code issue.
+Hosted CI was not run for this uncommitted work.
+
+The proof sheet is `build/warp-vf/weight-ladder.png`, with the five named
+weights in both slopes at 20, 40 and 80 pixels. It was rebuilt and checked
+for clipping on one machine. Fonts, designspaces, sources and inspection
+artifacts stay under `build/warp-vf/`. The complete numerical report is
+`proofs/warp/ladder.json`.
 
 ## Regular and Bold variable-font test (2026-11-07)
 
 Verdict: **verified at the two endpoints** of the Regular/Bold test. The
 checks below compare each endpoint with the master that built it; they do not
-show that the interpolation between the masters is correct. `vf_spike.py` prints
-"inconclusive" until Fontspector has been run, because it does not run
-Fontspector itself. This is not a production variable-font release.
+show that the interpolation between the masters is correct. The earlier
+`vf_spike.py` run printed "inconclusive" until Fontspector was run.
+The tool now calls `vf_ladder.py` for the full text weight range.
+This is not a production variable-font release.
 
 All 890 glyphs now have matching contour and point structure. No glyph is
 excluded. The test font and its two static masters are under

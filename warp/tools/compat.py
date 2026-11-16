@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: Apache-2.0
-"""Compare the Regular and Bold outline structure. Apache-2.0."""
+"""Compare outline structure for two masters or all text styles. Apache-2.0."""
 
 from __future__ import annotations
 
@@ -14,7 +14,13 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from loom import build as Bd
 from loom import charset as CS
 from loom import outline as O
-from loom.compatible import TOPOLOGY, contour_key, polygon
+from loom.compatible import (
+    ITALIC_TOPOLOGY,
+    TOPOLOGY,
+    UNION_REPAIRS,
+    contour_key,
+    polygon,
+)
 
 HARD = [CS.glyph_name(c) for c in "gaesß&?@ﬁﬄΞΣ∫∑√ıȷQRk"]
 REPORT = Path(__file__).resolve().parents[2] / "proofs/warp/compat.json"
@@ -134,6 +140,8 @@ def topology_measurements():
 
 def contours(style, name, compatible=False, method="sample"):
     gl = CS.BY_NAME[name]
+    if gl.variant == "mathit" and Bd.STYLES[style].italic:
+        return contours(style, CS.glyph_name(gl.key), compatible, method)
     if gl.comps:
         parts, _ = Bd.component_offsets(style, gl)
         result = []
@@ -230,6 +238,78 @@ def summary(report):
     )
 
 
+def compare_ladder(names=None):
+    """Compare each text weight with its Regular in the same slope."""
+    reports = {style: {"method": "sample", "rows": []} for style in Bd.MASTER_STYLES}
+    for name in CS.ORDER if names is None else names:
+        for italic in (False, True):
+            styles = [Bd.weight_style(w, italic) for w in Bd.MASTER_WEIGHTS]
+            structures = {}
+            errors = {}
+            for style in styles:
+                try:
+                    structures[style] = structure(contours(style, name, True))
+                    # The ladder matches source contours by size and centre.
+                    # Their rounded vertical order can change with weight.
+                    for i, contour in enumerate(structures[style]):
+                        contour["order"] = i
+                except ValueError as error:
+                    structures[style] = []
+                    errors[style] = str(error)
+            reference = structures[Bd.weight_style(400, italic)]
+            for style in styles:
+                actual = structures[style]
+                contour_ok = (
+                    style not in errors
+                    and len(actual) == len(reference)
+                    and [c["winding"] for c in actual]
+                    == [c["winding"] for c in reference]
+                )
+                point_ok = contour_ok and actual == reference
+                reports[style]["rows"].append(
+                    {
+                        "name": name,
+                        "contours": len(actual),
+                        "contours_compatible": contour_ok,
+                        "point_compatible": point_ok,
+                        "error": errors.get(style),
+                    }
+                )
+                gl = CS.BY_NAME[name]
+                if italic and gl.variant == "mathit":
+                    sources = [(CS.glyph_name(gl.key), 0, 0)]
+                elif gl.comps:
+                    sources = Bd.component_offsets(style, gl)[0]
+                else:
+                    sources = [(name, 0, 0)]
+                source_names = {n for n, _, _ in Bd.flatten(style, sources)}
+                separate = source_names & (ITALIC_TOPOLOGY if italic else TOPOLOGY)
+                repairs = source_names & UNION_REPAIRS if not italic else set()
+                if repairs and Bd.STYLES[style].weight not in (400, 700):
+                    reports[style]["rows"][-1]["union_repair"] = {
+                        "policy": "a: preserve each source stroke; union its hulls in fixed order",
+                        "source_glyphs": sorted(repairs),
+                        "default_contours": len(contours(style, name)),
+                        "fixed_contours": len(actual),
+                        "weight": Bd.STYLES[style].weight,
+                        "cause": "The batch union cancels ink at coincident hull edges at weight 450",
+                    }
+                if separate:
+                    reports[style]["rows"][-1]["topology"] = {
+                        "policy": "a: separate overlapping stroke contours",
+                        "source_glyphs": sorted(separate),
+                        "default_contours": len(contours(style, name)),
+                        "fixed_contours": len(actual),
+                        "weight": Bd.STYLES[style].weight,
+                        "other_policies": "Policy a keeps each hull once; b and c are not needed",
+                    }
+    for report in reports.values():
+        report["glyphs"] = len(report["rows"])
+        for key in ("contours_compatible", "point_compatible"):
+            report[key] = sum(row[key] for row in report["rows"])
+    return reports
+
+
 def write_report(path, data):
     """Keep one glyph per line so that changes in the proof can be read."""
     sections = []
@@ -247,6 +327,7 @@ def main(argv=None):
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument("--fixed", "--compatible", action="store_true")
     ap.add_argument("--method", choices=("sample", "refit"), default="sample")
+    ap.add_argument("--all-styles", action="store_true")
     ap.add_argument(
         "--glyphs",
         help="Comma-separated glyph names; the default is the full glyph set.",
@@ -256,6 +337,17 @@ def main(argv=None):
     if args.glyphs and args.out.resolve() == REPORT.resolve():
         # A subset must never replace the committed full report.
         args.out = REPORT.parents[2] / "build/compat-subset.json"
+    if args.all_styles:
+        if not args.fixed or args.method != "sample":
+            ap.error("--all-styles needs --fixed and arc sampling")
+        reports = compare_ladder(args.glyphs.split(",") if args.glyphs else None)
+        data = json.loads(args.out.read_text()) if args.out.exists() else {}
+        for style, report in reports.items():
+            print(f"{style}: {summary(report)}", flush=True)
+            data[style] = report
+        args.out.parent.mkdir(parents=True, exist_ok=True)
+        write_report(args.out, data)
+        return int(any(r["point_compatible"] != r["glyphs"] for r in reports.values()))
     report = compare(
         args.glyphs.split(",") if args.glyphs else None, args.fixed, args.method
     )

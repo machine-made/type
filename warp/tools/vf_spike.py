@@ -1,50 +1,23 @@
 # SPDX-License-Identifier: Apache-2.0
-"""Build and check the Regular/Bold variable-font experiment. Apache-2.0."""
+"""Boundary checks shared with the weight-ladder tool. Apache-2.0."""
 
 from __future__ import annotations
 
-import argparse
-import json
 import math
-import os
 import sys
 from copy import deepcopy
 from itertools import pairwise
 from pathlib import Path
 
 import numpy as np
-from fontmake.font_project import FontProject
-from fontTools.designspaceLib import (
-    AxisDescriptor,
-    DesignSpaceDocument,
-    InstanceDescriptor,
-    SourceDescriptor,
-)
 from fontTools.pens.basePen import BasePen
-from fontTools.ttLib import TTFont
 from fontTools.ttLib.removeOverlaps import removeOverlaps
-from fontTools.ttLib.tables._g_l_y_f import flagOverlapSimple
-from fontTools.varLib.instancer import instantiateVariableFont
-from ufo2ft import compileTTF
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 import fidelity
-from compat import HARD, compare, summary
-from loom import build as Bd
-from loom import charset as CS
 from loom import outline as O
 from loom.compatible import TOPOLOGY
-
-ROOT = Path(__file__).resolve().parents[2]
-OUT = ROOT / "build/warp-vf-spike"
-CHANGED = sorted(TOPOLOGY | {"iotadieresistonos", "upsilondieresistonos"})
-
-
-def mark_overlaps(font):
-    """Tell rasterisers which simple glyphs retain stroke overlaps."""
-    for name in TOPOLOGY.intersection(font.getGlyphOrder()):
-        font["glyf"][name].flags[0] |= flagOverlapSimple
 
 
 class BoundaryPen(BasePen):
@@ -208,162 +181,11 @@ def fidelity_report(fonts, styles):
     return result
 
 
-def trial(method, out):
-    """Compare both methods on the twenty difficult glyphs, using the fixed gate."""
-    import ufoLib2
-
-    report = compare(HARD, True, method)
-    print(f"{method}: {summary(report)}", flush=True)
-    fonts = []
-    for style in ("Regular", "Bold"):
-        ufo = ufoLib2.Font()
-        Bd.set_info(ufo, Bd.STYLES[style])
-        ufo.lib["public.glyphOrder"] = [".notdef", *HARD]
-        for name in [".notdef", *HARD]:
-            d = Bd.drawn(style, name, compatible=True, method=method)
-            g = ufo.newGlyph(name)
-            g.width = Bd.rnd(d.adv)
-            O.draw(d.contours, g.getPen())
-        font = compileTTF(ufo, removeOverlaps=False)
-        mark_overlaps(font)
-        fonts.append(font)
-    original = CS.GLYPHS
-    try:
-        CS.GLYPHS = [CS.BY_NAME[n] for n in HARD]
-        report["fidelity"] = fidelity_report(fonts, ("Regular", "Bold"))
-    finally:
-        CS.GLYPHS = original
-    (out / f"trial-{method}.json").write_text(json.dumps(report, indent=1) + "\n")
-    return report
-
-
 def main(argv=None):
-    ap = argparse.ArgumentParser(description=__doc__)
-    ap.add_argument("--out", type=Path, default=OUT)
-    ap.add_argument("--method", choices=("sample", "refit"), default="sample")
-    ap.add_argument(
-        "--trials",
-        action="store_true",
-        help="Compare both methods on the twenty hard glyphs.",
-    )
-    args = ap.parse_args(argv)
-    os.environ["SOURCE_DATE_EPOCH"] = "1793059200"
-    out = args.out.resolve()
-    out.mkdir(parents=True, exist_ok=True)
-    if args.trials:
-        for method in ("refit", "sample"):
-            trial(method, out)
-        return 0
-    report = compare(compatible=True, method=args.method)
-    print(summary(report), flush=True)
-    incompatible = [r["name"] for r in report["rows"] if not r["point_compatible"]]
-    ds = DesignSpaceDocument()
-    ds.addAxis(
-        AxisDescriptor(name="Weight", tag="wght", minimum=400, default=400, maximum=700)
-    )
-    ufos = [
-        Bd.build_font(style, compatible=True, method=args.method)
-        for style in ("Regular", "Bold")
-    ]
-    ascent, descent = Bd.win_metrics(ufos)
-    statics = []
-    for style, ufo in zip(("Regular", "Bold"), ufos):
-        ufo.info.openTypeOS2WinAscent, ufo.info.openTypeOS2WinDescent = ascent, descent
-        path = out / f"{style}.ufo"
-        ufo.save(path, overwrite=True)
-        ds.addSource(
-            SourceDescriptor(
-                path=str(path),
-                name=style,
-                familyName=Bd.FAMILY,
-                styleName=style,
-                location={"Weight": Bd.STYLES[style].weight},
-            )
-        )
-        ds.addInstance(
-            InstanceDescriptor(
-                name=style,
-                familyName=Bd.FAMILY,
-                styleName=style,
-                postScriptFontName=Bd.ps_name(Bd.STYLES[style]),
-                location={"Weight": Bd.STYLES[style].weight},
-            )
-        )
-        static = compileTTF(ufo, removeOverlaps=False)
-        mark_overlaps(static)
-        static.save(out / f"{style}.ttf")
-        statics.append(static)
-    report["fidelity"] = fidelity_report(statics, ("Regular", "Bold"))
-    designspace = out / "Warp.designspace"
-    ds.write(designspace)
-    target = out / "MachineMadeWarp-Spike[wght].ttf"
-    target.unlink(missing_ok=True)
-    report["incompatible"] = incompatible
-    report["instances"] = None
-    if incompatible:
-        # Do not let a compiler drop variation data for incompatible glyphs.
-        # Keep both UFOs and the designspace as evidence for the next test.
-        report["verdict"] = "not verified"
-        report["reason"] = (
-            "Contour topology differs; no complete variable font can be built by these methods."
-        )
-        print("incompatible glyphs: " + ", ".join(incompatible), flush=True)
-        print(
-            "instance 400: unavailable, instance 700: unavailable (incompatible masters)",
-            flush=True,
-        )
-    else:
-        FontProject().run_from_designspace(
-            str(designspace),
-            output=("variable",),
-            output_path=str(target),
-            remove_overlaps=False,
-            check_compatibility=True,
-        )
-        vf = TTFont(target)
-        mark_overlaps(vf)
-        vf.save(target)
-        report["instances"] = {}
-        report["instance_reference"] = (
-            "Compiled compatible static masters, all 890 glyphs"
-        )
-        report["default_differences"] = {}
-        for weight, static in zip((400, 700), statics):
-            instance = instantiateVariableFont(vf, {"wght": weight}, inplace=False)
-            report["instances"][str(weight)] = endpoint_difference(instance, static)
-        d1, d2 = [report["instances"][str(w)]["max_units"] for w in (400, 700)]
-        print(
-            f"instance 400: max difference {d1:.3f} units, instance 700: max difference {d2:.3f} units",
-            flush=True,
-        )
-        for style, static in zip(("Regular", "Bold"), statics):
-            ink = deepcopy(static)
-            removeOverlaps(ink, TOPOLOGY)
-            with TTFont(
-                ROOT / f"fonts/warp/ttf/MachineMadeWarp-{style}.ttf"
-            ) as default:
-                report["default_differences"][style] = {}
-                for name in CHANGED:
-                    delta = difference(ink, default, [name])
-                    report["default_differences"][style][name] = delta
-                    print(
-                        f"default {style} {name}: {delta['max_units']:.3f} units",
-                        flush=True,
-                    )
-        passed = (
-            d1 <= 1.0
-            and d2 <= 1.0
-            and all(r["pass"] for r in report["fidelity"].values())
-        )
-        report["verdict"] = "inconclusive" if passed else "not verified"
-        report["reason"] = (
-            "Fontspector must also pass."
-            if passed
-            else "Outline difference or fidelity limit exceeded."
-        )
-    (out / "report.json").write_text(json.dumps(report, indent=1) + "\n")
-    print(f"{report['verdict']}: {report['reason']}")
-    return int(report["verdict"] == "not verified")
+    """Use the full weight ladder; keep the measurement helpers for tests."""
+    from vf_ladder import main as ladder_main
+
+    return ladder_main(argv)
 
 
 if __name__ == "__main__":

@@ -2,6 +2,19 @@
 
 ## Unreleased
 
+- Added source masters at weights 350 and 450 to both variable fonts and raster checks at the middle of every master gap.
+- Improved memory use by running each font build stage in a separate process that exits before Fontspector runs.
+- Improved memory release between glyph checks in Fontspector.
+- Fixed incomplete inspection reports so that unknown finding counts are not reported as zero.
+- Fixed thin strokes at gap midpoints by storing variation supports on the axis grid before interpolation.
+- Fixed lost ink in the new Roman iota sources by joining each stroke hull in order.
+- Fixed contour start correction for composite glyphs by resolving their component outlines in every master.
+- Fixed the warning comparison so that new unreachable glyphs cannot pass as an unchanged warning.
+- Added text weight parameters from 300 to 700 and Light, Medium and Demi styles on the compatible path.
+- Added a Roman and Italic weight-ladder tool with named-weight, raster and interpolation checks.
+- Fixed summed variation errors at interior weights with local weight supports and exact component offsets.
+- Fixed six further italic contour changes with separate stroke contours.
+- Fixed high memory use during weight checks by running the source compiler in a child process and using one Fontspector worker.
 - Added a Regular and Bold outline report and two methods behind `--compatible`.
 - Fixed the 15 contour mismatches with separate stroke contours on the compatible path. All 890 glyphs now have matching point structure.
 - Added a two-master variable-font test, measured topology changes, endpoint checks and a check that the other 875 outlines stay the same.
