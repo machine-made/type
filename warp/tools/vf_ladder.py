@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import argparse
 import gc
+import hashlib
 import json
 import math
 import multiprocessing
@@ -28,17 +29,26 @@ from fontTools.designspaceLib import (
     SourceDescriptor,
 )
 from fontTools.otlLib.builder import buildStatTable
+from fontTools.pens.ttGlyphPen import TTGlyphPen
 from fontTools.ttLib import TTFont
 from fontTools.ttLib.removeOverlaps import removeOverlaps
-from fontTools.ttLib.tables._g_l_y_f import Glyph, GlyphCoordinates, flagOverlapSimple
+from fontTools.ttLib.tables._g_l_y_f import (
+    OVERLAP_COMPOUND,
+    Glyph,
+    GlyphCoordinates,
+    flagOverlapSimple,
+)
+from fontTools.ttLib.tables._g_v_a_r import compileGlyph_
 from fontTools.ttLib.tables.ttProgram import Program
 from fontTools.ttLib.tables.TupleVariation import TupleVariation
 from fontTools.varLib import build as build_variable
 from fontTools.varLib.instancer import instantiateVariableFont
+from fontTools.varLib.iup import iup_delta
 from PIL import Image, ImageDraw, ImageFont
 from ufo2ft import compileTTF
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 import fidelity
 from loom import build as B
@@ -49,6 +59,10 @@ ROOT = Path(__file__).resolve().parents[2]
 OUT = ROOT / "build/warp-vf"
 PROOFS = ROOT / "proofs/warp"
 TWO_MASTER_SOURCE = "warp/STATUS.md#regular-and-bold-variable-font-test-2026-11-07"
+MAX_VF_BYTES = 9_437_184
+# Reserve 0.02 units for flattening and extra room for the stored 600 peak.
+# Keep the frozen Bold endpoint bound; source-only weights have the raster gate.
+IUP_TOLERANCES = {300: 0.98, 350: 1.0, 450: 1.0, 500: 0.98, 600: 0.95, 700: 0.5}
 
 # Inspector JSON carries check-specific metadata alongside shared fields.
 type Record = dict[str, Any]
@@ -59,6 +73,21 @@ Result = TypeVar("Result")
 
 def write_json(path: Path, data: object) -> None:
     path.write_text(json.dumps(data, indent=1, ensure_ascii=False) + "\n")
+
+
+def source_outline_hash(path: Path) -> str:
+    """Fingerprint outline indexing and metrics independently of style metadata."""
+    with TTFont(path) as font:
+        schema = (
+            font["head"].unitsPerEm,
+            font["head"].indexToLocFormat,
+            font["maxp"].numGlyphs,
+            font["hhea"].numberOfHMetrics,
+        )
+        digest = hashlib.sha256(json.dumps((font.getGlyphOrder(), schema)).encode())
+        for tag in ("glyf", "loca", "hmtx"):
+            digest.update(font.getTableData(tag))
+        return digest.hexdigest()
 
 
 def release_sources() -> None:
@@ -212,13 +241,89 @@ def local_variations(font: TTFont, statics: Sources, weights: Sequence[int]) -> 
             )
             variation = TupleVariation({"wght": support}, delta)
             if control.numberOfContours >= 0:
-                variation.optimize(base, control.endPts, tolerance=0.5)
+                variation.optimize(
+                    base, control.endPts, tolerance=IUP_TOLERANCES[weight]
+                )
+                # A one-unit tolerance can omit both moving edges of a thin
+                # contour. Keep such contours exact, using run boundaries.
+                start, restored = 0, False
+                for end in control.endPts:
+                    if all(
+                        v is None for v in variation.coordinates[start : end + 1]
+                    ) and any(x or y for x, y in delta[start : end + 1]):
+                        restored = True
+                        for j in range(start, end + 1):
+                            previous = end if j == start else j - 1
+                            following = start if j == end else j + 1
+                            if (
+                                delta[j] != delta[previous]
+                                or delta[j] != delta[following]
+                            ):
+                                variation.coordinates[j] = delta[j]
+                        if all(
+                            v is None for v in variation.coordinates[start : end + 1]
+                        ):
+                            variation.coordinates[start] = delta[start]
+                    start = end + 1
+                if restored:
+                    dense = TupleVariation(variation.axes, delta)
+                    if sum(map(len, dense.compile(["wght"]))) < sum(
+                        map(len, variation.compile(["wght"]))
+                    ):
+                        variation = dense
             variations.append(variation)
         font["gvar"].variations[name] = variations
 
 
+def reuse_identical_outlines(font: TTFont) -> dict[str, str]:
+    """Share only byte-identical outlines, metrics and full variation stores.
+
+    Matching every tuple preserves the entire interpolant, including IUP.
+    Retain the alias's phantom deltas for its own metrics. Sources stay intact.
+    """
+    seen = {}
+    aliases = {}
+    for name in font.getGlyphOrder():
+        glyph = font["glyf"][name]
+        if glyph.isComposite() or glyph.numberOfContours == 0:
+            continue
+        if glyph.program.getBytecode():
+            continue
+        base, control = font["glyf"]._getCoordinatesAndControls(
+            name, font["hmtx"].metrics
+        )
+        variations = font["gvar"].variations[name]
+        key = (
+            font["hmtx"][name],
+            glyph.compile(font["glyf"]),
+            compileGlyph_(2, variations, len(base), ["wght"], {}),
+        )
+        if key not in seen:
+            seen[key] = name
+            continue
+        target = seen[key]
+        pen = TTGlyphPen(font.getGlyphSet())
+        pen.addComponent(target, (1, 0, 0, 1, 0, 0))
+        font["glyf"][name] = pen.glyph()
+        font["glyf"][name].components[0].flags |= OVERLAP_COMPOUND
+        compact = []
+        for variation in variations:
+            deltas = iup_delta(variation.coordinates, base, control.endPts)
+            phantom = [(0, 0), *deltas[-4:]]
+            if any(x or y for x, y in phantom):
+                compact.append(TupleVariation(variation.axes, phantom))
+        font["gvar"].variations[name] = compact
+        aliases[name] = target
+    return aliases
+
+
 def build_vf(
-    statics: Sources, weights: Sequence[int], italic: bool, out: Path
+    statics: Sources,
+    weights: Sequence[int],
+    italic: bool,
+    out: Path,
+    *,
+    write_sources: bool = True,
 ) -> tuple[TTFont, Path]:
     suffix = "-Italic" if italic else ""
     ds = DesignSpaceDocument()
@@ -252,7 +357,8 @@ def build_vf(
     for weight in weights:
         style = B.STYLES[B.weight_style(weight, italic)]
         path = out / f"{style.key}.ttf"
-        statics[weight].save(path)
+        if write_sources:
+            statics[weight].save(path)
         ds.addSource(
             SourceDescriptor(
                 path=str(path),
@@ -295,6 +401,7 @@ def build_vf(
         macNames=False,
     )
     mark_overlaps(font)
+    reuse_identical_outlines(font)
     path = out / f"MachineMadeWarp{suffix}[wght].ttf"
     font.save(path)
     return TTFont(path), path
@@ -705,6 +812,18 @@ def prepare_slope(italic: bool, out: Path) -> dict[str, Rotations]:
     return rotations
 
 
+def rebuild_aligned_slope(italic: bool, out: Path) -> None:
+    """Re-encode saved, corrected masters without inspecting or rotating them."""
+    weights = list(B.MASTER_WEIGHTS)
+    build_vf(
+        read_aligned_sources(weights, italic, out),
+        weights,
+        italic,
+        out,
+        write_sources=False,
+    )
+
+
 def correct_slope(
     starts: list[Record], weights: Sequence[int], italic: bool, out: Path, attempt: int
 ) -> list[Record]:
@@ -774,7 +893,7 @@ def measure_slope(
 
 
 def run_slope(
-    italic: bool, out: Path, executable: str
+    italic: bool, out: Path, executable: str | None, reuse_aligned_sources: bool = False
 ) -> tuple[Record, list[Record], Path]:
     slope = "Italic" if italic else "Roman"
     weights = list(B.MASTER_WEIGHTS)
@@ -782,14 +901,18 @@ def run_slope(
     path = out / f"MachineMadeWarp{suffix}[wght].ttf"
     # Each builder exits before inspection. Clearing Python objects alone
     # can leave its allocator holding gigabytes of unused font memory.
-    rotations = worker_process(prepare_slope, italic, out)
+    if reuse_aligned_sources:
+        worker_process(rebuild_aligned_slope, italic, out)
+        rotations = {}
+    else:
+        rotations = worker_process(prepare_slope, italic, out)
     corrections = []
-    inspection_error = None
+    inspection_error = None if executable else "Fontspector was not run"
     counts = {
         key: None for key in ("SKIP", "INFO", "PASS", "WARN", "FAIL", "FATAL", "ERROR")
     }
     findings = []
-    for attempt in range(9):
+    for attempt in range(9) if executable else ():
         try:
             counts, findings = inspect_font(executable, path, out, slope)
         except RuntimeError as error:
@@ -806,19 +929,50 @@ def run_slope(
         if not changes:
             break
     instances, fidelities = worker_process(measure_slope, weights, italic, out)
-    passed = (
-        inspection_error is None
+    numerical_passed = (
+        path.stat().st_size <= MAX_VF_BYTES
         and all(row["max_units"] <= 1.0 for row in instances.values())
         and all(row["passed"] for row in fidelities.values())
+        and endpoint_regression(instances)
+    )
+    passed = (
+        numerical_passed
+        and inspection_error is None
         and not any(counts[k] for k in ("FAIL", "FATAL", "ERROR"))
         and not findings
-        and endpoint_regression(instances)
+    )
+    with (
+        TTFont(path) as built,
+        TTFont(out / f"{B.weight_style(400, italic)}.ttf") as default,
+    ):
+        aliases = {
+            name: built["glyf"][name].components[0].glyphName
+            for name in built.getGlyphOrder()
+            if not default["glyf"][name].isComposite()
+            and built["glyf"][name].isComposite()
+        }
+    print(
+        f"{path.name}: {path.stat().st_size} bytes; numerical gates {numerical_passed}",
+        flush=True,
     )
     report = {
         "masters": weights,
         "midpoint_weights": gap_midpoints(weights),
         "legacy_test_weights": [350, 450, 550, 650],
         "file_size_bytes": path.stat().st_size,
+        "file_size_limit_bytes": MAX_VF_BYTES,
+        "iup_tolerances": IUP_TOLERANCES,
+        "identical_outline_aliases": aliases,
+        "source_hashes_sha256": {
+            name: hashlib.sha256((out / name).read_bytes()).hexdigest()
+            for weight in weights
+            for name in (f"{B.weight_style(weight, italic)}.ttf",)
+        },
+        "source_outline_hashes_sha256": {
+            name: source_outline_hash(out / name)
+            for weight in weights
+            for name in (f"{B.weight_style(weight, italic)}.ttf",)
+        },
         "instances": instances,
         "fidelity": fidelities,
         "initial_rotations": rotations,
@@ -833,6 +987,7 @@ def run_slope(
         if inspection_error is None
         else [],
         "passed": passed,
+        "numerical_passed": numerical_passed,
     }
     return report, findings, path
 
@@ -841,8 +996,20 @@ def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument("--out", type=Path, default=OUT)
     ap.add_argument("--fontspector", default=shutil.which("fontspector"))
+    ap.add_argument(
+        "--skip-fontspector",
+        action="store_true",
+        help="Measure without inspection; the verdict stays not verified",
+    )
+    ap.add_argument(
+        "--reuse-aligned-sources",
+        action="store_true",
+        help="Rebuild from the saved, corrected source TTFs in --out",
+    )
     args = ap.parse_args(argv)
-    if not args.fontspector:
+    if args.skip_fontspector and not args.reuse_aligned_sources:
+        ap.error("--skip-fontspector requires --reuse-aligned-sources")
+    if not args.skip_fontspector and not args.fontspector:
         ap.error("Fontspector is required; put it on PATH or use --fontspector")
     os.environ["SOURCE_DATE_EPOCH"] = "1793059200"
     out = args.out.resolve()
@@ -867,28 +1034,69 @@ def main(argv: list[str] | None = None) -> int:
     }
     # Keep the first comparison baseline if a measurement needs another run.
     previous_path = PROOFS / "ladder.json"
+    prior_report = {}
     if previous_path.exists():
         previous = json.loads(previous_path.read_text())
+        prior_report = previous
         for key in ("previous_fontspector_findings", "previous_file_sizes_bytes"):
             if key in previous:
                 report[key] = previous[key]
+    if args.reuse_aligned_sources:
+        # Keep both slopes' provenance while a failed or partial run replaces
+        # the proof. A retry must still verify every saved source hash.
+        report["aligned_sources"] = {}
+        for slope in ("Roman", "Italic"):
+            old_style = prior_report.get("styles", {}).get(slope) or prior_report.get(
+                "aligned_sources", {}
+            ).get(slope, {})
+            report["aligned_sources"][slope] = {
+                key: old_style[key]
+                for key in (
+                    "initial_rotations",
+                    "start_point_corrections",
+                    "source_hashes_sha256",
+                )
+                if key in old_style
+            }
     write_json(PROOFS / "ladder.json", report)
-    write_json(
-        PROOFS / "interpolation.json",
-        {
-            "two_master_findings": 770,
-            "two_master_source": TWO_MASTER_SOURCE,
-            "remaining": None,
-            "start_point_count": None,
-            "verdict": "not verified",
-            "kinds": {},
-        },
-    )
+    if not args.skip_fontspector:
+        write_json(
+            PROOFS / "interpolation.json",
+            {
+                "two_master_findings": 770,
+                "two_master_source": TWO_MASTER_SOURCE,
+                "remaining": None,
+                "start_point_count": None,
+                "verdict": "not verified",
+                "kinds": {},
+            },
+        )
     findings, paths = [], {}
     for italic in (False, True):
         slope = "Italic" if italic else "Roman"
         try:
-            result, rows, path = run_slope(italic, out, args.fontspector)
+            if args.reuse_aligned_sources:
+                old_style = report["aligned_sources"][slope]
+                for name, expected in old_style.get("source_hashes_sha256", {}).items():
+                    if (
+                        hashlib.sha256((out / name).read_bytes()).hexdigest()
+                        != expected
+                    ):
+                        raise ValueError(f"Saved aligned source changed: {name}")
+                result, rows, path = run_slope(
+                    italic,
+                    out,
+                    None if args.skip_fontspector else args.fontspector,
+                    reuse_aligned_sources=True,
+                )
+                result["alignment_source"] = "saved aligned masters"
+                result["initial_rotations"] = old_style.get("initial_rotations", {})
+                result["start_point_corrections"] = (
+                    old_style.get("start_point_corrections", [])
+                    + result["start_point_corrections"]
+                )
+            else:
+                result, rows, path = run_slope(italic, out, args.fontspector)
         except Exception as error:
             report["reason"] = f"{slope}: {error}"
             # A build error does not prove that the glyphs are compatible.
@@ -908,6 +1116,8 @@ def main(argv: list[str] | None = None) -> int:
         findings.extend(rows)
         paths[slope] = path
         write_json(PROOFS / "ladder.json", report)
+        if args.skip_fontspector:
+            continue
         partial = interpolation_report(findings)
         if any(
             not row.get("fontspector_complete", True)
@@ -918,6 +1128,22 @@ def main(argv: list[str] | None = None) -> int:
             partial["start_point_count"] = None
         partial["verdict"] = "not verified"
         write_json(PROOFS / "interpolation.json", partial)
+    if args.skip_fontspector:
+        report.pop("aligned_sources", None)
+        report["interpolation"] = {
+            "complete": False,
+            "remaining": None,
+            "start_point_count": None,
+            "previous_report": "proofs/warp/interpolation.json",
+        }
+        report["proof_sheet"] = proof_sheet(paths, out)
+        report["numerical_passed"] = all(
+            row["numerical_passed"] for row in report["styles"].values()
+        )
+        write_json(PROOFS / "ladder.json", report)
+        print("Fontspector not run; current interpolation findings are unknown.")
+        print("Verdict: not verified")
+        return int(not report["numerical_passed"])
     inspection_complete = all(
         row.get("fontspector_complete", True) for row in report["styles"].values()
     )
@@ -930,6 +1156,7 @@ def main(argv: list[str] | None = None) -> int:
     report["proof_sheet"] = proof_sheet(paths, out)
     passed = all(row["passed"] for row in report["styles"].values())
     report["verdict"] = "verified" if passed else "not verified"
+    report.pop("aligned_sources", None)
     write_json(PROOFS / "ladder.json", report)
     print(
         f"770 findings in the two-master spike report; "

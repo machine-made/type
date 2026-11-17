@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+- Reduced variable font size by sharing identical outlines and variation data, with IUP tolerances for each weight.
+- Added checks that rebuild both fonts and limit each file to 9,437,184 bytes.
+- Added a mode that measures corrected masters and leaves Fontspector results unknown.
+- Preserved contours with edge movements of one unit when IUP would omit them.
+
 - Fixed compatibility errors losing their diagnostic payload when passed between processes.
 - Fixed PANOSE weight digits for new text weights while keeping released styles unchanged.
 - Changed interpolation reports to name the two-master source for the 770 findings.

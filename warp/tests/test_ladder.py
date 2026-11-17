@@ -304,6 +304,176 @@ def test_ladder_encoded_master_location() -> None:
     assert finding_identity(a) != finding_identity(b)
 
 
+def test_ladder_shared_outlines_preserve_interpolation(
+    tmp_path: Path, monkeypatch: MonkeyPatch
+) -> None:
+    from copy import deepcopy
+
+    import vf_ladder
+    from fontTools.varLib.instancer import instantiateVariableFont
+
+    statics = local_test_fonts()
+    for weight, source in statics.items():
+        for name in ("alias", "different.delta", "different.metrics"):
+            source["glyf"][name] = deepcopy(source["glyf"]["base"])
+            source["hmtx"][name] = source["hmtx"]["base"]
+        source["glyf"]["different.delta"].coordinates[0] = (
+            (weight - 400) // 50,
+            0,
+        )
+        advance, lsb = source["hmtx"]["base"]
+        source["hmtx"]["different.metrics"] = advance + 1, lsb
+        source.setGlyphOrder(
+            [
+                n
+                for n in source.getGlyphOrder()
+                if n not in ("alias", "different.delta", "different.metrics")
+            ]
+            + ["alias", "different.delta", "different.metrics"]
+        )
+    with monkeypatch.context() as context:
+        context.setattr(vf_ladder, "reuse_identical_outlines", lambda font: {})
+        font, _ = vf_ladder.build_vf(statics, list(B.MASTER_WEIGHTS), False, tmp_path)
+    before = deepcopy(font)
+    aliases = vf_ladder.reuse_identical_outlines(font)
+    assert aliases == {"alias": "base"}
+    assert not statics[400]["glyf"]["alias"].isComposite()
+    path = tmp_path / "shared.ttf"
+    font.save(path)
+    with TTFont(path) as saved:
+        for weight in (
+            *B.MASTER_WEIGHTS,
+            325,
+            375,
+            425,
+            475,
+            550,
+            650,
+            388.25,
+            615.125,
+        ):
+            a = instantiateVariableFont(before, {"wght": weight})
+            b = instantiateVariableFont(saved, {"wght": weight})
+            for name in a.getGlyphOrder():
+                assert list(a["glyf"][name].getCoordinates(a["glyf"])[0]) == list(
+                    b["glyf"][name].getCoordinates(b["glyf"])[0]
+                ), (weight, name)
+                assert a["hmtx"][name] == b["hmtx"][name], (weight, name)
+
+
+def test_ladder_measure_without_fontspector(
+    tmp_path: Path, monkeypatch: MonkeyPatch
+) -> None:
+    import json
+
+    import vf_ladder
+
+    monkeypatch.setattr(vf_ladder, "PROOFS", tmp_path)
+    old_interpolation = '{"remaining": 0, "source": "previous inspection"}\n'
+    (tmp_path / "interpolation.json").write_text(old_interpolation)
+    for italic in (False, True):
+        statics = local_test_fonts()
+        for weight, font in statics.items():
+            font.save(tmp_path / f"{B.weight_style(weight, italic)}.ttf")
+        suffix = "-Italic" if italic else ""
+        statics[400].save(tmp_path / f"MachineMadeWarp{suffix}[wght].ttf")
+
+    def worker(target: Callable[..., object], *args: object) -> object:
+        if target is vf_ladder.rebuild_aligned_slope:
+            return None
+        assert target is vf_ladder.measure_slope
+        return (
+            {str(w): {"max_units": 0.02 if w == 400 else 0.52} for w in B.WEIGHTS},
+            {"325": {"max_percent": 4.99, "passed": True}},
+        )
+
+    def forbid_inspection(*args: object) -> None:
+        pytest.fail("Fontspector must not run in measurement mode")
+
+    monkeypatch.setattr(vf_ladder, "worker_process", worker)
+    monkeypatch.setattr(vf_ladder, "inspect_font", forbid_inspection)
+    monkeypatch.setattr(vf_ladder, "proof_sheet", lambda paths, out: "sheet.png")
+    assert (
+        vf_ladder.main(
+            ["--out", str(tmp_path), "--skip-fontspector", "--reuse-aligned-sources"]
+        )
+        == 0
+    )
+    report = json.loads((tmp_path / "ladder.json").read_text())
+    assert report["numerical_passed"]
+    assert report["verdict"] == "not verified"
+    for row in report["styles"].values():
+        assert not row["fontspector_complete"]
+        assert not row["passed"]
+        assert all(v is None for v in row["fontspector"].values())
+        assert len(row["source_hashes_sha256"]) == 7
+    assert (tmp_path / "interpolation.json").read_text() == old_interpolation
+    source = tmp_path / "Light.ttf"
+    original = source.read_bytes()
+    source.write_bytes(original + b"\0")
+    argv = ["--out", str(tmp_path), "--skip-fontspector", "--reuse-aligned-sources"]
+    with pytest.raises(ValueError, match="Saved aligned source changed: Light.ttf"):
+        vf_ladder.main(argv)
+    failed = json.loads((tmp_path / "ladder.json").read_text())
+    assert failed["verdict"] == "not verified"
+    for slope in ("Roman", "Italic"):
+        assert (
+            failed["aligned_sources"][slope]["source_hashes_sha256"]
+            == (report["styles"][slope]["source_hashes_sha256"])
+        )
+    source.write_bytes(original)
+    assert vf_ladder.main(argv) == 0
+    retried = json.loads((tmp_path / "ladder.json").read_text())
+    for slope in ("Roman", "Italic"):
+        assert (
+            retried["styles"][slope]["source_hashes_sha256"]
+            == (report["styles"][slope]["source_hashes_sha256"])
+        )
+
+
+@pytest.mark.parametrize("italic", (False, True))
+def test_ladder_full_font_size(
+    italic: bool, tmp_path: Path, monkeypatch: MonkeyPatch
+) -> None:
+    import json
+
+    import vf_ladder
+
+    monkeypatch.setenv("SOURCE_DATE_EPOCH", "1793059200")
+    report = json.loads(
+        (Path(__file__).resolve().parents[2] / "proofs/warp/ladder.json").read_text()
+    )["styles"]["Italic" if italic else "Roman"]
+    # Reuse this process's heap rather than duplicating the compatibility
+    # caches beside a source compiler. Release sweeps before varLib runs.
+    vf_ladder.release_sources()
+    vf_ladder.compile_sources(italic, tmp_path)
+    vf_ladder.release_sources()
+    statics = {
+        weight: TTFont(tmp_path / f"{B.weight_style(weight, italic)}-source.ttf")
+        for weight in B.MASTER_WEIGHTS
+    }
+    for weight, font in statics.items():
+        if weight != 400:
+            rotations = vf_ladder.align_static(
+                font, statics[400], B.weight_style(weight, italic)
+            )
+            assert rotations == report["initial_rotations"][str(weight)]
+    for correction in report["start_point_corrections"]:
+        name, weight = correction["glyph"], correction["weight"]
+        if statics[weight]["glyf"][name].isComposite():
+            vf_ladder.resolve_composite_sources(statics, name)
+        vf_ladder.rotate_contour(
+            statics[weight]["glyf"][name], correction["contour"], correction["shift"]
+        )
+    font, path = vf_ladder.build_vf(statics, list(B.MASTER_WEIGHTS), italic, tmp_path)
+    assert len(font.getGlyphOrder()) == 890
+    assert path.stat().st_size <= 9_437_184
+    # The frozen inputs predate the PANOSE metadata fix. Compare every compiled
+    # outline and metric; the measurement-mode test guards saved file bytes.
+    for name, expected in report["source_outline_hashes_sha256"].items():
+        assert vf_ladder.source_outline_hash(tmp_path / name) == expected
+
+
 def test_ladder_failed_run_invalidates_proof(
     tmp_path: Path, monkeypatch: MonkeyPatch
 ) -> None:
@@ -715,7 +885,10 @@ def test_ladder_failed_inspection_keeps_measurements(
 
     monkeypatch.setattr(vf_ladder, "worker_process", worker)
     monkeypatch.setattr(vf_ladder, "inspect_font", inspect)
-    (tmp_path / "MachineMadeWarp[wght].ttf").touch()
+    statics = local_test_fonts()
+    for weight, font in statics.items():
+        font.save(tmp_path / f"{B.weight_style(weight)}.ttf")
+    statics[400].save(tmp_path / "MachineMadeWarp[wght].ttf")
     report, findings, _ = vf_ladder.run_slope(False, tmp_path, "unused")
     assert report["instances"] == instances
     assert report["fidelity"] == fidelities

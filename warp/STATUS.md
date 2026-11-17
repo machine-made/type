@@ -6,9 +6,43 @@
 | Version | 0.2 (font version 0.200) |
 | Pull request | Weight ladder, branch warp-wght-ladder |
 | Stage | Warp 0.2 built: 6 static styles (TTF hinted, OTF, WOFF2) with an OpenType MATH table |
-| Gate now | Numerical gates pass. Each font has 0 ERROR and 1 file-size FAIL. Roman: 11.35 MB; Italic: 12.51 MB. Limit: 9.44 MB. |
-| Next | Bring both variable fonts under 9.44 MB with seven masters and the same limits; the optical-size axis remains open |
-| Last local run | 2026-11-17: numerical and interpolation gates pass; the verdict remains not verified because both files exceed the size limit. |
+| Gate now | Both variable fonts fit 9,437,184 bytes. Numerical gates pass. Fontspector has not inspected these files. |
+| Next | Run Fontspector on both rebuilt variable fonts; the optical-size axis remains open. |
+| Last local run | 2026-11-17: Roman is 8,308,268 bytes; Italic is 8,867,552 bytes. The verdict remains not verified. |
+
+## Variable font size (2026-11-17)
+
+Both files retain seven masters and 890 glyphs. The saved masters keep their bytes.
+The build shares only identical outlines, metrics and complete variation stores.
+Each alias keeps its own metric deltas. Roman shares 16 outlines; Italic shares 42.
+
+| File | Before, bytes | Rebuilt, bytes | Limit, bytes |
+| --- | --- | --- | --- |
+| Roman | 11,350,336 | 8,308,268 | 9,437,184 |
+| Italic | 12,509,356 | 8,867,552 | 9,437,184 |
+
+| Source weight | IUP tolerance, units |
+| --- | --- |
+| 300 | 0.98 |
+| 350 | 1.0 |
+| 450 | 1.0 |
+| 500 | 0.98 |
+| 600 | 0.95 |
+| 700 | 0.5 |
+
+The named-instance maximum is 0.997061 units in both slopes. The limit remains 1.0 unit.
+Regular remains at 0.020 units; Bold remains at 0.520 units.
+The raster maximum is 4.994 percent in both slopes, against the unchanged 5 percent limit.
+
+Measurement mode reuses the saved, corrected masters without rewriting them.
+It records their hashes and leaves the previous interpolation report intact.
+Checks of fresh builds compare compiled outlines and metrics separately from metadata.
+Moving contours keep their deltas when IUP would omit the entire contour.
+The focused weight ladder suite passed 34 tests, including fresh builds of both fonts.
+The full Warp suite passed 137 tests. The byte guard for the released styles passed.
+Full inspection has not run on these files. The verdict remains **not verified**.
+Current interpolation and start-point counts are unknown.
+The next section records the previous fonts and their inspection.
 
 ## Text weight ladder (2026-11-16)
 
