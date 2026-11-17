@@ -3,7 +3,7 @@
 ## Unreleased
 
 - Fixed correction order so reported composites resolve before any base glyph rotates.
-- Last inspected files: Roman 7,448,792 bytes; Italic 6,696,452 bytes. Both report 0 FAIL and 0 ERROR.
+- Last inspected files: Roman 7,448,792 bytes; Italic 6,679,608 bytes. Both report 0 FAIL and 0 ERROR.
 - The verdict is not verified because Roman has three new side-bearing findings and Italic has five.
 - Reduced variable font size by sharing identical outlines and variation data, with IUP tolerances for each weight.
 - Added checks that rebuild both fonts and limit each file to 9,437,184 bytes.

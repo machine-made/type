@@ -7,8 +7,8 @@
 | Pull request | Weight ladder, branch warp-wght-ladder |
 | Stage | Warp 0.2 built: 6 static styles (TTF hinted, OTF, WOFF2) with an OpenType MATH table |
 | Gate now | Both variable fonts fit 9,437,184 bytes. Numerical gates pass. Fontspector reports 0 FAIL and 0 ERROR for both. |
-| Next | Investigate the new side-bearing findings and verify the correction-order fix with Fontspector. The optical-size axis remains open. |
-| Last local run | 2026-11-17: Roman is 7,448,792 bytes; Italic is 6,696,452 bytes. The verdict remains not verified. |
+| Next | Investigate the new side-bearing findings (3 in Roman, 5 in Italic). The optical-size axis remains open. |
+| Last local run | 2026-11-17, after the correction-order fix: Roman is 7,448,792 bytes; Italic is 6,679,608 bytes. Both report 0 FAIL and 0 ERROR. The verdict remains not verified because of the new side-bearing findings. |
 
 ## Variable font size (2026-11-17)
 
@@ -19,7 +19,7 @@ Each alias keeps its own metric deltas. Roman shares 15 outlines; Italic shares 
 | File | Before, bytes | Rebuilt, bytes | Limit, bytes |
 | --- | --- | --- | --- |
 | Roman | 11,350,336 | 7,448,792 | 9,437,184 |
-| Italic | 12,509,356 | 6,696,452 | 9,437,184 |
+| Italic | 12,509,356 | 6,679,608 | 9,437,184 |
 
 | Source weight | IUP tolerance, units |
 | --- | --- |

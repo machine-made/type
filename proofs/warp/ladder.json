@@ -44213,7 +44213,7 @@
     550,
     650
    ],
-   "file_size_bytes": 6696452,
+   "file_size_bytes": 6679608,
    "file_size_limit_bytes": 9437184,
    "iup_tolerances": {
     "300": 0.98,
@@ -44226,10 +44226,11 @@
    "identical_outline_aliases": {
     "quotesinglbase": "comma",
     "uni210E": "h",
-    "u1D6EF": "Xi"
+    "u1D6EF": "Xi",
+    "u1D702": "eta"
    },
    "source_hashes_sha256": {
-    "LightItalic.ttf": "423491213bbbd01612baa32e6919ae2baf780390272bef6a4e5cb0818f226276",
+    "LightItalic.ttf": "6cb99b738bd958440a9cea39aca91f8549a187ba93a311e43891b5d81fc9db0c",
     "Weight350Italic.ttf": "fecba720ad5a7c3848968bbba2945a1bfe88bce7d2430a61550d71f79d2fe488",
     "Italic.ttf": "a76673e09cebaff652c034b74f9845e208bfcdcddc6718d542461f2f546135ee",
     "Weight450Italic.ttf": "1bb1bab20599750c6f0c9d15626a013b14a35af3c5dbecc3b9552da366dc9c48",
@@ -44238,7 +44239,7 @@
     "BoldItalic.ttf": "93f29398ad5ad64299e34c0f17c75755b2ee04ed74f11bdc8e72f1ba829e627b"
    },
    "source_outline_hashes_sha256": {
-    "LightItalic.ttf": "5dddf741a55fa8cb64ff0c7ffa1d97e220c2de9f7ddaae40b5b66aa39929a7dd",
+    "LightItalic.ttf": "b23ec5460689bcea78de78fa24d7926086b6fd8789f3e8edae2ea34fc3bd262e",
     "Weight350Italic.ttf": "23bf1710c83f8938f1d2e6f270df49e39e5ffa53873b6fbb06b82ace314cfc6b",
     "Italic.ttf": "419901755e2bec12c5960aca43f9a98011ce9125a95c5e57c1b25bc5890479e4",
     "Weight450Italic.ttf": "dd90b0c710bd54e3eb5dcedcb40c0e90e59a9107163d2ecb5158d437655ac82f",
@@ -47501,10 +47502,10 @@
        "128": 0.01851
       },
       "u1D702": {
-       "16": 0.00604,
-       "32": 0.00737,
-       "64": 0.00908,
-       "128": 0.01001
+       "16": 0.00746,
+       "32": 0.00855,
+       "64": 0.01004,
+       "128": 0.01115
       },
       "u1D703": {
        "16": 0.00613,
@@ -85493,20 +85494,6 @@
      "glyph": "u1D702",
      "contour": 0,
      "shift": 1554
-    },
-    {
-     "attempt": 1,
-     "weight": 300,
-     "glyph": "u1D6EF",
-     "contour": 1,
-     "shift": 576
-    },
-    {
-     "attempt": 1,
-     "weight": 300,
-     "glyph": "u1D6EF",
-     "contour": 2,
-     "shift": 751
     }
    ],
    "fontspector": {
