@@ -13,10 +13,13 @@ import shutil
 import subprocess
 import sys
 from collections import defaultdict
+from collections.abc import Callable, Collection, Mapping, Sequence
 from copy import deepcopy
 from io import BytesIO
 from itertools import pairwise
+from multiprocessing.connection import Connection
 from pathlib import Path
+from typing import Any, TypeVar
 
 from fontTools.designspaceLib import (
     AxisDescriptor,
@@ -45,13 +48,20 @@ from vf_spike import endpoint_difference
 ROOT = Path(__file__).resolve().parents[2]
 OUT = ROOT / "build/warp-vf"
 PROOFS = ROOT / "proofs/warp"
+TWO_MASTER_SOURCE = "warp/STATUS.md#regular-and-bold-variable-font-test-2026-11-07"
+
+# Inspector JSON carries check-specific metadata alongside shared fields.
+type Record = dict[str, Any]
+type Sources = dict[int, TTFont]
+type Rotations = list[dict[str, str | int]]
+Result = TypeVar("Result")
 
 
-def write_json(path, data):
+def write_json(path: Path, data: object) -> None:
     path.write_text(json.dumps(data, indent=1, ensure_ascii=False) + "\n")
 
 
-def release_sources():
+def release_sources() -> None:
     """Keep compiled references; free source sweeps before the next gate."""
     B.drawn.cache_clear()
     ladder.cache_clear()
@@ -59,17 +69,17 @@ def release_sources():
     gc.collect()
 
 
-def gap_midpoints(weights):
+def gap_midpoints(weights: Sequence[float]) -> list[float]:
     """Test the middle of every gap between adjacent source masters."""
     return [(left + right) / 2 for left, right in pairwise(weights)]
 
 
-def fidelity_weights(weights):
+def fidelity_weights(weights: Sequence[float]) -> list[float]:
     """Retain the earlier checks as well as every gap midpoint."""
     return sorted(set(gap_midpoints(weights)) | {350, 450, 550, 650})
 
 
-def resolve_composite(font, name):
+def resolve_composite(font: TTFont, name: str) -> None:
     """Keep the resolved contour order and vertices, including all offsets."""
     glyph = font["glyf"][name]
     if not glyph.isComposite():
@@ -85,19 +95,19 @@ def resolve_composite(font, name):
     simple.recalcBounds(font["glyf"])
 
 
-def resolve_composite_sources(statics, name):
+def resolve_composite_sources(statics: Sources, name: str) -> None:
     for source in statics.values():
         resolve_composite(source, name)
 
 
-def read_aligned_sources(weights, italic, out):
+def read_aligned_sources(weights: Sequence[int], italic: bool, out: Path) -> Sources:
     return {
         weight: TTFont(out / f"{B.weight_style(weight, italic)}.ttf")
         for weight in weights
     }
 
 
-def rotate_contour(glyph, contour, shift):
+def rotate_contour(glyph: Glyph, contour: int, shift: int) -> None:
     start = 0 if contour == 0 else glyph.endPtsOfContours[contour - 1] + 1
     end = glyph.endPtsOfContours[contour] + 1
     points = list(glyph.coordinates[start:end])
@@ -107,9 +117,11 @@ def rotate_contour(glyph, contour, shift):
     glyph.flags[start:end] = flags[shift:] + flags[:shift]
 
 
-def align_static(font, reference, style=None):
+def align_static(
+    font: TTFont, reference: TTFont, style: str | None = None
+) -> Rotations:
     """Keep all compiled vertices and choose corresponding contour starts."""
-    rotations = []
+    rotations: Rotations = []
     for name in reference.getGlyphOrder():
         a, b = reference["glyf"][name], font["glyf"][name]
         mixed = a.isComposite() != b.isComposite()
@@ -153,7 +165,7 @@ def align_static(font, reference, style=None):
     return rotations
 
 
-def mark_overlaps(font):
+def mark_overlaps(font: TTFont) -> None:
     for name in font.getGlyphOrder():
         glyph = font["glyf"][name]
         if not glyph.isComposite() and glyph.numberOfContours > 0:
@@ -162,7 +174,7 @@ def mark_overlaps(font):
             glyph.flags[0] |= flagOverlapSimple
 
 
-def local_variations(font, statics, weights):
+def local_variations(font: TTFont, statics: Sources, weights: Sequence[int]) -> None:
     """Use one delta to the default at each non-default master.
 
     Each support ends at the adjacent master. Only one tuple contributes
@@ -205,7 +217,9 @@ def local_variations(font, statics, weights):
         font["gvar"].variations[name] = variations
 
 
-def build_vf(statics, weights, italic, out):
+def build_vf(
+    statics: Sources, weights: Sequence[int], italic: bool, out: Path
+) -> tuple[TTFont, Path]:
     suffix = "-Italic" if italic else ""
     ds = DesignSpaceDocument()
     ds.addAxis(
@@ -286,7 +300,9 @@ def build_vf(statics, weights, italic, out):
     return TTFont(path), path
 
 
-def check_master_structure(fonts, styles=None):
+def check_master_structure(
+    fonts: Sequence[TTFont], styles: Sequence[str] | None = None
+) -> None:
     """Reject a compiled mismatch before varLib can omit its variations."""
     order = fonts[0].getGlyphOrder()
     if any(font.getGlyphOrder() != order for font in fonts[1:]):
@@ -318,7 +334,7 @@ def check_master_structure(fonts, styles=None):
             )
 
 
-def fontspector_findings(raw):
+def fontspector_findings(raw: Record) -> list[Record]:
     """Record each non-pass finding by check, code, glyph and location."""
     rows = []
     for sections in raw["results"].values():
@@ -360,7 +376,7 @@ def fontspector_findings(raw):
     return rows
 
 
-def interpolation_findings(raw, slope):
+def interpolation_findings(raw: Record, slope: str) -> list[Record]:
     rows = []
     for sections in raw["results"].values():
         for checks in sections.values():
@@ -407,7 +423,7 @@ def interpolation_findings(raw, slope):
     return rows
 
 
-def interpolation_report(findings, complete=False):
+def interpolation_report(findings: list[Record], complete: bool = False) -> Record:
     """Keep every finding, including results from a partly completed run."""
     grouped = defaultdict(list)
     for row in findings:
@@ -433,7 +449,8 @@ def interpolation_report(findings, complete=False):
         else:
             causes[kind] = "; ".join(sorted({r["message"] for r in rows}))
     return {
-        "baseline": 770,
+        "two_master_findings": 770,
+        "two_master_source": TWO_MASTER_SOURCE,
         "remaining": len(findings),
         "start_point_count": len(grouped.get("start_point", [])),
         "complete": complete,
@@ -446,7 +463,9 @@ def interpolation_report(findings, complete=False):
     }
 
 
-def inspect_font(executable, path, out, slope):
+def inspect_font(
+    executable: str, path: Path, out: Path, slope: str
+) -> tuple[dict[str, int], list[Record]]:
     gc.collect()
     report_path = out / f"fontspector-{slope}.json"
     report_path.unlink(missing_ok=True)
@@ -497,12 +516,11 @@ def inspect_font(executable, path, out, slope):
     return counts, interpolation_findings(raw, slope)
 
 
-def fidelity_at(font, weight, italic):
-    raster_font = deepcopy(font)
+def fidelity_at(font: TTFont, weight: float, italic: bool) -> Record:
     # Read the compiled instance, including TrueType integer rounding.
     # Fractional coincident edges can make the ink union omit a stroke.
     buffer = BytesIO()
-    raster_font.save(buffer)
+    font.save(buffer)
     buffer.seek(0)
     raster_font = TTFont(buffer)
     # The gate draws simple glyphs and the italic aliases of those
@@ -532,7 +550,7 @@ def fidelity_at(font, weight, italic):
     }
 
 
-def endpoint_regression(instances):
+def endpoint_regression(instances: Mapping[str, Record]) -> bool:
     """Keep the measured bounds of the earlier Roman endpoint test."""
     return all(
         abs(instances[str(w)]["max_units"] - expected) <= 1e-8
@@ -540,7 +558,7 @@ def endpoint_regression(instances):
     )
 
 
-def master_weight(value, weights):
+def master_weight(value: float, weights: Collection[int]) -> int:
     """Map an F2Dot14 peak back to its source, within one axis grid step."""
     nearest = min(weights, key=lambda w: abs(w - value))
     bound = max(abs(w - 400) for w in weights) / 16384
@@ -549,7 +567,7 @@ def master_weight(value, weights):
     return nearest
 
 
-def finding_identity(row):
+def finding_identity(row: Record) -> Record:
     """Compare source weights despite one stored axis-grid step of error."""
     result = deepcopy(row)
     location = result["location"]
@@ -563,7 +581,7 @@ def finding_identity(row):
     return result
 
 
-def proof_sheet(paths, out):
+def proof_sheet(paths: Mapping[str, Path], out: Path) -> str:
     text = "Hamburgefonstiv ß fi ffl γ κ ∑"
     canvas = Image.new("RGB", (1900, 1750), "white")
     draw = ImageDraw.Draw(canvas)
@@ -583,7 +601,7 @@ def proof_sheet(paths, out):
     return path.name
 
 
-def compile_sources(italic, out):
+def compile_sources(italic: bool, out: Path) -> None:
     """Build in a child so all source memory leaves before validation."""
     slope = "Italic" if italic else "Roman"
     try:
@@ -603,7 +621,7 @@ def compile_sources(italic, out):
         raise
 
 
-def compiled_sources(italic, out):
+def compiled_sources(italic: bool, out: Path) -> Sources:
     slope = "Italic" if italic else "Roman"
     error_path = out / f"{slope}-compile-error.json"
     error_path.unlink(missing_ok=True)
@@ -625,7 +643,9 @@ def compiled_sources(italic, out):
     }
 
 
-def worker_entry(connection, target, args):
+def worker_entry(
+    connection: Connection, target: Callable[..., object], args: tuple[object, ...]
+) -> None:
     """Return only measurements; let the process release all font memory."""
     try:
         connection.send({"result": target(*args)})
@@ -642,7 +662,7 @@ def worker_entry(connection, target, args):
         connection.close()
 
 
-def worker_process(target, *args):
+def worker_process(target: Callable[..., Result], *args: object) -> Result:
     context = multiprocessing.get_context("spawn")
     receiver, sender = context.Pipe(duplex=False)
     process = context.Process(target=worker_entry, args=(sender, target, args))
@@ -670,7 +690,7 @@ def worker_process(target, *args):
     return result["result"]
 
 
-def prepare_slope(italic, out):
+def prepare_slope(italic: bool, out: Path) -> dict[str, Rotations]:
     statics = compiled_sources(italic, out)
     rotations = {}
     for weight, font in statics.items():
@@ -685,7 +705,9 @@ def prepare_slope(italic, out):
     return rotations
 
 
-def correct_slope(starts, weights, italic, out, attempt):
+def correct_slope(
+    starts: list[Record], weights: Sequence[int], italic: bool, out: Path, attempt: int
+) -> list[Record]:
     statics = read_aligned_sources(weights, italic, out)
     corrections = []
     changes = set()
@@ -721,7 +743,9 @@ def correct_slope(starts, weights, italic, out, attempt):
     return corrections
 
 
-def measure_slope(weights, italic, out):
+def measure_slope(
+    weights: Sequence[int], italic: bool, out: Path
+) -> tuple[dict[str, Record], dict[str, Record]]:
     statics = read_aligned_sources(weights, italic, out)
     slope = "Italic" if italic else "Roman"
     suffix = "-Italic" if italic else ""
@@ -749,7 +773,9 @@ def measure_slope(weights, italic, out):
     return instances, fidelities
 
 
-def run_slope(italic, out, executable):
+def run_slope(
+    italic: bool, out: Path, executable: str
+) -> tuple[Record, list[Record], Path]:
     slope = "Italic" if italic else "Roman"
     weights = list(B.MASTER_WEIGHTS)
     suffix = "-Italic" if italic else ""
@@ -811,7 +837,7 @@ def run_slope(italic, out, executable):
     return report, findings, path
 
 
-def main(argv=None):
+def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument("--out", type=Path, default=OUT)
     ap.add_argument("--fontspector", default=shutil.which("fontspector"))
@@ -850,7 +876,8 @@ def main(argv=None):
     write_json(
         PROOFS / "interpolation.json",
         {
-            "baseline": 770,
+            "two_master_findings": 770,
+            "two_master_source": TWO_MASTER_SOURCE,
             "remaining": None,
             "start_point_count": None,
             "verdict": "not verified",
@@ -905,7 +932,9 @@ def main(argv=None):
     report["verdict"] = "verified" if passed else "not verified"
     write_json(PROOFS / "ladder.json", report)
     print(
-        f"Interpolation findings: 770 before, {interpolation['remaining']} after; starts {interpolation['start_point_count']}"
+        f"770 findings in the two-master spike report; "
+        f"{interpolation['remaining']} in the seven-master ladder; "
+        f"starts {interpolation['start_point_count']}"
     )
     print(f"Verdict: {report['verdict']}")
     return int(not passed)

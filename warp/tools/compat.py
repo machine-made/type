@@ -8,6 +8,7 @@ import json
 import sys
 from itertools import groupby
 from pathlib import Path
+from typing import Any, NotRequired, TypedDict
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
@@ -18,6 +19,7 @@ from loom.compatible import (
     ITALIC_TOPOLOGY,
     TOPOLOGY,
     UNION_REPAIRS,
+    Contour,
     contour_key,
     polygon,
 )
@@ -41,7 +43,7 @@ CAUSES = {
 }
 
 
-def topology_measurements():
+def topology_measurements() -> dict[str, dict[str, Any]]:
     """Locate union changes along a stated engine-parameter path.
 
     Scan every integer weight, then bracket each change to 1/128 weight
@@ -54,7 +56,7 @@ def topology_measurements():
     for name in sorted(TOPOLOGY):
         gl = CS.BY_NAME[name]
 
-        def state(weight, gl=gl):
+        def state(weight: float, gl: CS.Glyph = gl) -> list[dict[str, Any]]:
             t = (weight - 400) / 300
             params = {
                 k: E.DEFAULTS[k] + t * (v - E.DEFAULTS[k]) for k, v in Bd.BOLD.items()
@@ -90,7 +92,7 @@ def topology_measurements():
                 )
             return sorted(shapes, key=lambda s: (-s["winding"], s["bounds"]))
 
-        def signature(shapes):
+        def signature(shapes: list[dict[str, Any]]) -> list[int]:
             return [s["winding"] for s in shapes]
 
         first = previous = state(400)
@@ -119,7 +121,6 @@ def topology_measurements():
                 if name in ("gamma", "u1D6FE")
                 else "Keep each source stroke, dot, terminal and bracket separate"
             ),
-            "other_policies": "Policy a passes; policies b and c are not needed",
             "weight_path": "Linear engine parameters from Regular to Bold at opsz 10; integer scan, brackets at 1/128 weight unit",
             "area_filter": O.MIN_AREA,
             "contour_counts": [len(first), len(previous)],
@@ -138,7 +139,9 @@ def topology_measurements():
     return result
 
 
-def contours(style, name, compatible=False, method="sample"):
+def contours(
+    style: str, name: str, compatible: bool = False, method: str = "sample"
+) -> list[Contour]:
     gl = CS.BY_NAME[name]
     if gl.variant == "mathit" and Bd.STYLES[style].italic:
         return contours(style, CS.glyph_name(gl.key), compatible, method)
@@ -159,8 +162,8 @@ def contours(style, name, compatible=False, method="sample"):
     return Bd.drawn(style, name, compatible=compatible, method=method).contours
 
 
-def structure(cs):
-    result = []
+def structure(cs: list[Contour]) -> list[ContourStructure]:
+    result: list[ContourStructure] = []
     polygons = [polygon(c)[0] for c in cs]
     ordered = sorted(range(len(cs)), key=lambda i: contour_key(polygons[i]))
     for i, (c, points) in enumerate(zip(cs, polygons)):
@@ -179,7 +182,9 @@ def structure(cs):
     return result
 
 
-def compare(names=None, compatible=False, method="sample"):
+def compare(
+    names: list[str] | None = None, compatible: bool = False, method: str = "sample"
+) -> dict[str, Any]:
     rows = []
     for name in CS.ORDER if names is None else names:
         pair = [
@@ -231,20 +236,63 @@ def compare(names=None, compatible=False, method="sample"):
     }
 
 
-def summary(report):
+def summary(report: dict[str, Any] | LadderReport) -> str:
     return (
         f"glyphs {report['glyphs']}, contours-compatible {report['contours_compatible']}, "
         f"point-compatible {report['point_compatible']}"
     )
 
 
-def compare_ladder(names=None):
+class ContourStructure(TypedDict):
+    order: int
+    points: int
+    segments: list[list[str | int]]
+    winding: int
+
+
+class TopologyReport(TypedDict):
+    policy: str
+    source_glyphs: list[str]
+    default_contours: int
+    fixed_contours: int
+    weight: float
+    cause: NotRequired[str]
+
+
+class LadderRow(TypedDict):
+    name: str
+    contours: int
+    contours_compatible: bool
+    point_compatible: bool
+    error: str | None
+    union_repair: NotRequired[TopologyReport]
+    topology: NotRequired[TopologyReport]
+
+
+class LadderReport(TypedDict):
+    method: str
+    rows: list[LadderRow]
+    glyphs: int
+    contours_compatible: int
+    point_compatible: int
+
+
+def compare_ladder(names: list[str] | None = None) -> dict[str, LadderReport]:
     """Compare each text weight with its Regular in the same slope."""
-    reports = {style: {"method": "sample", "rows": []} for style in Bd.MASTER_STYLES}
+    reports: dict[str, LadderReport] = {
+        style: {
+            "method": "sample",
+            "rows": [],
+            "glyphs": 0,
+            "contours_compatible": 0,
+            "point_compatible": 0,
+        }
+        for style in Bd.MASTER_STYLES
+    }
     for name in CS.ORDER if names is None else names:
         for italic in (False, True):
             styles = [Bd.weight_style(w, italic) for w in Bd.MASTER_WEIGHTS]
-            structures = {}
+            structures: dict[str, list[ContourStructure]] = {}
             errors = {}
             for style in styles:
                 try:
@@ -301,16 +349,19 @@ def compare_ladder(names=None):
                         "default_contours": len(contours(style, name)),
                         "fixed_contours": len(actual),
                         "weight": Bd.STYLES[style].weight,
-                        "other_policies": "Policy a keeps each hull once; b and c are not needed",
                     }
     for report in reports.values():
         report["glyphs"] = len(report["rows"])
-        for key in ("contours_compatible", "point_compatible"):
-            report[key] = sum(row[key] for row in report["rows"])
+        report["contours_compatible"] = sum(
+            row["contours_compatible"] for row in report["rows"]
+        )
+        report["point_compatible"] = sum(
+            row["point_compatible"] for row in report["rows"]
+        )
     return reports
 
 
-def write_report(path, data):
+def write_report(path: Path, data: dict[str, Any]) -> None:
     """Keep one glyph per line so that changes in the proof can be read."""
     sections = []
     for mode, report in data.items():
@@ -323,7 +374,7 @@ def write_report(path, data):
     path.write_text("{\n" + ",\n".join(sections) + "\n}\n")
 
 
-def main(argv=None):
+def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument("--fixed", "--compatible", action="store_true")
     ap.add_argument("--method", choices=("sample", "refit"), default="sample")

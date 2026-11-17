@@ -1,22 +1,84 @@
 # SPDX-License-Identifier: Apache-2.0
 """Weight parameters and the static build boundary. Apache-2.0."""
 
+from __future__ import annotations
+
 import os
 import subprocess
 import sys
+from collections.abc import Callable
 from pathlib import Path
+from typing import TYPE_CHECKING
 
 import pytest
 import ufoLib2
+from fontTools.ttLib import TTFont
 from loom import build as B
 from loom import engine as E
+from pytest import MonkeyPatch
+
+if TYPE_CHECKING:
+    from loom.compatible import Contour, Diagnostics
+    from vf_ladder import Record
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "tools"))
 
 import compat
 
 
-def test_ladder_weight_endpoints():
+def test_ladder_compatibility_error_pickle() -> None:
+    import pickle
+
+    from loom.compatible import CompatibilityError
+
+    rows: Diagnostics = [
+        {"glyph": "gamma", "style": "Light", "weight": 300, "contours": 2}
+    ]
+    error = CompatibilityError("gamma: topology differs", rows)
+    restored = pickle.loads(pickle.dumps(error))
+    assert str(restored) == str(error)
+    assert restored.diagnostics == error.diagnostics
+
+
+def test_ladder_panose_weights() -> None:
+    # Check the five named weights and the two extra masters, in both slopes.
+    for italic in (False, True):
+        for weight, digit in (
+            (300, 3),
+            (350, 4),
+            (400, 5),
+            (450, 6),
+            (500, 6),
+            (600, 7),
+            (700, 8),
+        ):
+            font = ufoLib2.Font()
+            B.set_info(font, B.STYLES[B.weight_style(weight, italic)])
+            assert font.info.openTypeOS2Panose[2] == digit, (weight, italic)
+
+
+def test_ladder_interpolation_names_two_master_source() -> None:
+    import json
+
+    from vf_ladder import interpolation_report
+
+    report = interpolation_report([], complete=True)
+    committed = json.loads(
+        (
+            Path(__file__).resolve().parents[2] / "proofs/warp/interpolation.json"
+        ).read_text()
+    )
+    for measured in (report, committed):
+        assert "baseline" not in measured
+        assert measured["two_master_findings"] == 770
+        assert (
+            measured["two_master_source"]
+            == "warp/STATUS.md#regular-and-bold-variable-font-test-2026-11-07"
+        )
+        assert measured["remaining"] == 0
+
+
+def test_ladder_weight_endpoints() -> None:
     assert B.weight_params(400) == {key: E.DEFAULTS[key] for key in B.BOLD}
     assert B.weight_params(700) == B.BOLD
     for weight in (400, 700):
@@ -24,12 +86,15 @@ def test_ladder_weight_endpoints():
         assert E.params(opsz=B.TEXT_OPSZ, **B.weight_params(weight)) == expected
 
 
-def test_ladder_weight_growth_and_floors():
-    previous = 0
+def test_ladder_weight_growth_and_floors() -> None:
+    previous = 0.0
+    # Check every integer weight in the supported 300 to 700 range.
     for weight in range(300, 701):
         p = E.params(opsz=B.TEXT_OPSZ, **B.weight_params(weight))
         assert p.A > previous
+        # The engine clamps hairlines to five font units.
         assert p.B >= 5
+        # Serif thickness must stay at or above the clamped hairline width.
         assert p.S >= p.B
         previous = p.A
     for invalid in (299, 701, float("nan")):
@@ -37,7 +102,7 @@ def test_ladder_weight_growth_and_floors():
             B.weight_params(invalid)
 
 
-def test_ladder_static_selection_and_names():
+def test_ladder_static_selection_and_names() -> None:
     assert B.DEFAULT_STYLES == (
         "Regular",
         "Italic",
@@ -46,6 +111,7 @@ def test_ladder_static_selection_and_names():
         "Display",
         "DisplayItalic",
     )
+    # Five named weights and seven source weights each have two slopes.
     assert len(B.LADDER_STYLES) == 10
     assert len(B.MASTER_STYLES) == 14
     assert B.MASTER_WEIGHTS == (300, 350, 400, 450, 500, 600, 700)
@@ -55,6 +121,7 @@ def test_ladder_static_selection_and_names():
             assert style.weight == weight
             assert style.italic == italic
             assert style.family == B.FAMILY
+            # OpenType legacy family and style names must fit 32 characters.
             assert len(f"{style.family} {style.style}") <= 32
             font = ufoLib2.Font()
             B.set_info(font, style)
@@ -63,14 +130,17 @@ def test_ladder_static_selection_and_names():
                 assert font.info.openTypeNamePreferredSubfamilyName == style.style
 
 
-def test_ladder_default_byte_guard_rejects_compatible_path(tmp_path, monkeypatch):
+def test_ladder_default_byte_guard_rejects_compatible_path(
+    tmp_path: Path, monkeypatch: MonkeyPatch
+) -> None:
     from test_compat import test_compat_default_build_bytes
 
     build_font = B.build_font
 
-    def forced_compatible(*args, **kwargs):
-        kwargs["compatible"] = True
-        return build_font(*args, **kwargs)
+    def forced_compatible(
+        style_key: str, compatible: bool = False, method: str = "sample"
+    ) -> ufoLib2.Font:
+        return build_font(style_key, compatible=True, method=method)
 
     monkeypatch.setattr(B, "build_font", forced_compatible)
     with pytest.raises(
@@ -79,16 +149,17 @@ def test_ladder_default_byte_guard_rejects_compatible_path(tmp_path, monkeypatch
         test_compat_default_build_bytes(tmp_path, monkeypatch)
 
 
-def test_ladder_all_glyphs_compatible():
+def test_ladder_all_glyphs_compatible() -> None:
     reports = compat.compare_ladder()
     for style, report in reports.items():
         bad = [row for row in report["rows"] if not row["point_compatible"]]
         assert not bad, (style, bad)
+        # The full ladder charset has 890 glyphs, including composites.
         assert report["glyphs"] == 890
     assert set(reports) == set(B.MASTER_STYLES)
 
 
-def test_ladder_alignment_keeps_points():
+def test_ladder_alignment_keeps_points() -> None:
     import numpy as np
     from loom.compatible import aligned_start
 
@@ -99,11 +170,11 @@ def test_ladder_alignment_keeps_points():
     assert np.array_equal(points, np.roll(moved, -shift, axis=0))
 
 
-def test_ladder_contour_identity_survives_vertical_crossing():
+def test_ladder_contour_identity_survives_vertical_crossing() -> None:
     import numpy as np
     from loom.compatible import canonical, lines, match_contours
 
-    def rectangle(width, height, y):
+    def rectangle(width: float, height: float, y: float) -> Contour:
         return lines(
             np.array(
                 [(0, y), (width, y), (width, y + height), (0, y + height)], dtype=float
@@ -118,13 +189,15 @@ def test_ladder_contour_identity_survives_vertical_crossing():
     assert abs(matched[0][0]) > abs(matched[1][0])
 
 
-def test_ladder_assignment_is_global():
+def test_ladder_assignment_is_global() -> None:
     from itertools import permutations
 
     from loom.compatible import minimum_assignment
 
     # A greedy nearest pair would give the right dot the middle slot.
-    costs = [[(x - y) * (x - y) for y in (120, 350, 580)] for x in (85, 250, 415)]
+    costs: list[list[float]] = [
+        [(x - y) * (x - y) for y in (120, 350, 580)] for x in (85, 250, 415)
+    ]
     assignment = minimum_assignment(costs)
     assert assignment == [0, 1, 2]
     assert sum(costs[i][j] for i, j in enumerate(assignment)) == min(
@@ -132,7 +205,7 @@ def test_ladder_assignment_is_global():
     )
 
 
-def test_ladder_italic_policy_keeps_hulls():
+def test_ladder_italic_policy_keeps_hulls() -> None:
     from loom.compatible import ITALIC_TOPOLOGY, TOPOLOGY, stroke_groups
 
     for weight in B.WEIGHTS:
@@ -143,75 +216,84 @@ def test_ladder_italic_policy_keeps_hulls():
             ] == d.sweep.polys
 
 
-def test_ladder_rejects_stale_fontspector_report(tmp_path, monkeypatch):
+def test_ladder_rejects_stale_fontspector_report(
+    tmp_path: Path, monkeypatch: MonkeyPatch
+) -> None:
     import vf_ladder
 
     report = tmp_path / "fontspector-Roman.json"
     report.write_text('{"summary": {}, "results": {}}')
-    monkeypatch.setattr(
-        vf_ladder.subprocess,
-        "run",
-        lambda *a, **k: subprocess.CompletedProcess(a, 1, stdout="", stderr="failed"),
-    )
+
+    def failed_run(*args: object, **kwargs: object) -> subprocess.CompletedProcess[str]:
+        return subprocess.CompletedProcess(args, 1, stdout="", stderr="failed")
+
+    monkeypatch.setattr(vf_ladder.subprocess, "run", failed_run)
     with pytest.raises(RuntimeError, match=r"did not write its report \(exit 1\)"):
         vf_ladder.inspect_font("fontspector", tmp_path / "test.ttf", tmp_path, "Roman")
     assert not report.exists()
 
 
-def test_ladder_source_failure_preserves_diagnostics(tmp_path, monkeypatch):
+def test_ladder_source_failure_preserves_diagnostics(
+    tmp_path: Path, monkeypatch: MonkeyPatch
+) -> None:
     import json
     from types import SimpleNamespace
 
     import vf_ladder
 
-    rows = [{"glyph": "gamma", "style": "Light", "weight": 300, "contours": 2}]
+    rows: Diagnostics = [
+        {"glyph": "gamma", "style": "Light", "weight": 300, "contours": 2}
+    ]
     error_path = tmp_path / "Roman-compile-error.json"
     error_path.write_text('{"reason": "stale"}')
 
     class FailedCompiler:
         exitcode = 1
 
-        def __init__(self, **kwargs):
+        def __init__(self, **kwargs: object) -> None:
             pass
 
-        def start(self):
+        def start(self) -> None:
             assert not error_path.exists()
             error_path.write_text(
                 json.dumps({"reason": "gamma: topology differs", "diagnostics": rows})
             )
 
-        def join(self):
+        def join(self) -> None:
             pass
 
-        def close(self):
+        def close(self) -> None:
             pass
 
-    monkeypatch.setattr(
-        vf_ladder.multiprocessing,
-        "get_context",
-        lambda method: SimpleNamespace(Process=FailedCompiler),
-    )
+    def failed_context(method: str) -> SimpleNamespace:
+        return SimpleNamespace(Process=FailedCompiler)
+
+    monkeypatch.setattr(vf_ladder.multiprocessing, "get_context", failed_context)
     with pytest.raises(vf_ladder.CompatibilityError, match="gamma") as caught:
         vf_ladder.compiled_sources(False, tmp_path)
     assert caught.value.diagnostics == rows
 
 
-def test_ladder_endpoint_regression():
+def test_ladder_endpoint_regression() -> None:
     from vf_ladder import endpoint_regression
 
+    # These are the frozen two-master endpoint measurements, in font units.
     values = {"400": {"max_units": 0.02}, "700": {"max_units": 0.5200000000000029}}
     assert endpoint_regression(values)
+    # A 0.9-unit change stays below the card limit but must fail endpoint parity.
     values["700"]["max_units"] = 0.9
     assert not endpoint_regression(values)
 
 
-def test_ladder_encoded_master_location():
+def test_ladder_encoded_master_location() -> None:
     from vf_ladder import finding_identity, master_weight
 
+    # F2Dot14 axis rounding puts these locations within one step of a master.
     assert master_weight(450.006103515625, B.MASTER_WEIGHTS) == 450
     assert master_weight(600.006103515625, B.MASTER_WEIGHTS) == 600
     assert master_weight(599.98779296875, B.MASTER_WEIGHTS) == 600
     assert master_weight(499.993896484375, B.WEIGHTS) == 500
+    # A 0.1-weight offset exceeds one F2Dot14 step across the 300-unit span.
     with pytest.raises(ValueError, match="No source master"):
         master_weight(600.1, B.WEIGHTS)
     a = {"glyph": "test", "location": {"wght": 600.006103515625}}
@@ -222,7 +304,9 @@ def test_ladder_encoded_master_location():
     assert finding_identity(a) != finding_identity(b)
 
 
-def test_ladder_failed_run_invalidates_proof(tmp_path, monkeypatch):
+def test_ladder_failed_run_invalidates_proof(
+    tmp_path: Path, monkeypatch: MonkeyPatch
+) -> None:
     import json
 
     import vf_ladder
@@ -232,19 +316,24 @@ def test_ladder_failed_run_invalidates_proof(tmp_path, monkeypatch):
     for filename in ("ladder.json", "interpolation.json"):
         (tmp_path / filename).write_text('{"verdict": "verified"}')
 
-    def fail(*args):
+    def fail(*args: object) -> None:
         raise ValueError("test failure")
 
     monkeypatch.setattr(vf_ladder, "run_slope", fail)
     with pytest.raises(ValueError, match="test failure"):
         vf_ladder.main(["--out", str(tmp_path / "build"), "--fontspector", "unused"])
     for filename in ("ladder.json", "interpolation.json"):
-        assert (
-            json.loads((tmp_path / filename).read_text())["verdict"] == "not verified"
-        )
+        report = json.loads((tmp_path / filename).read_text())
+        assert report["verdict"] == "not verified"
+        if filename == "interpolation.json":
+            assert "baseline" not in report
+            assert report["two_master_findings"] == 770
+            assert report["two_master_source"] == vf_ladder.TWO_MASTER_SOURCE
 
 
-def test_ladder_keeps_findings_when_second_slope_fails(tmp_path, monkeypatch):
+def test_ladder_keeps_findings_when_second_slope_fails(
+    tmp_path: Path, monkeypatch: MonkeyPatch
+) -> None:
     import json
 
     import vf_ladder
@@ -258,7 +347,7 @@ def test_ladder_keeps_findings_when_second_slope_fails(tmp_path, monkeypatch):
         "expected": {"value_master2": 150},
     }
 
-    def run(italic, *args):
+    def run(italic: bool, *args: object) -> tuple[Record, list[Record], Path]:
         if italic:
             raise ValueError("Italic failed")
         return {"passed": True}, [finding], tmp_path / "Roman.ttf"
@@ -274,11 +363,12 @@ def test_ladder_keeps_findings_when_second_slope_fails(tmp_path, monkeypatch):
     assert report["verdict"] == "not verified"
 
 
-def test_ladder_rejects_compiled_mismatch():
+def test_ladder_rejects_compiled_mismatch() -> None:
     from copy import deepcopy
 
     from fontTools.pens.ttGlyphPen import TTGlyphPen
     from fontTools.ttLib import TTFont, newTable
+    from loom.compatible import CompatibilityError
     from vf_ladder import check_master_structure
 
     font = TTFont()
@@ -297,14 +387,17 @@ def test_ladder_rejects_compiled_mismatch():
     other = deepcopy(font)
     check_master_structure([font, other])
     other["glyf"]["test"].flags[1] = 0
-    with pytest.raises(ValueError, match="compiled master structure differs") as caught:
+    with pytest.raises(
+        CompatibilityError, match="compiled master structure differs"
+    ) as caught:
         check_master_structure([font, other])
     rows = caught.value.diagnostics
+    assert rows is not None
     assert [r["glyph"] for r in rows] == ["test", "test"]
     assert rows[0]["flags"] != rows[1]["flags"]
 
 
-def local_test_fonts():
+def local_test_fonts() -> dict[int, TTFont]:
     """Small masters with a non-linear component offset and advance."""
     from ufo2ft import compileTTF
     from ufoLib2.objects import Component
@@ -332,7 +425,7 @@ def local_test_fonts():
     return fonts
 
 
-def test_ladder_local_tuples_reproduce_composites(tmp_path):
+def test_ladder_local_tuples_reproduce_composites(tmp_path: Path) -> None:
     from fontTools.varLib.instancer import instantiateVariableFont
     from fontTools.varLib.models import supportScalar
     from vf_ladder import build_vf
@@ -342,10 +435,12 @@ def test_ladder_local_tuples_reproduce_composites(tmp_path):
     font, _ = build_vf(statics, list(B.MASTER_WEIGHTS), False, tmp_path)
     for weight in B.MASTER_WEIGHTS:
         instance = instantiateVariableFont(font, {"wght": weight})
+        # The card allows 1.0 font unit; the measured ladder maximum is 0.547.
         assert endpoint_difference(instance, statics[weight])["max_units"] <= 1.0
         for name in instance.getGlyphOrder():
             assert instance["hmtx"][name][0] == statics[weight]["hmtx"][name][0]
     variations = font["gvar"].variations["accented"]
+    # Seven sources need six local tuples around the default master.
     assert len(variations) == 6
     for variation in variations:
         assert None not in variation.coordinates
@@ -353,7 +448,7 @@ def test_ladder_local_tuples_reproduce_composites(tmp_path):
         assert sum(supportScalar({"wght": peak}, v.axes) for v in variations) == 1
 
 
-def test_ladder_axis_rounding_does_not_thin_midpoint_bar(tmp_path):
+def test_ladder_axis_rounding_does_not_thin_midpoint_bar(tmp_path: Path) -> None:
     from fontTools.pens.ttGlyphPen import TTGlyphPen
     from fontTools.ttLib import TTFont
     from fontTools.varLib.instancer import instantiateVariableFont
@@ -380,7 +475,7 @@ def test_ladder_axis_rounding_does_not_thin_midpoint_bar(tmp_path):
         assert glyph.yMax - glyph.yMin in (25, 26)
 
 
-def test_ladder_cpu_features():
+def test_ladder_cpu_features() -> None:
     code = """
 import hashlib
 import json
@@ -428,7 +523,7 @@ print(h.hexdigest())
     assert hashes[0] == hashes[1]
 
 
-def test_ladder_midpoints_come_from_master_list():
+def test_ladder_midpoints_come_from_master_list() -> None:
     from itertools import pairwise
 
     from vf_ladder import fidelity_weights, gap_midpoints
@@ -443,7 +538,7 @@ def test_ladder_midpoints_come_from_master_list():
     assert {330, 380, 550} <= set(fidelity_weights([300, 360, 400, 700]))
 
 
-def test_ladder_resolve_composite_keeps_translated_contours(tmp_path):
+def test_ladder_resolve_composite_keeps_translated_contours(tmp_path: Path) -> None:
     from fontTools.ttLib import TTFont
     from vf_ladder import resolve_composite, rotate_contour
 
@@ -472,21 +567,26 @@ def test_ladder_resolve_composite_keeps_translated_contours(tmp_path):
         assert list(saved["glyf"]["accented"].coordinates) == list(glyph.coordinates)
 
 
-def test_ladder_stroke_union_keeps_iota_ink():
+def test_ladder_stroke_union_keeps_iota_ink() -> None:
     from loom import outline as O
     from loom.compatible import incremental_stroke_contours, polygon
 
     d = B.drawn(B.weight_style(450), "iota")
     batch_area = sum(abs(O.signed_area(polygon(c)[0])) for c in d.contours)
     repaired = incremental_stroke_contours(d, "iota")
+    # The batch union splits iota; joining hulls in order must keep one stroke.
     assert len(d.contours) == 2
     assert len(repaired) == 1
     area = abs(O.signed_area(polygon(repaired[0])[0]))
+    # The independent hull union measures 41063.531 square font units.
     assert 41000 < area < 41100
+    # The cancelled stroke loses over 15000 square font units in the batch union.
     assert area > batch_area + 15000
 
 
-def test_ladder_new_warning_blocks_verdict_and_keeps_baseline(tmp_path, monkeypatch):
+def test_ladder_new_warning_blocks_verdict_and_keeps_baseline(
+    tmp_path: Path, monkeypatch: MonkeyPatch
+) -> None:
     import json
 
     import vf_ladder
@@ -516,9 +616,13 @@ def test_ladder_new_warning_blocks_verdict_and_keeps_baseline(tmp_path, monkeypa
         )
     )
     monkeypatch.setattr(vf_ladder, "PROOFS", tmp_path)
-    monkeypatch.setattr(vf_ladder, "proof_sheet", lambda *args: "proof.png")
 
-    def run(italic, *args):
+    def sheet(*args: object) -> str:
+        return "proof.png"
+
+    monkeypatch.setattr(vf_ladder, "proof_sheet", sheet)
+
+    def run(italic: bool, *args: object) -> tuple[Record, list[Record], Path]:
         return (
             {"passed": True, "fontspector_findings": [old if italic else new]},
             [],
@@ -538,10 +642,10 @@ def test_ladder_new_warning_blocks_verdict_and_keeps_baseline(tmp_path, monkeypa
     assert report["previous_file_sizes_bytes"] == sizes
 
 
-def test_ladder_fontspector_keeps_font_problem_glyphs():
+def test_ladder_fontspector_keeps_font_problem_glyphs() -> None:
     from vf_ladder import fontspector_findings
 
-    def report(names):
+    def report(names: list[str]) -> Record:
         return {
             "results": {
                 "font": {
@@ -570,11 +674,12 @@ def test_ladder_fontspector_keeps_font_problem_glyphs():
     baseline = fontspector_findings(report(["part"]))
     current = fontspector_findings(report(["part", "newpart"]))
     added = [row for row in current if row not in baseline]
+    # Adding one unreachable glyph must add exactly one warning identity.
     assert len(added) == 1
     assert added[0]["glyph"] == "newpart"
 
 
-def test_ladder_worker_returns_results_and_errors():
+def test_ladder_worker_returns_results_and_errors() -> None:
     from vf_ladder import gap_midpoints, master_weight, worker_process
 
     assert worker_process(gap_midpoints, B.MASTER_WEIGHTS) == [
@@ -589,19 +694,23 @@ def test_ladder_worker_returns_results_and_errors():
         worker_process(master_weight, 600.1, B.MASTER_WEIGHTS)
 
 
-def test_ladder_failed_inspection_keeps_measurements(tmp_path, monkeypatch):
+def test_ladder_failed_inspection_keeps_measurements(
+    tmp_path: Path, monkeypatch: MonkeyPatch
+) -> None:
     import vf_ladder
 
     instances = {str(w): {"max_units": 0.02} for w in B.WEIGHTS}
     fidelities = {"325": {"passed": True}}
 
-    def worker(target, *args):
+    def worker(
+        target: Callable[..., object], *args: object
+    ) -> dict[str, Record] | tuple[dict[str, Record], dict[str, Record]]:
         if target is vf_ladder.prepare_slope:
             return {}
         assert target is vf_ladder.measure_slope
         return instances, fidelities
 
-    def inspect(*args):
+    def inspect(*args: object) -> None:
         raise RuntimeError("no report (exit -9)")
 
     monkeypatch.setattr(vf_ladder, "worker_process", worker)
@@ -618,23 +727,27 @@ def test_ladder_failed_inspection_keeps_measurements(tmp_path, monkeypatch):
 
 
 def test_ladder_incomplete_inspection_does_not_claim_zero_findings(
-    tmp_path, monkeypatch
-):
+    tmp_path: Path, monkeypatch: MonkeyPatch
+) -> None:
     import json
 
     import vf_ladder
 
     monkeypatch.setattr(vf_ladder, "PROOFS", tmp_path)
-    monkeypatch.setattr(vf_ladder, "proof_sheet", lambda *args: "proof.png")
-    monkeypatch.setattr(
-        vf_ladder,
-        "run_slope",
-        lambda *args: (
+
+    def sheet(*args: object) -> str:
+        return "proof.png"
+
+    monkeypatch.setattr(vf_ladder, "proof_sheet", sheet)
+
+    def incomplete_slope(*args: object) -> tuple[Record, list[Record], Path]:
+        return (
             {"passed": False, "fontspector_complete": False},
             [],
             tmp_path / "font.ttf",
-        ),
-    )
+        )
+
+    monkeypatch.setattr(vf_ladder, "run_slope", incomplete_slope)
     assert vf_ladder.main(["--out", str(tmp_path), "--fontspector", "unused"]) == 1
     report = json.loads((tmp_path / "interpolation.json").read_text())
     assert not report["complete"]

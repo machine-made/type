@@ -2,9 +2,15 @@
 
 ## Unreleased
 
+- Fixed compatibility errors losing their diagnostic payload when passed between processes.
+- Fixed PANOSE weight digits for new text weights while keeping released styles unchanged.
+- Changed interpolation reports to name the two-master source for the 770 findings.
+- Removed an unused polygon-area filter and an unnecessary font copy.
+- Added type annotations for the weight ladder APIs, reports and tests.
+
 - Added source masters at weights 350 and 450 to both variable fonts and raster checks at the middle of every master gap.
-- Improved memory use by running each font build stage in a separate process that exits before Fontspector runs.
-- Improved memory release between glyph checks in Fontspector.
+- Changed font build, correction and measurement to run in separate processes that exit before inspection.
+- Changed the inspection allocator settings to return freed buffers between glyph checks.
 - Fixed incomplete inspection reports so that unknown finding counts are not reported as zero.
 - Fixed thin strokes at gap midpoints by storing variation supports on the axis grid before interpolation.
 - Fixed lost ink in the new Roman iota sources by joining each stroke hull in order.
@@ -14,7 +20,7 @@
 - Added a Roman and Italic weight-ladder tool with named-weight, raster and interpolation checks.
 - Fixed summed variation errors at interior weights with local weight supports and exact component offsets.
 - Fixed six further italic contour changes with separate stroke contours.
-- Fixed high memory use during weight checks by running the source compiler in a child process and using one Fontspector worker.
+- Changed weight checks to run the source compiler in a child process and use one Fontspector worker.
 - Added a Regular and Bold outline report and two methods behind `--compatible`.
 - Fixed the 15 contour mismatches with separate stroke contours on the compatible path. All 890 glyphs now have matching point structure.
 - Added a two-master variable-font test, measured topology changes, endpoint checks and a check that the other 875 outlines stay the same.

@@ -6,17 +6,16 @@
 | Version | 0.2 (font version 0.200) |
 | Pull request | Weight ladder, branch warp-wght-ladder |
 | Stage | Warp 0.2 built: 6 static styles (TTF hinted, OTF, WOFF2) with an OpenType MATH table |
-| Gate now | The seven-master numerical gates pass. The full Fontspector run gives 0 ERROR and 1 FAIL on each variable font: file size, 11.35 MB (Roman) and 12.57 MB (Italic) against a limit of 9.44 MB |
+| Gate now | Numerical gates pass. Each font has 0 ERROR and 1 file-size FAIL. Roman: 11.35 MB; Italic: 12.51 MB. Limit: 9.44 MB. |
 | Next | Bring both variable fonts under 9.44 MB with seven masters and the same limits; the optical-size axis remains open |
-| Last local run | 2026-11-17: ladder tests 27 passed; named-instance difference at most 0.547 units; raster difference at most 4.990 percent (at weight 325); interpolation findings 0; start points 0; verdict not verified because of the file size |
-| Last green CI | Hosted CI was not run for this uncommitted work |
+| Last local run | 2026-11-17: numerical and interpolation gates pass; the verdict remains not verified because both files exceed the size limit. |
 
 ## Text weight ladder (2026-11-16)
 
 Verdict: **not verified**. Both files pass all named-instance and raster
 checks, show 0 interpolation findings and 0 start-point findings, and
 have 0 FATAL and 0 ERROR results in the full Fontspector profile. Each
-file has one FAIL, the file-size check: 11.35 MB for Roman and 12.57 MB
+file has one FAIL, the file-size check: 11.35 MB for Roman and 12.51 MB
 for Italic, against a limit of 9.44 MB. The variation table is 83 percent
 of the Roman file. No limit was raised.
 
@@ -28,8 +27,8 @@ the ten named styles and both new source weights. No glyph is excluded.
 The default build still emits only the six released styles.
 
 Policy a keeps overlapping stroke contours. Gamma uses its existing
-bottom node to split its loop into two stroke runs. Policies b and c
-are not needed. The table applies at all seven weights; a source name
+bottom node to split its loop into two stroke runs.
+The table applies at all seven weights; a source name
 in parentheses identifies the corrected part of a composite.
 `proofs/warp/compat.json` records the glyph, style, weight and counts.
 
@@ -145,11 +144,10 @@ builds all cyclic contour vectors. Their memory
 use grows with the square of the point count; the largest contour has
 6,842 points. Font build, correction and measurement now run in separate
 processes that exit before inspection. The inspection allocator also
-returns large freed buffers between glyphs. These changes reduce retained
-memory but do not remove the large-contour allocation.
+returns large freed buffers between glyphs. The large-contour allocation remains.
 
-Interpolation findings were 770 in the two-master report and 1 in the
-previous five-master report. The current count is 0. The previous
+There were 770 findings in the two-master spike report; 0 in the seven-master ladder.
+The previous five-master report had 1 finding. The previous
 finding was Italic uni2080, a zero.dnom component translated by (0, -150).
 The old correction loop skipped composite glyphs. The new correction
 resolves a reported composite in every master, keeps its contour order,
@@ -160,8 +158,8 @@ full-profile result shows zero findings.
 
 | Variable font | Five-master bytes | Seven-master bytes |
 | --- | --- | --- |
-| Roman | 7,419,520 | 10,184,020 |
-| Italic | 6,386,772 | 8,762,720 |
+| Roman | 7,419,520 | 11,350,336 |
+| Italic | 6,386,772 | 12,509,356 |
 
 All 130 tests passed serially. With AVX-512 off, 43 selected compatibility,
 ladder, deterministic and CPU tests passed, with 87 deselected. The
@@ -171,16 +169,11 @@ mismatch when the compatible flag is forced on.
 
 A fresh default build emitted exactly six styles. All 18 TTF, OTF and
 WOFF2 files match HEAD byte for byte. OTF uses CFF optimization level 2.
-No tracked font file was written. Focused Ruff lint and format checks
-pass, and the three older files have no added lint finding. Diff
-whitespace checks pass. Agent review found no remaining code issue.
-Hosted CI was not run for this uncommitted work.
+No tracked font file was written.
 
-The proof sheet is `build/warp-vf/weight-ladder.png`, with the five named
-weights in both slopes at 20, 40 and 80 pixels. It was rebuilt and checked
-for clipping on one machine. Fonts, designspaces, sources and inspection
-artifacts stay under `build/warp-vf/`. The complete numerical report is
-`proofs/warp/ladder.json`.
+The local proof sheet shows five named weights in both slopes at 20, 40 and 80 pixels.
+It was rebuilt and checked for clipping on one machine.
+The complete numerical report is `proofs/warp/ladder.json`.
 
 ## Regular and Bold variable-font test (2026-11-07)
 
@@ -192,8 +185,7 @@ The tool now calls `vf_ladder.py` for the full text weight range.
 This is not a production variable-font release.
 
 All 890 glyphs now have matching contour and point structure. No glyph is
-excluded. The test font and its two static masters are under
-`build/warp-vf-spike/`; no font file in `fonts/warp` was changed.
+excluded. No font file in `fonts/warp` was changed.
 
 | Path | Glyphs | Contours compatible | Points compatible |
 | --- | --- | --- | --- |
@@ -206,7 +198,7 @@ contours. Each stroke, dot, terminal and bracket keeps its source hulls.
 Gamma's loop is cut at its existing bottom node into two stroke runs.
 Each hull is used once; none is moved or dropped. Both runs keep the
 shared nib. The two accented Greek letters keep their existing components
-and use the corrected mark. Policies b and c are not needed.
+and use the corrected mark.
 
 The compatible build keeps `removeOverlaps` off. Its simple glyphs have
 the overlap flag set. The other 875 compatible glyphs keep every point:
@@ -276,7 +268,7 @@ actual masters and variable font retain their overlaps. The 890-glyph
 structure and endpoint checks also cover the composites.
 
 Fontspector 1.9.0 uses the universal profile with network checks off. It was run by
-hand on `build/warp-vf-spike/MachineMadeWarp-Spike[wght].ttf` with
+hand on the local two-master test font with
 `fontspector -p universal --skip-network`; no report is committed, so this is a
 local result. Its
 archive matches the checksum in the workflow; its executable matches
@@ -291,7 +283,7 @@ a production variable font can ship. This test verifies two endpoints;
 it does not prove the full weight range, italics or optical-size axis.
 The variable TTF is about 3.24 MB. There is no size or speed claim.
 
-The proof sheets under `build/warp-vf-spike/` show the corrected glyphs at
+The local proof sheets show the corrected glyphs at
 weights 400, 550 and 700 at 20, 40 and 80 pixels. A second sheet uses
 50 % opacity at 100 pixels. They were looked at by eye on one
 machine (FreeType and Pillow); the script and the images are not committed, so
@@ -311,10 +303,7 @@ fixes, the endpoint bound, and the frozen coordinates of the other 875
 glyphs. Their changed-point count is zero in both masters. The old
 fallback assertion now checks that every hull is kept once, all stroke
 contours have positive area, and source order matches. No zero-area
-contour is added to make the masters agree. Ruff lint and format checks
-pass for the changed Python files. `git diff --check` passes.
-
-Hosted CI runs on the pull request.
+contour is added to make the masters agree.
 
 ## CPU build check (2026-11-07)
 
@@ -325,7 +314,6 @@ and the fit limits stay the same.
 The build is reproducible across the two tested CPU paths. A fresh build
 with the default features and a fresh build with AVX-512 off each matched
 all 18 rebuilt font files, byte for byte. This was checked on one machine.
-The hosted CI run of type#24 is the check on another machine.
 
 The outline fidelity gate passes: the maximum ink difference is 4.016 %
 (limit 5 %). Fontspector 1.9.0 passes on all 12 TTF and OTF files, with
@@ -383,7 +371,7 @@ compare the file lists, then run `cmp` on each pair of files.
 
 ## Readability (OCR)
 
-Results of 2026-10-28, from the 0.2 build before the CPU-independent rebuild of 2026-11-07. The hosted workflow reruns the gate on every change.
+Results of 2026-10-28, from the 0.2 build before the CPU-independent rebuild of 2026-11-07.
 
 | Style | Warp 0.2 CER | Warp 0.1 CER | DejaVu Serif | Limit | Result |
 | --- | --- | --- | --- | --- | --- |

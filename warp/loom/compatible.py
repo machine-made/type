@@ -14,13 +14,52 @@ from __future__ import annotations
 
 import bisect
 import math
+from collections.abc import Sequence
 from functools import cache
 from itertools import pairwise
+from typing import TYPE_CHECKING, Literal, Protocol, TypedDict, cast
 
 import numpy as np
 import pathops
+from numpy.typing import NDArray
 
 from loom import outline as O
+
+if TYPE_CHECKING:
+    from loom import engine as E
+    from loom.build import Drawn
+
+
+type Points = NDArray[np.float64]
+type Hull = list[tuple[float, float]]
+type Segment = tuple[Literal["line"], Points, Points] | tuple[Literal["curve"], Points]
+type Contour = list[Segment]
+type CanonicalContour = tuple[float, Contour, Points, list[int]]
+
+
+class PointSequence(Protocol):
+    def __len__(self) -> int: ...
+
+    def __getitem__(self, index: int, /) -> Sequence[float] | Points: ...
+
+
+class Diagnostic(TypedDict):
+    glyph: str
+    style: str | None
+    weight: float | None
+    contours: int
+
+
+class StructureDiagnostic(Diagnostic, total=False):
+    winding: list[int]
+    points: list[int]
+    end_points: list[int]
+    flags: list[int] | None
+    components: list[tuple[str, list[list[float]] | None]] | None
+
+
+type Diagnostics = list[StructureDiagnostic] | None
+
 
 TOPOLOGY = frozenset(
     (
@@ -50,12 +89,15 @@ UNION_REPAIRS = frozenset(("iota",))
 class CompatibilityError(ValueError):
     """A structure mismatch with the measured glyph and weight details."""
 
-    def __init__(self, message, diagnostics):
+    def __init__(self, message: str, diagnostics: Diagnostics) -> None:
         super().__init__(message)
         self.diagnostics = diagnostics
 
+    def __reduce__(self) -> tuple[type[CompatibilityError], tuple[str, Diagnostics]]:
+        return type(self), (str(self), self.diagnostics)
 
-def stroke_groups(d, name):
+
+def stroke_groups(d: Drawn, name: str) -> list[list[Hull]]:
     """Keep each stroke and each terminal from the original sweep.
 
     Compose emits one hull per pair of stroke samples, then dots and
@@ -63,8 +105,9 @@ def stroke_groups(d, name):
     overlap at the shared nib, but neither run closes its own counter.
     No hull is moved, dropped, or copied.
     """
-    sw = d.sweep
-    groups, offset = [], 0
+    sw = cast("E.Swept", d.sweep)
+    groups: list[list[Hull]] = []
+    offset = 0
     for i, stroke in enumerate(sw.strokes):
         count = max(1, len(stroke["pts"]) - 1)
         hulls = sw.polys[offset : offset + count]
@@ -79,8 +122,8 @@ def stroke_groups(d, name):
     return groups
 
 
-def stroke_contours(d, name):
-    result = []
+def stroke_contours(d: Drawn, name: str) -> list[Contour]:
+    result: list[Contour] = []
     for group in stroke_groups(d, name):
         for points in O.path_polygons(O.union(group)):
             # Keep the small brackets too. Use their polygon edges so no
@@ -95,25 +138,24 @@ def stroke_contours(d, name):
     return result
 
 
-def incremental_stroke_contours(d, name):
+def incremental_stroke_contours(d: Drawn, name: str) -> list[Contour]:
     """Union each stroke's hulls one at a time, keeping their fixed order.
 
     A batch union can cancel ink at coincident edges. The incremental
     union keeps every source hull and leaves the frozen endpoints alone.
     """
-    contours = []
+    contours: list[Contour] = []
     for group in stroke_groups(d, name):
         path = pathops.Path()
         path.fillType = pathops.FillType.WINDING
         for hull in group:
             path = pathops.op(path, O.union([hull]), pathops.PathOp.UNION)
         for points in O.path_polygons(path):
-            if abs(O.signed_area(points)) >= O.MIN_AREA:
-                contours.append(lines(points + (d.dx, 0)))
+            contours.append(lines(points + (d.dx, 0)))
     return contours
 
 
-def polygon(contour):
+def polygon(contour: Contour) -> tuple[Points, list[int]]:
     """Read curves with dense parameter samples and keep all line ends."""
     points, ends = [], []
     for s in contour:
@@ -128,7 +170,7 @@ def polygon(contour):
     return np.array(points), ends
 
 
-def contour_key(points):
+def contour_key(points: Points) -> tuple[bool, int, int, float]:
     """Order contours from bottom to top, then left to right, per winding."""
     area = O.signed_area(points)
     x = (min(float(p[0]) for p in points) + max(float(p[0]) for p in points)) / 2
@@ -136,8 +178,10 @@ def contour_key(points):
     return area < 0, math.floor(y + 0.5), math.floor(x + 0.5), -abs(area)
 
 
-def canonical(contours, keep_order=False):
-    result = []
+def canonical(
+    contours: list[Contour], keep_order: bool = False
+) -> list[CanonicalContour]:
+    result: list[CanonicalContour] = []
     for contour in contours:
         starts = [s[1] if s[0] == "line" else s[1][0] for s in contour]
         first = min(
@@ -153,7 +197,7 @@ def canonical(contours, keep_order=False):
 
 
 class Arc:
-    def __init__(self, points, ends):
+    def __init__(self, points: Points, ends: list[int]) -> None:
         self.points = np.vstack([points, points[:1]])
         lengths = [0.0]
         for a, b in zip(self.points, self.points[1:]):
@@ -162,22 +206,22 @@ class Arc:
         self.fractions = [v / self.length for v in lengths]
         self.ends = [self.fractions[i] for i in ends] + [1.0]
 
-    def at(self, t):
+    def at(self, t: float) -> Points:
         i = min(bisect.bisect_right(self.fractions, t) - 1, len(self.points) - 2)
         lo, hi = self.fractions[i : i + 2]
         u = (t - lo) / (hi - lo) if hi > lo else 0.0
         return self.points[i] + u * (self.points[i + 1] - self.points[i])
 
 
-def fit_pair(a, b, method):
+def fit_pair(a: CanonicalContour, b: CanonicalContour, method: str) -> list[Contour]:
     aa, bb = Arc(a[2], a[3]), Arc(b[2], b[3])
     if method == "refit":
         # Keep the Regular segment boundaries. Fit one cubic on each run
         # in each master, with no error-dependent split.
         breaks = aa.ends
-        result = []
+        result: list[Contour] = []
         for arc in (aa, bb):
-            contour = []
+            contour: Contour = []
             for lo, hi in pairwise(breaks):
                 points = np.array([arc.at(lo + (hi - lo) * i / 16) for i in range(17)])
                 ctrl = O._generate(
@@ -200,7 +244,7 @@ def fit_pair(a, b, method):
 
     # Drop only points which round to the previous point in BOTH masters.
     # A one-master cleanup would break the common structure.
-    def rounded(p):
+    def rounded(p: Points) -> tuple[int, ...]:
         return tuple(math.floor(float(v) + 0.5) for v in p)
 
     keep = []
@@ -217,12 +261,12 @@ def fit_pair(a, b, method):
     ]
 
 
-def lines(points):
+def lines(points: Points | list[Points]) -> Contour:
     """Close one polygon without changing its vertices."""
     return [("line", p, points[(i + 1) % len(points)]) for i, p in enumerate(points)]
 
 
-def sample_like(reference, contour):
+def sample_like(reference: Contour, contour: CanonicalContour) -> Contour:
     """Use the frozen Regular arc fractions on another weight."""
     points = np.array([s[1] for s in reference])
     source = Arc(points, list(range(len(points))))
@@ -230,14 +274,16 @@ def sample_like(reference, contour):
     return lines([target.at(t) for t in source.fractions[:-1]])
 
 
-def match_contours(reference, contours):
+def match_contours(
+    reference: list[CanonicalContour], contours: list[CanonicalContour]
+) -> list[CanonicalContour]:
     """Keep contour identity when two vertical centres cross with weight.
 
     Match winding, size and centre. A rounded vertical sort alone can
     exchange a large ring with the small bar inside it.
     """
 
-    def box(c):
+    def box(c: CanonicalContour) -> tuple[float, float, float, float]:
         p = c[2]
         x0, y0 = min(float(q[0]) for q in p), min(float(q[1]) for q in p)
         x1, y1 = max(float(q[0]) for q in p), max(float(q[1]) for q in p)
@@ -259,7 +305,7 @@ def match_contours(reference, contours):
     return [contours[j] for j in minimum_assignment(costs)]
 
 
-def minimum_assignment(costs):
+def minimum_assignment(costs: Sequence[Sequence[float]]) -> list[int]:
     """Find the least total cost, without a greedy exchange of nearby dots.
 
     The augmenting paths use scalar arithmetic in a fixed order. Equal
@@ -301,7 +347,7 @@ def minimum_assignment(costs):
     return result
 
 
-def aligned_start(reference, points):
+def aligned_start(reference: PointSequence, points: PointSequence) -> int:
     """Find a cyclic start by squared vertex distance, with fixed-order sums.
 
     First sample 64 vertices for every possible start. Then compare all
@@ -322,7 +368,7 @@ def aligned_start(reference, points):
     for shift in sorted(range(n), key=lambda i: (costs[i], i))[:4]:
         candidates.update((shift + d) % n for d in range(-4, 5))
 
-    def cost(shift):
+    def cost(shift: int) -> tuple[float, int]:
         delta = a - np.roll(b, -shift, axis=0)
         return O._sum(delta * delta), shift
 
@@ -330,7 +376,7 @@ def aligned_start(reference, points):
 
 
 @cache
-def ladder(name, italic=False):
+def ladder(name: str, italic: bool = False) -> list[list[Contour]]:
     """Keep the old Roman endpoints; sample new weights on their structure."""
     from loom import build as B
 
@@ -398,7 +444,7 @@ def ladder(name, italic=False):
 
 
 @cache
-def pair(name, method="sample"):
+def pair(name: str, method: str = "sample") -> list[list[Contour]]:
     from loom.build import drawn
 
     originals = [drawn(style, name).contours for style in ("Regular", "Bold")]
@@ -409,7 +455,7 @@ def pair(name, method="sample"):
     a, b = [canonical(cs) for cs in originals]
     if len(a) != len(b) or any((ca[0] > 0) != (cb[0] > 0) for ca, cb in zip(a, b)):
         return originals
-    result = [[], []]
+    result: list[list[Contour]] = [[], []]
     for ca, cb in zip(a, b):
         for out, contour in zip(result, fit_pair(ca, cb, method)):
             out.append(contour)
