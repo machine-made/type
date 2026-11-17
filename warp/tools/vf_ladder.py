@@ -830,14 +830,15 @@ def correct_slope(
     statics = read_aligned_sources(weights, italic, out)
     corrections = []
     changes = set()
+    # Freeze reported composites before any row can rotate a shared base.
+    # Otherwise a base-first row order applies its shift to the composite too.
+    for row in starts:
+        weight, name = master_weight(row["weight"], weights), row["glyph"]
+        if statics[weight]["glyf"][name].isComposite():
+            resolve_composite_sources(statics, name)
     for row in starts:
         weight, name = master_weight(row["weight"], weights), row["glyph"]
         glyph = statics[weight]["glyf"][name]
-        if glyph.isComposite():
-            # A translated component has the base's start plus its offset.
-            # Resolve every source without changing a shared base glyph.
-            resolve_composite_sources(statics, name)
-            glyph = statics[weight]["glyf"][name]
         expected = row["expected"]
         if expected["reverse_contour"]:
             raise ValueError(f"{row['slope']} {name} {weight}: winding differs")

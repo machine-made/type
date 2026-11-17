@@ -43,7 +43,7 @@ CAUSES = {
 }
 
 
-def topology_measurements() -> dict[str, dict[str, Any]]:
+def topology_measurements() -> dict[str, TopologyMeasurements]:
     """Locate union changes along a stated engine-parameter path.
 
     Scan every integer weight, then bracket each change to 1/128 weight
@@ -52,16 +52,12 @@ def topology_measurements() -> dict[str, dict[str, Any]]:
     from loom import engine as E
     from loom.latin_ext import mathit_def
 
-    result = {}
+    result: dict[str, TopologyMeasurements] = {}
     for name in sorted(TOPOLOGY):
         gl = CS.BY_NAME[name]
 
-        def state(weight: float, gl: CS.Glyph = gl) -> list[dict[str, Any]]:
-            t = (weight - 400) / 300
-            params = {
-                k: E.DEFAULTS[k] + t * (v - E.DEFAULTS[k]) for k, v in Bd.BOLD.items()
-            }
-            p = E.params(opsz=Bd.TEXT_OPSZ, **params)
+        def state(weight: float, gl: CS.Glyph = gl) -> list[TopologyShape]:
+            p = E.params(opsz=Bd.TEXT_OPSZ, **Bd.weight_params(weight))
             if gl.variant == "mathit":
                 key = Bd.mathit_key(gl.key)
                 definition = mathit_def(key)
@@ -70,7 +66,7 @@ def topology_measurements() -> dict[str, dict[str, Any]]:
                 definition = Bd.table_def(gl.key, False)
                 mods = Bd.variant_mods(gl, p)
             sw = E.compose(definition, p, mods)
-            shapes = []
+            shapes: list[TopologyShape] = []
             for points in O.path_polygons(O.union(sw.polys)):
                 area = O.signed_area(points)
                 if abs(area) < O.MIN_AREA:
@@ -92,11 +88,11 @@ def topology_measurements() -> dict[str, dict[str, Any]]:
                 )
             return sorted(shapes, key=lambda s: (-s["winding"], s["bounds"]))
 
-        def signature(shapes: list[dict[str, Any]]) -> list[int]:
+        def signature(shapes: list[TopologyShape]) -> list[int]:
             return [s["winding"] for s in shapes]
 
         first = previous = state(400)
-        events = []
+        events: list[TopologyTransition] = []
         for weight in range(401, 701):
             current = state(weight)
             if signature(current) != signature(previous):
@@ -184,15 +180,15 @@ def structure(cs: list[Contour]) -> list[ContourStructure]:
 
 def compare(
     names: list[str] | None = None, compatible: bool = False, method: str = "sample"
-) -> dict[str, Any]:
-    rows = []
+) -> ComparisonReport:
+    rows: list[ComparisonRow] = []
     for name in CS.ORDER if names is None else names:
         pair = [
             structure(contours(style, name, compatible, method))
             for style in ("Regular", "Bold")
         ]
         a, b = pair
-        mismatch = None
+        mismatch: ComparisonMismatch | None = None
         contour_ok = len(a) == len(b)
         if not contour_ok:
             mismatch = {"reason": "different contour count"}
@@ -236,7 +232,7 @@ def compare(
     }
 
 
-def summary(report: dict[str, Any] | LadderReport) -> str:
+def summary(report: ComparisonReport | LadderReport) -> str:
     return (
         f"glyphs {report['glyphs']}, contours-compatible {report['contours_compatible']}, "
         f"point-compatible {report['point_compatible']}"
@@ -248,6 +244,55 @@ class ContourStructure(TypedDict):
     points: int
     segments: list[list[str | int]]
     winding: int
+
+
+class TopologyShape(TypedDict):
+    winding: int
+    area: float
+    bounds: list[float]
+
+
+class TopologyTransition(TypedDict):
+    weight_interval: list[float]
+    before: list[TopologyShape]
+    after: list[TopologyShape]
+
+
+class TopologyMeasurements(TypedDict):
+    cause: str
+    policy: str
+    parts: str
+    weight_path: str
+    area_filter: float
+    contour_counts: list[int]
+    endpoints: dict[str, list[TopologyShape]]
+    transitions: list[TopologyTransition]
+    base: NotRequired[str]
+    measurement_scope: NotRequired[str]
+
+
+class ComparisonMismatch(TypedDict):
+    reason: str
+    contour: NotRequired[int]
+
+
+class ComparisonRow(TypedDict):
+    name: str
+    contour_counts: list[int]
+    masters: dict[str, list[ContourStructure]]
+    contours_compatible: bool
+    point_compatible: bool
+    first_mismatch: ComparisonMismatch | None
+    topology: NotRequired[TopologyMeasurements]
+
+
+class ComparisonReport(TypedDict):
+    method: str
+    scope: str | list[str]
+    glyphs: int
+    contours_compatible: int
+    point_compatible: int
+    rows: list[ComparisonRow]
 
 
 class TopologyReport(TypedDict):

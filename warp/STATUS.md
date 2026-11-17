@@ -6,20 +6,20 @@
 | Version | 0.2 (font version 0.200) |
 | Pull request | Weight ladder, branch warp-wght-ladder |
 | Stage | Warp 0.2 built: 6 static styles (TTF hinted, OTF, WOFF2) with an OpenType MATH table |
-| Gate now | Both variable fonts fit 9,437,184 bytes. Numerical gates pass. Fontspector has not inspected these files. |
-| Next | Run Fontspector on both rebuilt variable fonts; the optical-size axis remains open. |
-| Last local run | 2026-11-17: Roman is 8,308,268 bytes; Italic is 8,867,552 bytes. The verdict remains not verified. |
+| Gate now | Both variable fonts fit 9,437,184 bytes. Numerical gates pass. Fontspector reports 0 FAIL and 0 ERROR for both. |
+| Next | Investigate the new side-bearing findings and verify the correction-order fix with Fontspector. The optical-size axis remains open. |
+| Last local run | 2026-11-17: Roman is 7,448,792 bytes; Italic is 6,696,452 bytes. The verdict remains not verified. |
 
 ## Variable font size (2026-11-17)
 
 Both files retain seven masters and 890 glyphs. The saved masters keep their bytes.
 The build shares only identical outlines, metrics and complete variation stores.
-Each alias keeps its own metric deltas. Roman shares 16 outlines; Italic shares 42.
+Each alias keeps its own metric deltas. Roman shares 15 outlines; Italic shares 3.
 
 | File | Before, bytes | Rebuilt, bytes | Limit, bytes |
 | --- | --- | --- | --- |
-| Roman | 11,350,336 | 8,308,268 | 9,437,184 |
-| Italic | 12,509,356 | 8,867,552 | 9,437,184 |
+| Roman | 11,350,336 | 7,448,792 | 9,437,184 |
+| Italic | 12,509,356 | 6,696,452 | 9,437,184 |
 
 | Source weight | IUP tolerance, units |
 | --- | --- |
@@ -38,20 +38,22 @@ Measurement mode reuses the saved, corrected masters without rewriting them.
 It records their hashes and leaves the previous interpolation report intact.
 Checks of fresh builds compare compiled outlines and metrics separately from metadata.
 Moving contours keep their deltas when IUP would omit the entire contour.
-The focused weight ladder suite passed 34 tests, including fresh builds of both fonts.
-The full Warp suite passed 137 tests. The byte guard for the released styles passed.
-Full inspection has not run on these files. The verdict remains **not verified**.
-Current interpolation and start-point counts are unknown.
-The next section records the previous fonts and their inspection.
+The focused weight ladder suite passed 36 tests, including fresh builds of both fonts.
+The full Warp suite passed 139 tests. The byte guard for the released styles passed.
+The committed inspection reports 0 FAIL, 0 ERROR and 0 start-point findings for both files.
+The verdict is **not verified** because Roman has three new side-bearing findings and Italic has five.
+Both slopes add advance-width findings for ellipsis at 350, 449.98779296875 and 450.006103515625.
+Italic also adds right-side-bearing findings for zcaron at 449.98779296875 and 450.006103515625.
+These glyphs retain exact phantom-point deltas at every tuple; their phantom metrics were not lost.
+The warning cause remains unresolved; the metric encoding is unchanged.
+Replaying the correction-order fix changes three LightItalic outlines: etatonos, u1D6EF and u1D702.
+Their revised build needs another Fontspector run.
+The next section records the earlier numerical measurements and the latest inspection counts.
 
 ## Text weight ladder (2026-11-16)
 
-Verdict: **not verified**. Both files pass all named-instance and raster
-checks, show 0 interpolation findings and 0 start-point findings, and
-have 0 FATAL and 0 ERROR results in the full Fontspector profile. Each
-file has one FAIL, the file-size check: 11.35 MB for Roman and 12.51 MB
-for Italic, against a limit of 9.44 MB. The variation table is 83 percent
-of the Roman file. No limit was raised.
+Verdict: **not verified**. The latest inspection has 0 FAIL, 0 FATAL, 0 ERROR and 0 start-point findings in both files.
+New side-bearing warnings block verification. The tables below retain the earlier numerical measurements, before size optimisation.
 
 Each variable font has masters at 300, 350, 400, 450, 500, 600 and 700,
 with axis range 300 to 700 and default 400. The five named weights remain
@@ -168,10 +170,10 @@ profile, one worker and two Rayon threads.
 
 | Final profile | Complete | SKIP | INFO | PASS | WARN | FAIL | ERROR |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| Roman | yes | 23 | 1 | 96 | 4 | 1 | 0 |
-| Italic | yes | 22 | 1 | 96 | 8 | 1 | 0 |
+| Roman | yes | 23 | 1 | 96 | 5 | 0 | 0 |
+| Italic | yes | 22 | 1 | 97 | 7 | 0 | 0 |
 
-The one FAIL of each file is the file-size check.
+These counts come from the latest committed `proofs/warp/ladder.json`.
 
 The pinned inspector's [contour comparison](https://github.com/simoncozens/interpolatable/blob/ad22fffde7407ed3136a8ee3723a99b9786ead01/interpolatable-lib/src/isomorphism.rs)
 builds all cyclic contour vectors. Their memory
@@ -183,12 +185,12 @@ returns large freed buffers between glyphs. The large-contour allocation remains
 There were 770 findings in the two-master spike report; 0 in the seven-master ladder.
 The previous five-master report had 1 finding. The previous
 finding was Italic uni2080, a zero.dnom component translated by (0, -150).
-The old correction loop skipped composite glyphs. The new correction
-resolves a reported composite in every master, keeps its contour order,
-and rotates the requested contour without changing its shared base.
+The old correction loop skipped composite glyphs.
+The correction loop resolves reported composites in every master before rotating any glyph.
+It keeps contour order and rotates each requested contour once.
 The previous finding was replayed only after an exact cyclic comparison
 of the old and new compiled contours; no rebase shift was needed. The
-full-profile result shows zero findings.
+full-profile result shows zero interpolation findings.
 
 | Variable font | Five-master bytes | Seven-master bytes |
 | --- | --- | --- |
@@ -206,7 +208,8 @@ WOFF2 files match HEAD byte for byte. OTF uses CFF optimization level 2.
 No tracked font file was written.
 
 The local proof sheet shows five named weights in both slopes at 20, 40 and 80 pixels.
-It was rebuilt and checked for clipping on one machine.
+The proof sheet was reviewed by hand on one machine.
+The helper renders the image; it performs no automatic clipping check.
 The complete numerical report is `proofs/warp/ladder.json`.
 
 ## Regular and Bold variable-font test (2026-11-07)

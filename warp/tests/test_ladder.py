@@ -737,6 +737,50 @@ def test_ladder_resolve_composite_keeps_translated_contours(tmp_path: Path) -> N
         assert list(saved["glyf"]["accented"].coordinates) == list(glyph.coordinates)
 
 
+@pytest.mark.parametrize("base_first", [True, False])
+def test_ladder_correction_rotates_base_and_composite_once(
+    tmp_path: Path, monkeypatch: MonkeyPatch, base_first: bool
+) -> None:
+    import vf_ladder
+
+    statics = local_test_fonts()
+    weight = 350
+    glyf = statics[weight]["glyf"]
+    before = {
+        name: list(glyf[name].getCoordinates(glyf)[0]) for name in ("base", "accented")
+    }
+    names = ("base", "accented") if base_first else ("accented", "base")
+    rows: list[Record] = [
+        {
+            "weight": weight,
+            "glyph": name,
+            "slope": "Roman",
+            "actual": {"contour_index": 0},
+            "expected": {"reverse_contour": False, "proposed_start_point": 1},
+        }
+        for name in names
+    ]
+
+    def read(*args: object) -> dict[int, TTFont]:
+        return statics
+
+    builds = []
+
+    def build(*args: object) -> None:
+        builds.append(args)
+
+    monkeypatch.setattr(vf_ladder, "read_aligned_sources", read)
+    monkeypatch.setattr(vf_ladder, "build_vf", build)
+    corrections = vf_ladder.correct_slope(rows, B.MASTER_WEIGHTS, False, tmp_path, 0)
+    assert [row["glyph"] for row in corrections] == list(names)
+    assert len(builds) == 1
+    for name in ("base", "accented"):
+        # Each synthetic square has four points; rotate its first contour once.
+        expected = before[name][1:4] + before[name][:1] + before[name][4:]
+        assert list(glyf[name].coordinates) == expected, name
+    assert all(not f["glyf"]["accented"].isComposite() for f in statics.values())
+
+
 def test_ladder_stroke_union_keeps_iota_ink() -> None:
     from loom import outline as O
     from loom.compatible import incremental_stroke_contours, polygon
