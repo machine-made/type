@@ -549,6 +549,37 @@ def test_ladder_reuse_failure_keeps_provenance_of_corrected_masters(
     vf_ladder.verify_saved_sources(saved, "Roman", False, tmp_path)
 
 
+def test_ladder_failed_correction_restores_the_masters(
+    tmp_path: Path, monkeypatch: MonkeyPatch
+) -> None:
+    import vf_ladder
+
+    for weight, font in local_test_fonts().items():
+        font.save(tmp_path / f"{B.weight_style(weight, False)}.ttf")
+    before = {path: path.read_bytes() for path in tmp_path.glob("*.ttf")}
+    row = {
+        "weight": 300,
+        "glyph": "accented",
+        "slope": "Roman",
+        "expected": {"reverse_contour": False, "proposed_start_point": 1},
+        "actual": {"contour_index": 0},
+    }
+
+    def failing_build(
+        statics: object, weights: object, italic: bool, out: Path
+    ) -> None:
+        # The real build saves every master, then fails while compiling.
+        for path in out.glob("*.ttf"):
+            path.write_bytes(path.read_bytes() + b"\0")
+        raise RuntimeError("compile failed")
+
+    monkeypatch.setattr(vf_ladder, "apply_corrections", lambda statics, rows: None)
+    monkeypatch.setattr(vf_ladder, "build_vf", failing_build)
+    with pytest.raises(RuntimeError, match="compile failed"):
+        vf_ladder.correct_slope([row], list(B.MASTER_WEIGHTS), False, tmp_path, 0)
+    assert {path: path.read_bytes() for path in tmp_path.glob("*.ttf")} == before
+
+
 @pytest.mark.parametrize("italic", (False, True))
 def test_ladder_full_font_size(
     italic: bool, tmp_path: Path, monkeypatch: MonkeyPatch

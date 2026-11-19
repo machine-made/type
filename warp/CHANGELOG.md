@@ -3,6 +3,7 @@
 ## Unreleased
 
 - Fixed the measurement mode accepting a saved proof without source hashes: it now needs a hash for each of the seven masters. A correction now updates the saved hashes and correction list at once, so a failed measurement can be retried.
+- Fixed a failed correction build leaving rewritten masters beside saved hashes of the old ones: the masters are now restored.
 - Raised the build job timeout of the Warp workflow from 40 to 75 minutes.
 - Fixed correction replay to resolve composites before rotating their bases, preserving the frozen source outlines.
 - Fixed correction order so reported composites resolve before any base glyph rotates.

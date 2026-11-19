@@ -864,8 +864,17 @@ def correct_slope(
             }
         )
     if changes:
-        apply_corrections(statics, corrections)
-        build_vf(statics, weights, italic, out)
+        masters = [out / f"{B.weight_style(w, italic)}.ttf" for w in weights]
+        originals = {path: path.read_bytes() for path in masters}
+        try:
+            apply_corrections(statics, corrections)
+            build_vf(statics, weights, italic, out)
+        except Exception:
+            # build_vf rewrites the masters before it compiles. Put them back,
+            # so that the saved source hashes still match the files.
+            for path, data in originals.items():
+                path.write_bytes(data)
+            raise
     return corrections
 
 
