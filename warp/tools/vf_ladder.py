@@ -865,7 +865,7 @@ def correct_slope(
         )
     if changes:
         masters = [out / f"{B.weight_style(w, italic)}.ttf" for w in weights]
-        originals = {path: path.read_bytes() for path in masters}
+        originals = {path: path.read_bytes() for path in masters if path.exists()}
         try:
             apply_corrections(statics, corrections)
             build_vf(statics, weights, italic, out)
