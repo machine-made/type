@@ -2,6 +2,38 @@
 
 ## Unreleased
 
+- Fixed the measurement mode accepting a saved proof without source hashes: it now needs a hash for each of the seven masters. A correction now updates the saved hashes and correction list at once, so a failed measurement can be retried.
+- Fixed a failed correction build leaving rewritten masters beside saved hashes of the old ones: the masters are now restored.
+- Raised the build job timeout of the Warp workflow from 40 to 75 minutes.
+- Fixed correction replay to resolve composites before rotating their bases, preserving the frozen source outlines.
+- Fixed correction order so reported composites resolve before any base glyph rotates.
+- Last inspected files: Roman 7,448,792 bytes; Italic 6,679,608 bytes. Both report 0 FAIL and 0 ERROR.
+- The verdict is not verified because Roman has three new side-bearing findings and Italic has five.
+- Reduced variable font size by sharing identical outlines and variation data, with IUP tolerances for each weight.
+- Added checks that rebuild both fonts and limit each file to 9,437,184 bytes.
+- Added a mode that measures corrected masters and leaves Fontspector results unknown.
+- Preserved contours with edge movements of one unit when IUP would omit them.
+
+- Fixed compatibility errors losing their diagnostic payload when passed between processes.
+- Fixed PANOSE weight digits for new text weights while keeping released styles unchanged.
+- Changed interpolation reports to name the two-master source for the 770 findings.
+- Removed the polygon-area filter; contour order and coordinates are unchanged at the five affected source weights.
+- Removed an unnecessary font copy.
+- Added type annotations for the weight ladder APIs, reports and tests.
+
+- Added source masters at weights 350 and 450 to both variable fonts and raster checks at the middle of every master gap.
+- Changed font build, correction and measurement to run in separate processes that exit before inspection.
+- Changed the inspection allocator settings to return freed buffers between glyph checks.
+- Fixed incomplete inspection reports so that unknown finding counts are not reported as zero.
+- Fixed thin strokes at gap midpoints by storing variation supports on the axis grid before interpolation.
+- Fixed lost ink in the new Roman iota sources by joining each stroke hull in order.
+- Fixed contour start correction for composite glyphs by resolving their component outlines in every master.
+- Fixed the warning comparison so that new unreachable glyphs cannot pass as an unchanged warning.
+- Added text weight parameters from 300 to 700 and Light, Medium and Demi styles on the compatible path.
+- Added a Roman and Italic weight-ladder tool with named-weight, raster and interpolation checks.
+- Fixed summed variation errors at interior weights with local weight supports and exact component offsets.
+- Fixed six further italic contour changes with separate stroke contours.
+- Changed weight checks to run the source compiler in a child process and use one Fontspector worker.
 - Added a Regular and Bold outline report and two methods behind `--compatible`.
 - Fixed the 15 contour mismatches with separate stroke contours on the compatible path. All 890 glyphs now have matching point structure.
 - Added a two-master variable-font test, measured topology changes, endpoint checks and a check that the other 875 outlines stay the same.

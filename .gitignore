@@ -14,3 +14,5 @@ sans/sources/instance_ufos/
 sans/sources/master_ufo/
 # Site output (site/build.py).
 site/_site/
+.jac
+/AGENTS.md

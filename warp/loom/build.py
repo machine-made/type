@@ -68,23 +68,48 @@ DISPLAY_OPSZ = 60
 BOLD = dict(stem=134, contrast=11.3, serifw=0.82, serif=0.65, width=1.06)
 
 
+def weight_params(weight: float) -> dict[str, float]:
+    """Extend the Regular-to-Bold parameter line over weights 300 to 700."""
+    if not 300 <= weight <= 700:
+        raise ValueError("Weight must be between 300 and 700")
+    if weight == 400:
+        return {key: E.DEFAULTS[key] for key in BOLD}
+    if weight == 700:
+        return dict(BOLD)
+    t = (weight - 400) / 300
+    return {
+        key: E.DEFAULTS[key] + t * (value - E.DEFAULTS[key])
+        for key, value in BOLD.items()
+    }
+
+
 @dataclass(frozen=True)
 class Style:
-    key: str          # file style: Regular, Italic, Bold, BoldItalic, Display, DisplayItalic
+    key: str          # file style, such as Regular, LightItalic or Display
     family: str
     style: str        # name table style
     ps_family: str
     ps_style: str
-    weight: int
+    weight: float
     italic: bool
     opsz: int
-    params: tuple     # engine parameters
+    params: tuple[tuple[str, float], ...]  # engine parameters
 
     def p(self) -> E.Params:
         return E.params(**dict(self.params))
 
 
-def _style(key, family, style, ps_family, ps_style, weight, italic, opsz, **extra):
+def _style(
+    key: str,
+    family: str,
+    style: str,
+    ps_family: str,
+    ps_style: str,
+    weight: float,
+    italic: bool,
+    opsz: int,
+    **extra: float,
+) -> Style:
     prm = dict(opsz=opsz, ital=italic, **extra)
     return Style(key, family, style, ps_family, ps_style, weight, italic, opsz, tuple(sorted(prm.items())))
 
@@ -102,6 +127,39 @@ STYLES = {
     "Display": _style("Display", DISPLAY_FAMILY, "Regular", PS_DISPLAY, "Regular", 400, False, DISPLAY_OPSZ),
     "DisplayItalic": _style("DisplayItalic", DISPLAY_FAMILY, "Italic", PS_DISPLAY, "Italic", 400, True, DISPLAY_OPSZ),
 }
+DEFAULT_STYLES = tuple(STYLES)
+MASTER_WEIGHTS = (300, 350, 400, 450, 500, 600, 700)
+WEIGHTS = {300: "Light", 400: "Regular", 500: "Medium", 600: "SemiBold", 700: "Bold"}
+
+
+def weight_style(weight: float, italic: bool = False) -> str:
+    """Register a text weight for the compatible build or its sweep reference."""
+    word = WEIGHTS.get(weight, f"Weight{weight:g}")
+    key = ("" if word == "Regular" and italic else word) + ("Italic" if italic else "")
+    if key not in STYLES:
+        # Demi keeps the full italic name below the 32-character limit.
+        short = (
+            ("Demi" if word == "SemiBold" else word)
+            if weight in WEIGHTS
+            else f"W{weight:g}"
+        )
+        style = short + (" Italic" if italic else "")
+        STYLES[key] = _style(
+            key,
+            FAMILY,
+            style,
+            PS_FAMILY,
+            short + ("Italic" if italic else ""),
+            weight,
+            italic,
+            TEXT_OPSZ,
+            **weight_params(weight),
+        )
+    return key
+
+
+LADDER_STYLES = tuple(weight_style(w, italic) for italic in (False, True) for w in WEIGHTS)
+MASTER_STYLES = tuple(weight_style(w, italic) for italic in (False, True) for w in MASTER_WEIGHTS)
 
 
 def ps_name(st: Style) -> str:
@@ -168,6 +226,7 @@ def table_def(key: str, ital: bool):
 # Italic counterpart of each style (for the mathematical italic letters).
 ITALIC_OF = {"Regular": "Italic", "Bold": "BoldItalic", "Display": "DisplayItalic",
              "Italic": "Italic", "BoldItalic": "BoldItalic", "DisplayItalic": "DisplayItalic"}
+ITALIC_OF.update({weight_style(w, i): weight_style(w, True) for w in MASTER_WEIGHTS for i in (False, True)})
 
 
 def mathit_key(key: str) -> str:
@@ -217,14 +276,24 @@ def band_center(sw: E.Swept, lo: float, hi: float) -> float | None:
 
 
 @lru_cache(maxsize=None)
-def drawn(style_key: str, name: str, compatible=False, method="sample") -> Drawn:
+def drawn(
+    style_key: str, name: str, compatible: bool = False, method: str = "sample"
+) -> Drawn:
     if compatible:
         from dataclasses import replace
 
-        from loom.compatible import pair
-        if style_key not in ("Regular", "Bold"):
-            raise ValueError("Compatible outlines support Regular and Bold only")
-        return replace(drawn(style_key, name), contours=pair(name, method)[style_key == "Bold"])
+        from loom.compatible import ladder, pair
+
+        if style_key not in MASTER_STYLES:
+            raise ValueError("Compatible outlines support the text weight ladder only")
+        if style_key in ("Regular", "Bold"):
+            contours = pair(name, method)[style_key == "Bold"]
+        else:
+            if method != "sample":
+                raise ValueError("The weight ladder needs arc sampling")
+            st = STYLES[style_key]
+            contours = ladder(name, st.italic)[MASTER_WEIGHTS.index(st.weight)]
+        return replace(drawn(style_key, name), contours=contours)
     st = STYLES[style_key]
     p = st.p()
     gl = CS.BY_NAME[name]
@@ -462,14 +531,36 @@ def anchors(style_key: str, name: str) -> list[tuple[str, float, float]]:
 
 # ------------------------------------------------------------------ UFO
 
+def panose_weight(weight: float) -> int:
+    """Map the ladder weights to Latin Text PANOSE weight categories."""
+    # OS/2 panose refers to the PANOSE guide, section 2.3:
+    # https://learn.microsoft.com/en-us/typography/opentype/spec/os2#panose
+    # https://monotype.github.io/panose/pan2.htm
+    # Digits: 3 Light, 4 Thin, 5 Book, 6 Medium, 7 Demi, 8 Bold.
+    # Ladder: 300=3, 350=4, 400=5, 450=6, 500=6, 600=7, 700=8.
+    # Between Book and Medium, choose Medium at the halfway weight 450.
+    if weight < 400:
+        return math.floor(3 + (weight - 300) / 50)
+    return math.floor(5 + (weight - 400) / 100 + 0.5)
+
+
 def set_info(font: ufoLib2.Font, st: Style) -> None:
     p = st.p()
     info = font.info
     info.familyName = st.family
     info.styleName = st.style
     info.styleMapFamilyName = st.family
-    info.styleMapStyleName = {("Regular"): "regular", "Italic": "italic", "Bold": "bold",
-                              "Bold Italic": "bold italic"}[st.style]
+    linked = {
+        "Regular": "regular",
+        "Italic": "italic",
+        "Bold": "bold",
+        "Bold Italic": "bold italic",
+    }
+    info.styleMapStyleName = linked.get(st.style, "italic" if st.italic else "regular")
+    if st.style not in linked:
+        info.styleMapFamilyName = f"{st.family} {st.style.removesuffix(' Italic')}"
+        info.openTypeNamePreferredFamilyName = st.family
+        info.openTypeNamePreferredSubfamilyName = st.style
     info.versionMajor, info.versionMinor = VERSION
     info.copyright = COPYRIGHT
     info.openTypeNameLicense = LICENSE_DESCRIPTION
@@ -492,7 +583,7 @@ def set_info(font: ufoLib2.Font, st: Style) -> None:
     # Bit 7: USE_TYPO_METRICS. Bit 8: WWS (both families name only
     # weight and slope in the style; "Display" is in the family name).
     info.openTypeOS2Selection = [7, 8]
-    info.openTypeOS2Panose = [2, 0, 5 if st.weight == 400 else 8, 3, 0, 0, 0, 0, 0, 0]
+    info.openTypeOS2Panose = [2, 0, panose_weight(st.weight), 3, 0, 0, 0, 0, 0, 0]
     info.unitsPerEm = UPM
     info.xHeight = rnd(p.xh)
     info.capHeight = rnd(p.cap)
@@ -511,7 +602,13 @@ def set_info(font: ufoLib2.Font, st: Style) -> None:
         # name elides "Regular", as many families do.
         full = st.family
         info.openTypeNameRecords = [
-            {"nameID": 4, "platformID": 3, "encodingID": 1, "languageID": 0x409, "string": full},
+            {
+                "nameID": 4,
+                "platformID": 3,
+                "encodingID": 1,
+                "languageID": 0x409,
+                "string": full,
+            },
         ]
     assert len(full) <= 32
     font.lib["public.postscriptNames"] = {}
@@ -522,7 +619,9 @@ def set_info(font: ufoLib2.Font, st: Style) -> None:
     ]
 
 
-def build_font(style_key: str, compatible=False, method="sample") -> ufoLib2.Font:
+def build_font(
+    style_key: str, compatible: bool = False, method: str = "sample"
+) -> ufoLib2.Font:
     st = STYLES[style_key]
     font = ufoLib2.Font()
     set_info(font, st)
@@ -536,16 +635,23 @@ def build_font(style_key: str, compatible=False, method="sample") -> ufoLib2.Fon
             base = CS.glyph_name(gl.key)
             g.width = rnd(drawn_or_comp_adv(style_key, base))
             for n, dx, dy in flatten(style_key, [(base, 0, 0)]):
-                g.components.append(Component(n, transformation=(1, 0, 0, 1, rnd(dx), rnd(dy))))
+                g.components.append(
+                    Component(n, transformation=(1, 0, 0, 1, rnd(dx), rnd(dy)))
+                )
         elif gl.comps:
             comps, adv = component_offsets(style_key, gl)
             comps = flatten(style_key, comps)
             g.width = rnd(adv)
             for base, dx, dy in comps:
-                g.components.append(Component(base, transformation=(1, 0, 0, 1, rnd(dx), rnd(dy))))
+                g.components.append(
+                    Component(base, transformation=(1, 0, 0, 1, rnd(dx), rnd(dy)))
+                )
         else:
-            d = (drawn(style_key, gl.name, compatible=True, method=method)
-                 if compatible else drawn(style_key, gl.name))
+            d = (
+                drawn(style_key, gl.name, compatible=True, method=method)
+                if compatible
+                else drawn(style_key, gl.name)
+            )
             g.width = rnd(d.adv)
             O.draw(d.contours, g.getPen())
         for nm, x, y in anchors(style_key, gl.name):
@@ -572,13 +678,15 @@ def win_metrics(fonts) -> tuple[int, int]:
 def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(description="Build the Warp 0.1 UFO sources.")
     ap.add_argument("--out", default="build")
-    ap.add_argument("--styles", default=",".join(STYLES))
+    ap.add_argument("--styles", default=",".join(DEFAULT_STYLES))
     ap.add_argument("--jobs", type=int, default=1, help="Build styles in parallel processes.")
-    ap.add_argument("--compatible", action="store_true", help="Use the Regular/Bold outline experiment.")
+    ap.add_argument("--compatible", action="store_true", help="Use compatible text weight outlines.")
     args = ap.parse_args(argv)
     keys = [k for k in args.styles.split(",") if k]
-    if args.compatible and any(k not in ("Regular", "Bold") for k in keys):
-        ap.error("--compatible needs --styles Regular,Bold (or one of those styles)")
+    if args.compatible and any(k not in MASTER_STYLES for k in keys):
+        ap.error("--compatible needs text styles; Display is not supported")
+    if not args.compatible and any(k not in DEFAULT_STYLES for k in keys):
+        ap.error("New text weights need --compatible")
     out = Path(args.out) / "ufo"
     if out.exists():
         shutil.rmtree(out)

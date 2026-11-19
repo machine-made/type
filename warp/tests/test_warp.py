@@ -31,7 +31,7 @@ WARP = HERE.parent
 ROOT = WARP.parent
 FONTS = ROOT / "fonts" / "warp"
 PROOFS = ROOT / "proofs" / "warp"
-STYLES = list(Bd.STYLES)
+STYLES = list(Bd.DEFAULT_STYLES)
 DRAWN = [g.name for g in CS.GLYPHS if not g.comps and g.variant != "notdef"]
 
 

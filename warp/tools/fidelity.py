@@ -112,7 +112,7 @@ def compare(style_key: str, font: TTFont) -> dict:
 def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(description="Compare the Warp outlines with the pen sweep.")
     ap.add_argument("--out", default=str(HERE.parents[1] / "proofs" / "warp" / "fidelity.json"))
-    ap.add_argument("--styles", default=",".join(Bd.STYLES))
+    ap.add_argument("--styles", default=",".join(Bd.DEFAULT_STYLES))
     ap.add_argument("--gate", action="store_true")
     args = ap.parse_args(argv)
     report = {"about": "Difference between each font glyph (compiled TTF) and its pen sweep, as a fraction "
