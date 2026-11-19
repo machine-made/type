@@ -7,7 +7,7 @@ preload: heddle,sans
 scripts: heddle.js
 -->
 <section class="wrap page-hero" aria-labelledby="heddle-h">
-  <p class="eyebrow"><span class="dot" aria-hidden="true"></span>Display grotesk · {{HEDDLE_CHAR_COUNT}} characters · {{HEDDLE_VERSION}}</p>
+  <p class="eyebrow"><span class="dot" aria-hidden="true"></span>Display grotesk · {{HEDDLE_CHAR_COUNT}} characters · release {{RELEASE_VERSION}} · {{HEDDLE_VERSION}}</p>
   <h1 id="heddle-h" class="heddle-title"><span class="nb">machine-made</span> Heddle</h1>
   <p class="lede">A Swiss display grotesk for posters, headlines, wordmarks and big figures. Every letter is built from four parts, and every opening is a level cut. Two axes: weight {{HEDDLE_WGHT_RANGE}} and width {{HEDDLE_WDTH_RANGE}}.</p>
 </section>
@@ -101,6 +101,23 @@ Proven for machines.</p>
   </div>
 </section>
 
+<section class="wrap band" id="new" aria-labelledby="new-h">
+  <div class="sec-head">
+    <p class="eyebrow">New in 0.2</p>
+    <h2 id="new-h">Central European Latin, fractions, masters at width 85</h2>
+    <p class="intro">Latin Extended-A and Ș ș Ț ț cover Polish, Czech, Slovak, Hungarian, Romanian, Turkish, Croatian, Slovenian, Latvian, Lithuanian, Estonian and Maltese. Each line is set at the three widths of the axis.</p>
+  </div>
+  <ul class="spec heddle">
+    <li><span class="spec-k">Width 70</span><span class="spec-v" style="font-size:34px;font-variation-settings:'wdth' 70,'wght' 700">Zażółć gęślą jaźń · Příliš žluťoučký kůň</span></li>
+    <li><span class="spec-k">Width 100</span><span class="spec-v" style="font-size:34px;font-variation-settings:'wdth' 100,'wght' 700">Zażółć gęślą jaźń · Příliš žluťoučký kůň</span></li>
+    <li><span class="spec-k">Width 140</span><span class="spec-v" style="font-size:34px;font-variation-settings:'wdth' 140,'wght' 700">Zażółć gęślą jaźń · Příliš žluťoučký kůň</span></li>
+    <li><span class="spec-k">Romanian, Hungarian</span><span class="spec-v" style="font-size:34px;font-variation-settings:'wdth' 100,'wght' 700">Ștefan Țepeș · Árvíztűrő</span></li>
+    <li><span class="spec-k">Fractions <code>frac</code></span><span class="spec-v" style="font-size:34px;font-variation-settings:'wdth' 100,'wght' 700;font-feature-settings:'frac' 1">3/16 · 7/8 · 11/32 ½ ¼ ¾</span></li>
+    <li><span class="spec-k">Symbols</span><span class="spec-v" style="font-size:34px;font-variation-settings:'wdth' 100,'wght' 700">¢ £ ¥ § ¶ ± × ÷ −</span></li>
+  </ul>
+  <p class="note">Four masters at width 85 were added, so the variable font follows the generator more closely there. Marks are lighter and smaller, and rings and hooks stay open at Black. The static TTF files are hinted.</p>
+</section>
+
 <section class="wrap band" id="made" aria-labelledby="made-h">
   <div class="sec-head">
     <p class="eyebrow">Made by machines</p>
@@ -127,6 +144,6 @@ Proven for machines.</p>
 </section>
 
 <section class="wrap band cta" aria-labelledby="get-heddle-h">
-  <h2 id="get-heddle-h">Get Heddle 0.2</h2>
-  <p><a class="btn" href="{{HEDDLE_RELEASE}}">Download from GitHub</a> <a class="btn btn-ghost" href="../download/#heddle">Install and @font-face</a></p>
+  <h2 id="get-heddle-h">Get Heddle {{RELEASE_VERSION}}</h2>
+  <p><a class="btn" href="{{HEDDLE_RELEASE}}">Release page</a> <a class="btn btn-ghost" href="{{HEDDLE_ZIP}}">Zip with all files</a> <a class="btn btn-ghost" href="../download/#heddle">Install and @font-face</a></p>
 </section>

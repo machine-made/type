@@ -7,7 +7,7 @@ preload: sans
 scripts: sans.js
 -->
 <section class="wrap page-hero" aria-labelledby="sans-h">
-  <p class="eyebrow"><span class="dot" aria-hidden="true"></span>Sans · upright and italic · wght {{SANS_WGHT_RANGE}} · {{SANS_VERSION}}</p>
+  <p class="eyebrow"><span class="dot" aria-hidden="true"></span>Sans · upright and italic · wght {{SANS_WGHT_RANGE}} · release {{RELEASE_VERSION}} · {{SANS_VERSION}}</p>
   <h1 id="sans-h"><span class="nb">machine-made</span> Sans</h1>
   <p class="lede">A reading sans for text and interfaces. It keeps the geometry, tall x-height and open counters of Plus Jakarta Sans, makes the straight alternates the default forms, and puts the sharp forms in stylistic set ss02.</p>
 </section>
@@ -84,16 +84,24 @@ scripts: sans.js
   <p>The Open Font License lets anyone change and share the font, under a new name. machine-made Sans is that new name. The original licence and copyright notice ship with every file.</p>
 </section>
 
-<section class="wrap band" aria-labelledby="next-h">
+<section class="wrap band" id="new" aria-labelledby="next-h">
   <div class="sec-head">
     <p class="eyebrow">New in 0.2</p>
     <h2 id="next-h">Italic Cyrillic, hinting, kerning</h2>
+    <p class="intro">The italic now has the 98 Cyrillic letters of the upright: Russian, Ukrainian, Belarusian, Serbian, Macedonian and Bulgarian. They are the upright letters slanted by 8 degrees, the way Plus Jakarta Sans makes its Latin italic.</p>
   </div>
-  <p class="sans-s sans-italic" lang="ru">Съешь же ещё этих мягких французских булок.</p>
-  <p>The italic now has the Cyrillic of the upright. The OTF files are hinted. Latin Extended-A is complete, and pairs with accents no longer touch.</p>
+  <ul class="spec sans">
+    <li><span class="spec-k">Italic Cyrillic</span><span class="spec-v sans-italic" lang="ru" style="font-size:28px">Съешь же ещё этих мягких французских булок, да выпей чаю.</span></li>
+    <li><span class="spec-k">Upright Cyrillic</span><span class="spec-v" lang="ru" style="font-size:28px">Съешь же ещё этих мягких французских булок, да выпей чаю.</span></li>
+    <li><span class="spec-k">Ukrainian</span><span class="spec-v sans-italic" lang="uk" style="font-size:28px">Чуєш їх, доцю, га? Кумедна ж ти, прощайся без ґольфів!</span></li>
+    <li><span class="spec-k">Bulgarian forms <code>locl</code></span><span class="spec-v sans-italic" lang="bg" style="font-size:28px">Жълтата дюля шепнеше: ъ, щ, ю, ц, ч.</span></li>
+    <li><span class="spec-k">Latin Extended-A</span><span class="spec-v" style="font-size:24px">Zażółć gęślą jaźń. Příliš žluťoučký kůň. Árvíztűrő tükörfúrógép. Ștefan și Țepeș. Şişli, Iğdır. ſ ŉ</span></li>
+    <li><span class="spec-k">Kerning</span><span class="spec-v" style="font-size:36px">Tì Fî Ľ Vě Wé Yô</span></li>
+  </ul>
+  <p class="note">The static OTF files are hinted with otfautohint, the static TTF files with ttfautohint. The variable fonts are not hinted. Letters with accents no longer touch the capital before them.</p>
 </section>
 
 <section class="wrap band cta" aria-labelledby="get-sans-h">
-  <h2 id="get-sans-h">Get Sans 0.2</h2>
-  <p><a class="btn" href="{{SANS_RELEASE}}">Download from GitHub</a> <a class="btn btn-ghost" href="../download/#sans">Install and @font-face</a></p>
+  <h2 id="get-sans-h">Get Sans {{RELEASE_VERSION}}</h2>
+  <p><a class="btn" href="{{SANS_RELEASE}}">Release page</a> <a class="btn btn-ghost" href="{{SANS_ZIP}}">Zip with all files</a> <a class="btn btn-ghost" href="../download/#sans">Install and @font-face</a></p>
 </section>

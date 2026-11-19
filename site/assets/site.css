@@ -440,6 +440,22 @@ input[type=range] { width: 100%; accent-color: var(--red); margin: 4px 0; min-he
 .fam-warp { grid-column: 1 / -1; border-top: 1px solid var(--rule); }
 .fam + .fam.fam-warp { border-left: 0; }
 
+/* Specimen rows: a label and a sample, one per line */
+.spec { margin: 0; padding: 0; list-style: none; display: grid; border-top: 1px solid var(--rule); }
+.spec li { display: grid; grid-template-columns: minmax(0, 190px) minmax(0, 1fr); gap: 8px 24px; align-items: baseline; padding-block: 12px; border-bottom: 1px solid var(--rule); }
+.spec-k { font-family: var(--sans); font-size: var(--step-0); color: var(--muted); }
+.spec-k code { display: block; font-family: var(--mono); }
+.spec-v { min-width: 0; overflow-wrap: anywhere; line-height: 1.25; }
+.spec-pre { margin: 0; background: none; padding: 0; overflow-x: auto; line-height: 1.2; }
+@media (max-width: 640px) {
+  .spec li { grid-template-columns: minmax(0, 1fr); }
+}
+
+/* MathML on the Warp page: the glyphs and the MATH table come from Warp */
+math { font-family: var(--warp); }
+.warp-formula { font-size: clamp(1.375rem, 1rem + 1.5vw, 2.25rem); overflow-x: auto; }
+.warp-formula math { display: inline math; math-style: normal; }
+
 /* Download */
 .page-download h3 { margin-top: 6px; }
 .snippet { position: relative; min-width: 0; }

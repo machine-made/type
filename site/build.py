@@ -47,12 +47,14 @@ ROOT = SITE.parent
 
 REPO_URL = "https://github.com/machine-made/type"
 ORG_URL = "https://github.com/machine-made"
-RELEASES = {
-    "weft": REPO_URL + "/releases/tag/weft-v0.2.0",
-    "sans": REPO_URL + "/releases/tag/sans-v0.2.0",
-    "heddle": REPO_URL + "/releases/tag/heddle-v0.2.0",
-    "warp": REPO_URL + "/releases/tag/warp-v0.2.0",
-}
+RELEASE_VERSION = "0.2.0"
+RELEASES = {fam: f"{REPO_URL}/releases/tag/{fam}-v{RELEASE_VERSION}"
+            for fam in ("weft", "sans", "heddle", "warp")}
+# Files of a release: the zip holds every font file, SHA256SUMS lists their hashes.
+RELEASE_ZIPS = {fam: f"{REPO_URL}/releases/download/{fam}-v{RELEASE_VERSION}/machine-made-{fam}-{RELEASE_VERSION}.zip"
+                for fam in RELEASES}
+RELEASE_SUMS = {fam: f"{REPO_URL}/releases/download/{fam}-v{RELEASE_VERSION}/SHA256SUMS"
+                for fam in RELEASES}
 
 # Font files per family, in fonts/<family>/webfonts/. Every role is
 # required. "vf" is the file the pages use. The other WOFF2 files in the
@@ -88,7 +90,7 @@ FAMILIES = {
         "planned_axes": {"wght": [100, 400, 900], "wdth": [70, 100, 140]},
     },
     # Warp 0.2 is six static fonts; "vf" is the Regular (the pages read
-    # its character map). The variable font is planned for 0.3.
+    # its character map). The variable font comes in the next release.
     "warp": {
         "dir": ROOT / "fonts" / "warp" / "webfonts",
         "files": {
@@ -570,7 +572,7 @@ def font_face_css(chosen: dict, info: dict) -> str:
             f"src:url(\"../fonts/warp/{url_path(wf[role].name)}\") format(\"woff2\");"
             f"font-weight:{weight};font-style:{style};font-display:swap}}"
         )
-    # machine-made Sans 0.1 has the straight forms as the default, so no
+    # machine-made Sans has the straight forms as the default, so no
     # feature is on. The sharp forms are in ss02.
     out.append(":root{--sans-features:normal}")
     return "\n".join(out) + "\n"
@@ -653,6 +655,15 @@ def build(out: Path) -> None:
         "SANS_RELEASE": RELEASES["sans"],
         "HEDDLE_RELEASE": RELEASES["heddle"],
         "WARP_RELEASE": RELEASES["warp"],
+        "RELEASE_VERSION": RELEASE_VERSION,
+        "WEFT_ZIP": RELEASE_ZIPS["weft"],
+        "SANS_ZIP": RELEASE_ZIPS["sans"],
+        "HEDDLE_ZIP": RELEASE_ZIPS["heddle"],
+        "WARP_ZIP": RELEASE_ZIPS["warp"],
+        "WEFT_SUMS": RELEASE_SUMS["weft"],
+        "SANS_SUMS": RELEASE_SUMS["sans"],
+        "HEDDLE_SUMS": RELEASE_SUMS["heddle"],
+        "WARP_SUMS": RELEASE_SUMS["warp"],
         "WARP_VERSION": html.escape(short_version(info["warp"])),
         "WARP_CHAR_COUNT": info["warp"]["char_count"],
         "WARP_GLYPH_COUNT": info["warp"]["glyph_count"],
@@ -675,7 +686,7 @@ def build(out: Path) -> None:
         "SANS_WATERFALL": sans_waterfall(sans_axes.get("wght") or [400, 400, 400], italic=False),
         "SANS_WATERFALL_ITALIC": sans_waterfall(sans_axes.get("wght") or [400, 400, 400], italic=True),
         "SANS_SWIRL_TAG": swirl_tag(info["sans"]["features"]),
-        "SANS_FORMS_NOTE": "The default forms of machine-made Sans 0.1: straight a j p q r y. No feature is on.",
+        "SANS_FORMS_NOTE": "The default forms of machine-made Sans: straight a j p q r y. No feature is on.",
     }
 
     layout = (SITE / "templates" / "layout.html").read_text(encoding="utf-8")

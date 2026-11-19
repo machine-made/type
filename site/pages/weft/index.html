@@ -7,7 +7,7 @@ preload: weft,sans
 scripts: weft.js
 -->
 <section class="wrap page-hero" aria-labelledby="weft-h">
-  <p class="eyebrow"><span class="dot" aria-hidden="true"></span>Monospace · {{WEFT_CHAR_COUNT}} characters · {{WEFT_VERSION}}</p>
+  <p class="eyebrow"><span class="dot" aria-hidden="true"></span>Monospace · {{WEFT_CHAR_COUNT}} characters · release {{RELEASE_VERSION}} · {{WEFT_VERSION}}</p>
   <h1 id="weft-h"><span class="nb">machine-made</span> Weft</h1>
   <p class="lede">A monospace built from strokes on a 12-unit grid. Every glyph is 750 units wide. The weight axis sets the stroke. The FRAG axis takes the strokes from clean to broken.</p>
 </section>
@@ -87,6 +87,29 @@ pc spend --card 0042</p>
   </ul>
 </section>
 
+<section class="wrap band" id="new" aria-labelledby="new-h">
+  <div class="sec-head">
+    <p class="eyebrow">New in 0.2</p>
+    <h2 id="new-h">Code look-alikes, Central European Latin, box drawing</h2>
+    <p class="intro">Every line below is set in the font that this page serves. Every glyph keeps the 750-unit advance. Combining marks have none.</p>
+  </div>
+  <ul class="spec weft">
+    <li><span class="spec-k">Look-alikes</span><span class="spec-v" style="font-size:36px">Il1| O 0 q9 rn</span></li>
+    <li><span class="spec-k">Dotted zero <code>ss01</code></span><span class="spec-v" style="font-size:36px;font-feature-settings:'ss01' 1">0 O 100 2026</span></li>
+    <li><span class="spec-k">Polish, Czech</span><span class="spec-v" style="font-size:22px">Zażółć gęślą jaźń. Příliš žluťoučký kůň.</span></li>
+    <li><span class="spec-k">Hungarian, Romanian</span><span class="spec-v" style="font-size:22px">Árvíztűrő tükörfúrógép. Ștefan și Țepeș.</span></li>
+    <li><span class="spec-k">Turkish, Latvian</span><span class="spec-v" style="font-size:22px">Şişli, Iğdır, İstanbul. Ķēniņš, ļaudis.</span></li>
+    <li><span class="spec-k">Combining marks</span><span class="spec-v" style="font-size:36px">e&#x301; a&#x300; o&#x308; n&#x303; c&#x30C; u&#x328;</span></li>
+    <li><span class="spec-k">Heavy weights</span><span class="spec-v" style="font-size:36px;font-weight:900">Ǿ ẞ ä « » “ ”</span></li>
+    <li><span class="spec-k">Box drawing, arrows</span><span class="spec-v"><pre class="spec-pre" style="font-size:20px">┌──────┬──────┐
+│ Weft │ Sans │
+├──────┼──────┤
+│ code │ text │
+└──────┴──────┘ ← → ↑ ↓</pre></span></li>
+  </ul>
+  <p class="note">Weft reads better than DejaVu Sans Mono in the OCR test of look-alike strings: character error rate 0.071 at FRAG 0 against 0.0875. The report is <a href="{{REPO_URL}}/blob/main/proofs/weft/readability.json"><code>proofs/weft/readability.json</code></a>. The static TTF files are hinted.</p>
+</section>
+
 <section class="wrap band" id="glyphs" aria-labelledby="glyphs-h">
   <div class="sec-head">
     <p class="eyebrow">Character set</p>
@@ -164,6 +187,6 @@ pc spend --card 0042</p>
 </section>
 
 <section class="wrap band cta" aria-labelledby="get-weft-h">
-  <h2 id="get-weft-h">Get Weft 0.2</h2>
-  <p><a class="btn" href="{{WEFT_RELEASE}}">Download from GitHub</a> <a class="btn btn-ghost" href="../download/#weft">Install and @font-face</a></p>
+  <h2 id="get-weft-h">Get Weft {{RELEASE_VERSION}}</h2>
+  <p><a class="btn" href="{{WEFT_RELEASE}}">Release page</a> <a class="btn btn-ghost" href="{{WEFT_ZIP}}">Zip with all files</a> <a class="btn btn-ghost" href="../download/#weft">Install and @font-face</a></p>
 </section>
