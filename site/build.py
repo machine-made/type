@@ -573,10 +573,18 @@ def build(out: Path, facts_file: Path | None = None, save_facts: Path | None = N
                            DESCRIPTION=meta.get("description", ""),
                            BODY_CLASS=meta.get("class", ""),
                            SCRIPTS=scripts)
-        # Preload the fonts that the first screen of the page uses.
+        # Preload the fonts that the first screen of the page uses: "warp" is the main file of a family,
+        # "warp.display" names one of its files (FAMILIES[...]["files"]).
+        hrefs = []
+        for entry in meta.get("preload", "sans").split(","):
+            fam, _, key = entry.strip().partition(".")
+            if fam not in chosen:
+                continue
+            if (key or "vf") not in chosen[fam]["files"]:
+                raise BuildError(f"{rel}: preload {entry.strip()!r} names no file of {fam}")
+            hrefs.append(f"fonts/{fam}/{url_path(chosen[fam]['files'][key or 'vf'].name)}")
         page_values["PRELOAD"] = "".join(
-            f'<link rel="preload" href="{root}{info[fam]["file"]}" as="font" type="font/woff2" crossorigin>'
-            for fam in meta.get("preload", "sans").split(",") if fam.strip() in info
+            f'<link rel="preload" href="{root}{h}" as="font" type="font/woff2" crossorigin>' for h in hrefs
         )
         page_values["BODY"] = render(body, page_values, rel)
         written[rel] = render(layout, page_values, "layout.html")
