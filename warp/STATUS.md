@@ -10,7 +10,7 @@ Correction replay now resolves composites before rotating their bases, preservin
 | Stage | Warp 0.2 built: 6 static styles (TTF hinted, OTF, WOFF2) with an OpenType MATH table |
 | Gate now | Both variable fonts fit 9,437,184 bytes. Numerical gates pass. Fontspector reports 0 FAIL and 0 ERROR for both. |
 | Next | Investigate the new side-bearing findings (3 in Roman, 5 in Italic). The optical-size axis remains open. |
-| Last local run | 2026-11-17, after the correction-order fix: Roman is 7,448,792 bytes; Italic is 6,679,608 bytes. Both report 0 FAIL and 0 ERROR. The verdict is verified with accepted findings: the eight new side-bearing findings are listed with their causes. |
+| Last local run | 2026-11-19, after the correction-order fix: Roman is 7,448,792 bytes; Italic is 6,679,608 bytes. Both report 0 FAIL and 0 ERROR. The verdict is verified with accepted findings: the eight new side-bearing findings are listed with their causes. |
 
 ## Variable font size (2026-11-17)
 
