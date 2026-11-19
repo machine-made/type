@@ -479,6 +479,11 @@ def fontspector_findings(raw: Record) -> list[Record]:
                         if context:
                             problems.append({"context": context})
                     for problem in problems or [{}]:
+                        actual = (
+                            problem.get("actual", {})
+                            if check["check_id"] == "suspicious_sidebearings"
+                            else {}
+                        )
                         rows.append(
                             {
                                 "check_id": check["check_id"],
@@ -486,6 +491,8 @@ def fontspector_findings(raw: Record) -> list[Record]:
                                 "severity": sub["severity"],
                                 "glyph": problem.get("glyph_name"),
                                 "location": problem.get("userspace_location", {}),
+                                "z_score": actual.get("z_score"),
+                                "measurement": actual.get("measurement"),
                                 **(
                                     {"context": problem["context"]}
                                     if "context" in problem
@@ -690,6 +697,9 @@ def master_weight(value: float, weights: Collection[int]) -> int:
 def finding_identity(row: Record) -> Record:
     """Compare source weights despite one stored axis-grid step of error."""
     result = deepcopy(row)
+    # Measurements are evidence, not identity; older proofs omit them.
+    result.pop("z_score", None)
+    result.pop("measurement", None)
     location = result["location"]
     if "wght" in location:
         try:
@@ -699,6 +709,39 @@ def finding_identity(row: Record) -> Record:
             # a new finding between sources.
             return result
     return result
+
+
+def accepted_findings_verdict(
+    findings: Sequence[Record], accepted: Sequence[Record]
+) -> tuple[str, list[Record], list[Record]]:
+    """Match both directions using exact reported locations, without rounding."""
+
+    def identity(row: Record) -> Record:
+        return {key: row.get(key) for key in ("check_id", "code", "glyph", "location")}
+
+    remaining = list(accepted)
+    unaccepted = []
+    for finding in findings:
+        match = next(
+            (
+                i
+                for i, entry in enumerate(remaining)
+                if identity(entry) == identity(finding)
+            ),
+            None,
+        )
+        if match is None:
+            unaccepted.append(finding)
+        else:
+            remaining.pop(match)
+    verdict = (
+        "not verified"
+        if unaccepted or remaining
+        else "verified with accepted findings"
+        if accepted
+        else "verified"
+    )
+    return verdict, unaccepted, remaining
 
 
 def proof_sheet(paths: Mapping[str, Path], out: Path) -> str:
@@ -1120,6 +1163,8 @@ def main(argv: list[str] | None = None) -> int:
                 "kinds": {},
             },
         )
+    accepted_path = PROOFS / "accepted_findings.json"
+    accepted = json.loads(accepted_path.read_text()) if accepted_path.exists() else {}
     findings, paths = [], {}
     for italic in (False, True):
         slope = "Italic" if italic else "Roman"
@@ -1159,7 +1204,17 @@ def main(argv: list[str] | None = None) -> int:
                 for row in result["fontspector_findings"]
                 if finding_identity(row) not in previous_ids
             ]
-            result["passed"] &= not result["new_fontspector_findings"]
+        if result.get("fontspector_complete", True):
+            new_findings = result.get("new_fontspector_findings")
+            if new_findings is None:
+                new_findings = result.get("fontspector_findings", [])
+            verdict, unaccepted, missing = accepted_findings_verdict(
+                new_findings, accepted.get(slope, [])
+            )
+            result["unaccepted_fontspector_findings"] = unaccepted
+            result["missing_accepted_findings"] = missing
+            result["verdict"] = verdict if result["passed"] else "not verified"
+            result["passed"] &= verdict != "not verified"
         report["styles"][slope] = result
         findings.extend(rows)
         paths[slope] = path
@@ -1203,7 +1258,13 @@ def main(argv: list[str] | None = None) -> int:
     write_json(PROOFS / "interpolation.json", interpolation)
     report["proof_sheet"] = proof_sheet(paths, out)
     passed = all(row["passed"] for row in report["styles"].values())
-    report["verdict"] = "verified" if passed else "not verified"
+    report["verdict"] = (
+        "not verified"
+        if not passed
+        else "verified with accepted findings"
+        if any(accepted.values())
+        else "verified"
+    )
     report.pop("aligned_sources", None)
     write_json(PROOFS / "ladder.json", report)
     print(

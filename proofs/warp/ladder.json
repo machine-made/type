@@ -43453,7 +43453,9 @@
      "glyph": "ellipsis",
      "location": {
       "wght": 350.0
-     }
+     },
+     "z_score": 10.005156517028809,
+     "measurement": "advance widths"
     },
     {
      "check_id": "suspicious_sidebearings",
@@ -43462,7 +43464,9 @@
      "glyph": "ellipsis",
      "location": {
       "wght": 449.98779296875
-     }
+     },
+     "z_score": 10.481950759887695,
+     "measurement": "advance widths"
     },
     {
      "check_id": "suspicious_sidebearings",
@@ -43471,7 +43475,9 @@
      "glyph": "ellipsis",
      "location": {
       "wght": 450.006103515625
-     }
+     },
+     "z_score": 10.481950759887695,
+     "measurement": "advance widths"
     }
    ],
    "fontspector_findings": [
@@ -43480,35 +43486,45 @@
      "code": "contour-count",
      "severity": "WARN",
      "glyph": "gamma",
-     "location": {}
+     "location": {},
+     "z_score": null,
+     "measurement": null
     },
     {
      "check_id": "contour_count",
      "code": "contour-count",
      "severity": "WARN",
      "glyph": "kappa",
-     "location": {}
+     "location": {},
+     "z_score": null,
+     "measurement": null
     },
     {
      "check_id": "contour_count",
      "code": "contour-count",
      "severity": "WARN",
      "glyph": "tcedilla.sc",
-     "location": {}
+     "location": {},
+     "z_score": null,
+     "measurement": null
     },
     {
      "check_id": "file_size",
      "code": "large-font",
      "severity": "WARN",
      "glyph": null,
-     "location": {}
+     "location": {},
+     "z_score": null,
+     "measurement": null
     },
     {
      "check_id": "mandatory_avar_table",
      "code": "missing-avar",
      "severity": "WARN",
      "glyph": null,
-     "location": {}
+     "location": {},
+     "z_score": null,
+     "measurement": null
     },
     {
      "check_id": "required_tables",
@@ -43516,6 +43532,8 @@
      "severity": "INFO",
      "glyph": null,
      "location": {},
+     "z_score": null,
+     "measurement": null,
      "context": {
       "optional_tables": [
        "loca",
@@ -43529,588 +43547,756 @@
      "code": "unreachable-glyphs",
      "severity": "WARN",
      "glyph": "parenleft.size1",
-     "location": {}
+     "location": {},
+     "z_score": null,
+     "measurement": null
     },
     {
      "check_id": "unreachable_glyphs",
      "code": "unreachable-glyphs",
      "severity": "WARN",
      "glyph": "parenright.size1",
-     "location": {}
+     "location": {},
+     "z_score": null,
+     "measurement": null
     },
     {
      "check_id": "unreachable_glyphs",
      "code": "unreachable-glyphs",
      "severity": "WARN",
      "glyph": "bracketleft.size1",
-     "location": {}
+     "location": {},
+     "z_score": null,
+     "measurement": null
     },
     {
      "check_id": "unreachable_glyphs",
      "code": "unreachable-glyphs",
      "severity": "WARN",
      "glyph": "bracketright.size1",
-     "location": {}
+     "location": {},
+     "z_score": null,
+     "measurement": null
     },
     {
      "check_id": "unreachable_glyphs",
      "code": "unreachable-glyphs",
      "severity": "WARN",
      "glyph": "braceleft.size1",
-     "location": {}
+     "location": {},
+     "z_score": null,
+     "measurement": null
     },
     {
      "check_id": "unreachable_glyphs",
      "code": "unreachable-glyphs",
      "severity": "WARN",
      "glyph": "braceright.size1",
-     "location": {}
+     "location": {},
+     "z_score": null,
+     "measurement": null
     },
     {
      "check_id": "unreachable_glyphs",
      "code": "unreachable-glyphs",
      "severity": "WARN",
      "glyph": "bar.size1",
-     "location": {}
+     "location": {},
+     "z_score": null,
+     "measurement": null
     },
     {
      "check_id": "unreachable_glyphs",
      "code": "unreachable-glyphs",
      "severity": "WARN",
      "glyph": "uni2016.size1",
-     "location": {}
+     "location": {},
+     "z_score": null,
+     "measurement": null
     },
     {
      "check_id": "unreachable_glyphs",
      "code": "unreachable-glyphs",
      "severity": "WARN",
      "glyph": "uni27E8.size1",
-     "location": {}
+     "location": {},
+     "z_score": null,
+     "measurement": null
     },
     {
      "check_id": "unreachable_glyphs",
      "code": "unreachable-glyphs",
      "severity": "WARN",
      "glyph": "uni27E9.size1",
-     "location": {}
+     "location": {},
+     "z_score": null,
+     "measurement": null
     },
     {
      "check_id": "unreachable_glyphs",
      "code": "unreachable-glyphs",
      "severity": "WARN",
      "glyph": "radical.size1",
-     "location": {}
+     "location": {},
+     "z_score": null,
+     "measurement": null
     },
     {
      "check_id": "unreachable_glyphs",
      "code": "unreachable-glyphs",
      "severity": "WARN",
      "glyph": "parenleft.size2",
-     "location": {}
+     "location": {},
+     "z_score": null,
+     "measurement": null
     },
     {
      "check_id": "unreachable_glyphs",
      "code": "unreachable-glyphs",
      "severity": "WARN",
      "glyph": "parenright.size2",
-     "location": {}
+     "location": {},
+     "z_score": null,
+     "measurement": null
     },
     {
      "check_id": "unreachable_glyphs",
      "code": "unreachable-glyphs",
      "severity": "WARN",
      "glyph": "bracketleft.size2",
-     "location": {}
+     "location": {},
+     "z_score": null,
+     "measurement": null
     },
     {
      "check_id": "unreachable_glyphs",
      "code": "unreachable-glyphs",
      "severity": "WARN",
      "glyph": "bracketright.size2",
-     "location": {}
+     "location": {},
+     "z_score": null,
+     "measurement": null
     },
     {
      "check_id": "unreachable_glyphs",
      "code": "unreachable-glyphs",
      "severity": "WARN",
      "glyph": "braceleft.size2",
-     "location": {}
+     "location": {},
+     "z_score": null,
+     "measurement": null
     },
     {
      "check_id": "unreachable_glyphs",
      "code": "unreachable-glyphs",
      "severity": "WARN",
      "glyph": "braceright.size2",
-     "location": {}
+     "location": {},
+     "z_score": null,
+     "measurement": null
     },
     {
      "check_id": "unreachable_glyphs",
      "code": "unreachable-glyphs",
      "severity": "WARN",
      "glyph": "bar.size2",
-     "location": {}
+     "location": {},
+     "z_score": null,
+     "measurement": null
     },
     {
      "check_id": "unreachable_glyphs",
      "code": "unreachable-glyphs",
      "severity": "WARN",
      "glyph": "uni2016.size2",
-     "location": {}
+     "location": {},
+     "z_score": null,
+     "measurement": null
     },
     {
      "check_id": "unreachable_glyphs",
      "code": "unreachable-glyphs",
      "severity": "WARN",
      "glyph": "uni27E8.size2",
-     "location": {}
+     "location": {},
+     "z_score": null,
+     "measurement": null
     },
     {
      "check_id": "unreachable_glyphs",
      "code": "unreachable-glyphs",
      "severity": "WARN",
      "glyph": "uni27E9.size2",
-     "location": {}
+     "location": {},
+     "z_score": null,
+     "measurement": null
     },
     {
      "check_id": "unreachable_glyphs",
      "code": "unreachable-glyphs",
      "severity": "WARN",
      "glyph": "radical.size2",
-     "location": {}
+     "location": {},
+     "z_score": null,
+     "measurement": null
     },
     {
      "check_id": "unreachable_glyphs",
      "code": "unreachable-glyphs",
      "severity": "WARN",
      "glyph": "parenleft.size3",
-     "location": {}
+     "location": {},
+     "z_score": null,
+     "measurement": null
     },
     {
      "check_id": "unreachable_glyphs",
      "code": "unreachable-glyphs",
      "severity": "WARN",
      "glyph": "parenright.size3",
-     "location": {}
+     "location": {},
+     "z_score": null,
+     "measurement": null
     },
     {
      "check_id": "unreachable_glyphs",
      "code": "unreachable-glyphs",
      "severity": "WARN",
      "glyph": "bracketleft.size3",
-     "location": {}
+     "location": {},
+     "z_score": null,
+     "measurement": null
     },
     {
      "check_id": "unreachable_glyphs",
      "code": "unreachable-glyphs",
      "severity": "WARN",
      "glyph": "bracketright.size3",
-     "location": {}
+     "location": {},
+     "z_score": null,
+     "measurement": null
     },
     {
      "check_id": "unreachable_glyphs",
      "code": "unreachable-glyphs",
      "severity": "WARN",
      "glyph": "braceleft.size3",
-     "location": {}
+     "location": {},
+     "z_score": null,
+     "measurement": null
     },
     {
      "check_id": "unreachable_glyphs",
      "code": "unreachable-glyphs",
      "severity": "WARN",
      "glyph": "braceright.size3",
-     "location": {}
+     "location": {},
+     "z_score": null,
+     "measurement": null
     },
     {
      "check_id": "unreachable_glyphs",
      "code": "unreachable-glyphs",
      "severity": "WARN",
      "glyph": "bar.size3",
-     "location": {}
+     "location": {},
+     "z_score": null,
+     "measurement": null
     },
     {
      "check_id": "unreachable_glyphs",
      "code": "unreachable-glyphs",
      "severity": "WARN",
      "glyph": "uni2016.size3",
-     "location": {}
+     "location": {},
+     "z_score": null,
+     "measurement": null
     },
     {
      "check_id": "unreachable_glyphs",
      "code": "unreachable-glyphs",
      "severity": "WARN",
      "glyph": "uni27E8.size3",
-     "location": {}
+     "location": {},
+     "z_score": null,
+     "measurement": null
     },
     {
      "check_id": "unreachable_glyphs",
      "code": "unreachable-glyphs",
      "severity": "WARN",
      "glyph": "uni27E9.size3",
-     "location": {}
+     "location": {},
+     "z_score": null,
+     "measurement": null
     },
     {
      "check_id": "unreachable_glyphs",
      "code": "unreachable-glyphs",
      "severity": "WARN",
      "glyph": "radical.size3",
-     "location": {}
+     "location": {},
+     "z_score": null,
+     "measurement": null
     },
     {
      "check_id": "unreachable_glyphs",
      "code": "unreachable-glyphs",
      "severity": "WARN",
      "glyph": "parenleft.size4",
-     "location": {}
+     "location": {},
+     "z_score": null,
+     "measurement": null
     },
     {
      "check_id": "unreachable_glyphs",
      "code": "unreachable-glyphs",
      "severity": "WARN",
      "glyph": "parenright.size4",
-     "location": {}
+     "location": {},
+     "z_score": null,
+     "measurement": null
     },
     {
      "check_id": "unreachable_glyphs",
      "code": "unreachable-glyphs",
      "severity": "WARN",
      "glyph": "bracketleft.size4",
-     "location": {}
+     "location": {},
+     "z_score": null,
+     "measurement": null
     },
     {
      "check_id": "unreachable_glyphs",
      "code": "unreachable-glyphs",
      "severity": "WARN",
      "glyph": "bracketright.size4",
-     "location": {}
+     "location": {},
+     "z_score": null,
+     "measurement": null
     },
     {
      "check_id": "unreachable_glyphs",
      "code": "unreachable-glyphs",
      "severity": "WARN",
      "glyph": "braceleft.size4",
-     "location": {}
+     "location": {},
+     "z_score": null,
+     "measurement": null
     },
     {
      "check_id": "unreachable_glyphs",
      "code": "unreachable-glyphs",
      "severity": "WARN",
      "glyph": "braceright.size4",
-     "location": {}
+     "location": {},
+     "z_score": null,
+     "measurement": null
     },
     {
      "check_id": "unreachable_glyphs",
      "code": "unreachable-glyphs",
      "severity": "WARN",
      "glyph": "bar.size4",
-     "location": {}
+     "location": {},
+     "z_score": null,
+     "measurement": null
     },
     {
      "check_id": "unreachable_glyphs",
      "code": "unreachable-glyphs",
      "severity": "WARN",
      "glyph": "uni2016.size4",
-     "location": {}
+     "location": {},
+     "z_score": null,
+     "measurement": null
     },
     {
      "check_id": "unreachable_glyphs",
      "code": "unreachable-glyphs",
      "severity": "WARN",
      "glyph": "uni27E8.size4",
-     "location": {}
+     "location": {},
+     "z_score": null,
+     "measurement": null
     },
     {
      "check_id": "unreachable_glyphs",
      "code": "unreachable-glyphs",
      "severity": "WARN",
      "glyph": "uni27E9.size4",
-     "location": {}
+     "location": {},
+     "z_score": null,
+     "measurement": null
     },
     {
      "check_id": "unreachable_glyphs",
      "code": "unreachable-glyphs",
      "severity": "WARN",
      "glyph": "radical.size4",
-     "location": {}
+     "location": {},
+     "z_score": null,
+     "measurement": null
     },
     {
      "check_id": "unreachable_glyphs",
      "code": "unreachable-glyphs",
      "severity": "WARN",
      "glyph": "summation.size1",
-     "location": {}
+     "location": {},
+     "z_score": null,
+     "measurement": null
     },
     {
      "check_id": "unreachable_glyphs",
      "code": "unreachable-glyphs",
      "severity": "WARN",
      "glyph": "product.size1",
-     "location": {}
+     "location": {},
+     "z_score": null,
+     "measurement": null
     },
     {
      "check_id": "unreachable_glyphs",
      "code": "unreachable-glyphs",
      "severity": "WARN",
      "glyph": "summation.size2",
-     "location": {}
+     "location": {},
+     "z_score": null,
+     "measurement": null
     },
     {
      "check_id": "unreachable_glyphs",
      "code": "unreachable-glyphs",
      "severity": "WARN",
      "glyph": "product.size2",
-     "location": {}
+     "location": {},
+     "z_score": null,
+     "measurement": null
     },
     {
      "check_id": "unreachable_glyphs",
      "code": "unreachable-glyphs",
      "severity": "WARN",
      "glyph": "summation.size3",
-     "location": {}
+     "location": {},
+     "z_score": null,
+     "measurement": null
     },
     {
      "check_id": "unreachable_glyphs",
      "code": "unreachable-glyphs",
      "severity": "WARN",
      "glyph": "product.size3",
-     "location": {}
+     "location": {},
+     "z_score": null,
+     "measurement": null
     },
     {
      "check_id": "unreachable_glyphs",
      "code": "unreachable-glyphs",
      "severity": "WARN",
      "glyph": "summation.size4",
-     "location": {}
+     "location": {},
+     "z_score": null,
+     "measurement": null
     },
     {
      "check_id": "unreachable_glyphs",
      "code": "unreachable-glyphs",
      "severity": "WARN",
      "glyph": "product.size4",
-     "location": {}
+     "location": {},
+     "z_score": null,
+     "measurement": null
     },
     {
      "check_id": "unreachable_glyphs",
      "code": "unreachable-glyphs",
      "severity": "WARN",
      "glyph": "integral.size1",
-     "location": {}
+     "location": {},
+     "z_score": null,
+     "measurement": null
     },
     {
      "check_id": "unreachable_glyphs",
      "code": "unreachable-glyphs",
      "severity": "WARN",
      "glyph": "integral.size2",
-     "location": {}
+     "location": {},
+     "z_score": null,
+     "measurement": null
     },
     {
      "check_id": "unreachable_glyphs",
      "code": "unreachable-glyphs",
      "severity": "WARN",
      "glyph": "integral.size3",
-     "location": {}
+     "location": {},
+     "z_score": null,
+     "measurement": null
     },
     {
      "check_id": "unreachable_glyphs",
      "code": "unreachable-glyphs",
      "severity": "WARN",
      "glyph": "integral.size4",
-     "location": {}
+     "location": {},
+     "z_score": null,
+     "measurement": null
     },
     {
      "check_id": "unreachable_glyphs",
      "code": "unreachable-glyphs",
      "severity": "WARN",
      "glyph": "parenleft.bot",
-     "location": {}
+     "location": {},
+     "z_score": null,
+     "measurement": null
     },
     {
      "check_id": "unreachable_glyphs",
      "code": "unreachable-glyphs",
      "severity": "WARN",
      "glyph": "parenleft.ext",
-     "location": {}
+     "location": {},
+     "z_score": null,
+     "measurement": null
     },
     {
      "check_id": "unreachable_glyphs",
      "code": "unreachable-glyphs",
      "severity": "WARN",
      "glyph": "parenleft.top",
-     "location": {}
+     "location": {},
+     "z_score": null,
+     "measurement": null
     },
     {
      "check_id": "unreachable_glyphs",
      "code": "unreachable-glyphs",
      "severity": "WARN",
      "glyph": "parenright.bot",
-     "location": {}
+     "location": {},
+     "z_score": null,
+     "measurement": null
     },
     {
      "check_id": "unreachable_glyphs",
      "code": "unreachable-glyphs",
      "severity": "WARN",
      "glyph": "parenright.ext",
-     "location": {}
+     "location": {},
+     "z_score": null,
+     "measurement": null
     },
     {
      "check_id": "unreachable_glyphs",
      "code": "unreachable-glyphs",
      "severity": "WARN",
      "glyph": "parenright.top",
-     "location": {}
+     "location": {},
+     "z_score": null,
+     "measurement": null
     },
     {
      "check_id": "unreachable_glyphs",
      "code": "unreachable-glyphs",
      "severity": "WARN",
      "glyph": "bracketleft.bot",
-     "location": {}
+     "location": {},
+     "z_score": null,
+     "measurement": null
     },
     {
      "check_id": "unreachable_glyphs",
      "code": "unreachable-glyphs",
      "severity": "WARN",
      "glyph": "bracketleft.ext",
-     "location": {}
+     "location": {},
+     "z_score": null,
+     "measurement": null
     },
     {
      "check_id": "unreachable_glyphs",
      "code": "unreachable-glyphs",
      "severity": "WARN",
      "glyph": "bracketleft.top",
-     "location": {}
+     "location": {},
+     "z_score": null,
+     "measurement": null
     },
     {
      "check_id": "unreachable_glyphs",
      "code": "unreachable-glyphs",
      "severity": "WARN",
      "glyph": "bracketright.bot",
-     "location": {}
+     "location": {},
+     "z_score": null,
+     "measurement": null
     },
     {
      "check_id": "unreachable_glyphs",
      "code": "unreachable-glyphs",
      "severity": "WARN",
      "glyph": "bracketright.ext",
-     "location": {}
+     "location": {},
+     "z_score": null,
+     "measurement": null
     },
     {
      "check_id": "unreachable_glyphs",
      "code": "unreachable-glyphs",
      "severity": "WARN",
      "glyph": "bracketright.top",
-     "location": {}
+     "location": {},
+     "z_score": null,
+     "measurement": null
     },
     {
      "check_id": "unreachable_glyphs",
      "code": "unreachable-glyphs",
      "severity": "WARN",
      "glyph": "braceleft.bot",
-     "location": {}
+     "location": {},
+     "z_score": null,
+     "measurement": null
     },
     {
      "check_id": "unreachable_glyphs",
      "code": "unreachable-glyphs",
      "severity": "WARN",
      "glyph": "braceleft.ext",
-     "location": {}
+     "location": {},
+     "z_score": null,
+     "measurement": null
     },
     {
      "check_id": "unreachable_glyphs",
      "code": "unreachable-glyphs",
      "severity": "WARN",
      "glyph": "braceleft.mid",
-     "location": {}
+     "location": {},
+     "z_score": null,
+     "measurement": null
     },
     {
      "check_id": "unreachable_glyphs",
      "code": "unreachable-glyphs",
      "severity": "WARN",
      "glyph": "braceleft.top",
-     "location": {}
+     "location": {},
+     "z_score": null,
+     "measurement": null
     },
     {
      "check_id": "unreachable_glyphs",
      "code": "unreachable-glyphs",
      "severity": "WARN",
      "glyph": "braceright.bot",
-     "location": {}
+     "location": {},
+     "z_score": null,
+     "measurement": null
     },
     {
      "check_id": "unreachable_glyphs",
      "code": "unreachable-glyphs",
      "severity": "WARN",
      "glyph": "braceright.ext",
-     "location": {}
+     "location": {},
+     "z_score": null,
+     "measurement": null
     },
     {
      "check_id": "unreachable_glyphs",
      "code": "unreachable-glyphs",
      "severity": "WARN",
      "glyph": "braceright.mid",
-     "location": {}
+     "location": {},
+     "z_score": null,
+     "measurement": null
     },
     {
      "check_id": "unreachable_glyphs",
      "code": "unreachable-glyphs",
      "severity": "WARN",
      "glyph": "braceright.top",
-     "location": {}
+     "location": {},
+     "z_score": null,
+     "measurement": null
     },
     {
      "check_id": "unreachable_glyphs",
      "code": "unreachable-glyphs",
      "severity": "WARN",
      "glyph": "bar.ext",
-     "location": {}
+     "location": {},
+     "z_score": null,
+     "measurement": null
     },
     {
      "check_id": "unreachable_glyphs",
      "code": "unreachable-glyphs",
      "severity": "WARN",
      "glyph": "uni2016.ext",
-     "location": {}
+     "location": {},
+     "z_score": null,
+     "measurement": null
     },
     {
      "check_id": "unreachable_glyphs",
      "code": "unreachable-glyphs",
      "severity": "WARN",
      "glyph": "radical.bot",
-     "location": {}
+     "location": {},
+     "z_score": null,
+     "measurement": null
     },
     {
      "check_id": "unreachable_glyphs",
      "code": "unreachable-glyphs",
      "severity": "WARN",
      "glyph": "radical.ext",
-     "location": {}
+     "location": {},
+     "z_score": null,
+     "measurement": null
     },
     {
      "check_id": "unreachable_glyphs",
      "code": "unreachable-glyphs",
      "severity": "WARN",
      "glyph": "radical.top",
-     "location": {}
+     "location": {},
+     "z_score": null,
+     "measurement": null
     },
     {
      "check_id": "unreachable_glyphs",
      "code": "unreachable-glyphs",
      "severity": "WARN",
      "glyph": "integral.bot",
-     "location": {}
+     "location": {},
+     "z_score": null,
+     "measurement": null
     },
     {
      "check_id": "unreachable_glyphs",
      "code": "unreachable-glyphs",
      "severity": "WARN",
      "glyph": "integral.ext",
-     "location": {}
+     "location": {},
+     "z_score": null,
+     "measurement": null
     },
     {
      "check_id": "unreachable_glyphs",
      "code": "unreachable-glyphs",
      "severity": "WARN",
      "glyph": "integral.top",
-     "location": {}
+     "location": {},
+     "z_score": null,
+     "measurement": null
     },
     {
      "check_id": "unreachable_glyphs",
@@ -44118,6 +44304,8 @@
      "severity": "WARN",
      "glyph": null,
      "location": {},
+     "z_score": null,
+     "measurement": null,
      "context": {
       "total_unreachable": 84
      }
@@ -44129,7 +44317,9 @@
      "glyph": "ellipsis",
      "location": {
       "wght": 350.0
-     }
+     },
+     "z_score": 10.005156517028809,
+     "measurement": "advance widths"
     },
     {
      "check_id": "suspicious_sidebearings",
@@ -44138,7 +44328,9 @@
      "glyph": "ellipsis",
      "location": {
       "wght": 449.98779296875
-     }
+     },
+     "z_score": 10.481950759887695,
+     "measurement": "advance widths"
     },
     {
      "check_id": "suspicious_sidebearings",
@@ -44147,7 +44339,9 @@
      "glyph": "ellipsis",
      "location": {
       "wght": 450.006103515625
-     }
+     },
+     "z_score": 10.481950759887695,
+     "measurement": "advance widths"
     },
     {
      "check_id": "suspicious_sidebearings",
@@ -44156,7 +44350,9 @@
      "glyph": "ellipsis",
      "location": {
       "wght": 499.993896484375
-     }
+     },
+     "z_score": 10.830705642700195,
+     "measurement": "advance widths"
     },
     {
      "check_id": "suspicious_sidebearings",
@@ -44165,7 +44361,9 @@
      "glyph": "ellipsis",
      "location": {
       "wght": 599.98779296875
-     }
+     },
+     "z_score": 11.745593070983887,
+     "measurement": "advance widths"
     },
     {
      "check_id": "suspicious_sidebearings",
@@ -44174,7 +44372,9 @@
      "glyph": "ellipsis",
      "location": {
       "wght": 600.006103515625
-     }
+     },
+     "z_score": 11.745593070983887,
+     "measurement": "advance widths"
     },
     {
      "check_id": "suspicious_sidebearings",
@@ -44183,11 +44383,17 @@
      "glyph": "ellipsis",
      "location": {
       "wght": 700.0
-     }
+     },
+     "z_score": 12.59475326538086,
+     "measurement": "advance widths"
     }
    ],
-   "passed": false,
-   "numerical_passed": true
+   "passed": true,
+   "numerical_passed": true,
+   "alignment_source": "saved aligned masters",
+   "unaccepted_fontspector_findings": [],
+   "missing_accepted_findings": [],
+   "verdict": "verified with accepted findings"
   },
   "Italic": {
    "masters": [
@@ -85515,7 +85721,9 @@
      "glyph": "zcaron",
      "location": {
       "wght": 449.98779296875
-     }
+     },
+     "z_score": 11.485076904296875,
+     "measurement": "right sidebearings"
     },
     {
      "check_id": "suspicious_sidebearings",
@@ -85524,7 +85732,9 @@
      "glyph": "zcaron",
      "location": {
       "wght": 450.006103515625
-     }
+     },
+     "z_score": 11.485076904296875,
+     "measurement": "right sidebearings"
     },
     {
      "check_id": "suspicious_sidebearings",
@@ -85533,7 +85743,9 @@
      "glyph": "ellipsis",
      "location": {
       "wght": 350.0
-     }
+     },
+     "z_score": 13.670393943786621,
+     "measurement": "advance widths"
     },
     {
      "check_id": "suspicious_sidebearings",
@@ -85542,7 +85754,9 @@
      "glyph": "ellipsis",
      "location": {
       "wght": 449.98779296875
-     }
+     },
+     "z_score": 13.67434310913086,
+     "measurement": "advance widths"
     },
     {
      "check_id": "suspicious_sidebearings",
@@ -85551,7 +85765,9 @@
      "glyph": "ellipsis",
      "location": {
       "wght": 450.006103515625
-     }
+     },
+     "z_score": 13.67434310913086,
+     "measurement": "advance widths"
     }
    ],
    "fontspector_findings": [
@@ -85560,84 +85776,108 @@
      "code": "contour-count",
      "severity": "WARN",
      "glyph": "gamma",
-     "location": {}
+     "location": {},
+     "z_score": null,
+     "measurement": null
     },
     {
      "check_id": "contour_count",
      "code": "contour-count",
      "severity": "WARN",
      "glyph": "kappa",
-     "location": {}
+     "location": {},
+     "z_score": null,
+     "measurement": null
     },
     {
      "check_id": "contour_count",
      "code": "contour-count",
      "severity": "WARN",
      "glyph": "l.sc",
-     "location": {}
+     "location": {},
+     "z_score": null,
+     "measurement": null
     },
     {
      "check_id": "contour_count",
      "code": "contour-count",
      "severity": "WARN",
      "glyph": "lacute.sc",
-     "location": {}
+     "location": {},
+     "z_score": null,
+     "measurement": null
     },
     {
      "check_id": "contour_count",
      "code": "contour-count",
      "severity": "WARN",
      "glyph": "lcommaaccent.sc",
-     "location": {}
+     "location": {},
+     "z_score": null,
+     "measurement": null
     },
     {
      "check_id": "contour_count",
      "code": "contour-count",
      "severity": "WARN",
      "glyph": "lcaron.sc",
-     "location": {}
+     "location": {},
+     "z_score": null,
+     "measurement": null
     },
     {
      "check_id": "contour_count",
      "code": "contour-count",
      "severity": "WARN",
      "glyph": "tcedilla.sc",
-     "location": {}
+     "location": {},
+     "z_score": null,
+     "measurement": null
     },
     {
      "check_id": "contour_count",
      "code": "contour-count",
      "severity": "WARN",
      "glyph": "hbar.sc",
-     "location": {}
+     "location": {},
+     "z_score": null,
+     "measurement": null
     },
     {
      "check_id": "contour_count",
      "code": "contour-count",
      "severity": "WARN",
      "glyph": "lslash.sc",
-     "location": {}
+     "location": {},
+     "z_score": null,
+     "measurement": null
     },
     {
      "check_id": "contour_count",
      "code": "contour-count",
      "severity": "WARN",
      "glyph": "ldot.sc",
-     "location": {}
+     "location": {},
+     "z_score": null,
+     "measurement": null
     },
     {
      "check_id": "file_size",
      "code": "large-font",
      "severity": "WARN",
      "glyph": null,
-     "location": {}
+     "location": {},
+     "z_score": null,
+     "measurement": null
     },
     {
      "check_id": "mandatory_avar_table",
      "code": "missing-avar",
      "severity": "WARN",
      "glyph": null,
-     "location": {}
+     "location": {},
+     "z_score": null,
+     "measurement": null
     },
     {
      "check_id": "required_tables",
@@ -85645,6 +85885,8 @@
      "severity": "INFO",
      "glyph": null,
      "location": {},
+     "z_score": null,
+     "measurement": null,
      "context": {
       "optional_tables": [
        "loca",
@@ -85658,588 +85900,756 @@
      "code": "unreachable-glyphs",
      "severity": "WARN",
      "glyph": "parenleft.size1",
-     "location": {}
+     "location": {},
+     "z_score": null,
+     "measurement": null
     },
     {
      "check_id": "unreachable_glyphs",
      "code": "unreachable-glyphs",
      "severity": "WARN",
      "glyph": "parenright.size1",
-     "location": {}
+     "location": {},
+     "z_score": null,
+     "measurement": null
     },
     {
      "check_id": "unreachable_glyphs",
      "code": "unreachable-glyphs",
      "severity": "WARN",
      "glyph": "bracketleft.size1",
-     "location": {}
+     "location": {},
+     "z_score": null,
+     "measurement": null
     },
     {
      "check_id": "unreachable_glyphs",
      "code": "unreachable-glyphs",
      "severity": "WARN",
      "glyph": "bracketright.size1",
-     "location": {}
+     "location": {},
+     "z_score": null,
+     "measurement": null
     },
     {
      "check_id": "unreachable_glyphs",
      "code": "unreachable-glyphs",
      "severity": "WARN",
      "glyph": "braceleft.size1",
-     "location": {}
+     "location": {},
+     "z_score": null,
+     "measurement": null
     },
     {
      "check_id": "unreachable_glyphs",
      "code": "unreachable-glyphs",
      "severity": "WARN",
      "glyph": "braceright.size1",
-     "location": {}
+     "location": {},
+     "z_score": null,
+     "measurement": null
     },
     {
      "check_id": "unreachable_glyphs",
      "code": "unreachable-glyphs",
      "severity": "WARN",
      "glyph": "bar.size1",
-     "location": {}
+     "location": {},
+     "z_score": null,
+     "measurement": null
     },
     {
      "check_id": "unreachable_glyphs",
      "code": "unreachable-glyphs",
      "severity": "WARN",
      "glyph": "uni2016.size1",
-     "location": {}
+     "location": {},
+     "z_score": null,
+     "measurement": null
     },
     {
      "check_id": "unreachable_glyphs",
      "code": "unreachable-glyphs",
      "severity": "WARN",
      "glyph": "uni27E8.size1",
-     "location": {}
+     "location": {},
+     "z_score": null,
+     "measurement": null
     },
     {
      "check_id": "unreachable_glyphs",
      "code": "unreachable-glyphs",
      "severity": "WARN",
      "glyph": "uni27E9.size1",
-     "location": {}
+     "location": {},
+     "z_score": null,
+     "measurement": null
     },
     {
      "check_id": "unreachable_glyphs",
      "code": "unreachable-glyphs",
      "severity": "WARN",
      "glyph": "radical.size1",
-     "location": {}
+     "location": {},
+     "z_score": null,
+     "measurement": null
     },
     {
      "check_id": "unreachable_glyphs",
      "code": "unreachable-glyphs",
      "severity": "WARN",
      "glyph": "parenleft.size2",
-     "location": {}
+     "location": {},
+     "z_score": null,
+     "measurement": null
     },
     {
      "check_id": "unreachable_glyphs",
      "code": "unreachable-glyphs",
      "severity": "WARN",
      "glyph": "parenright.size2",
-     "location": {}
+     "location": {},
+     "z_score": null,
+     "measurement": null
     },
     {
      "check_id": "unreachable_glyphs",
      "code": "unreachable-glyphs",
      "severity": "WARN",
      "glyph": "bracketleft.size2",
-     "location": {}
+     "location": {},
+     "z_score": null,
+     "measurement": null
     },
     {
      "check_id": "unreachable_glyphs",
      "code": "unreachable-glyphs",
      "severity": "WARN",
      "glyph": "bracketright.size2",
-     "location": {}
+     "location": {},
+     "z_score": null,
+     "measurement": null
     },
     {
      "check_id": "unreachable_glyphs",
      "code": "unreachable-glyphs",
      "severity": "WARN",
      "glyph": "braceleft.size2",
-     "location": {}
+     "location": {},
+     "z_score": null,
+     "measurement": null
     },
     {
      "check_id": "unreachable_glyphs",
      "code": "unreachable-glyphs",
      "severity": "WARN",
      "glyph": "braceright.size2",
-     "location": {}
+     "location": {},
+     "z_score": null,
+     "measurement": null
     },
     {
      "check_id": "unreachable_glyphs",
      "code": "unreachable-glyphs",
      "severity": "WARN",
      "glyph": "bar.size2",
-     "location": {}
+     "location": {},
+     "z_score": null,
+     "measurement": null
     },
     {
      "check_id": "unreachable_glyphs",
      "code": "unreachable-glyphs",
      "severity": "WARN",
      "glyph": "uni2016.size2",
-     "location": {}
+     "location": {},
+     "z_score": null,
+     "measurement": null
     },
     {
      "check_id": "unreachable_glyphs",
      "code": "unreachable-glyphs",
      "severity": "WARN",
      "glyph": "uni27E8.size2",
-     "location": {}
+     "location": {},
+     "z_score": null,
+     "measurement": null
     },
     {
      "check_id": "unreachable_glyphs",
      "code": "unreachable-glyphs",
      "severity": "WARN",
      "glyph": "uni27E9.size2",
-     "location": {}
+     "location": {},
+     "z_score": null,
+     "measurement": null
     },
     {
      "check_id": "unreachable_glyphs",
      "code": "unreachable-glyphs",
      "severity": "WARN",
      "glyph": "radical.size2",
-     "location": {}
+     "location": {},
+     "z_score": null,
+     "measurement": null
     },
     {
      "check_id": "unreachable_glyphs",
      "code": "unreachable-glyphs",
      "severity": "WARN",
      "glyph": "parenleft.size3",
-     "location": {}
+     "location": {},
+     "z_score": null,
+     "measurement": null
     },
     {
      "check_id": "unreachable_glyphs",
      "code": "unreachable-glyphs",
      "severity": "WARN",
      "glyph": "parenright.size3",
-     "location": {}
+     "location": {},
+     "z_score": null,
+     "measurement": null
     },
     {
      "check_id": "unreachable_glyphs",
      "code": "unreachable-glyphs",
      "severity": "WARN",
      "glyph": "bracketleft.size3",
-     "location": {}
+     "location": {},
+     "z_score": null,
+     "measurement": null
     },
     {
      "check_id": "unreachable_glyphs",
      "code": "unreachable-glyphs",
      "severity": "WARN",
      "glyph": "bracketright.size3",
-     "location": {}
+     "location": {},
+     "z_score": null,
+     "measurement": null
     },
     {
      "check_id": "unreachable_glyphs",
      "code": "unreachable-glyphs",
      "severity": "WARN",
      "glyph": "braceleft.size3",
-     "location": {}
+     "location": {},
+     "z_score": null,
+     "measurement": null
     },
     {
      "check_id": "unreachable_glyphs",
      "code": "unreachable-glyphs",
      "severity": "WARN",
      "glyph": "braceright.size3",
-     "location": {}
+     "location": {},
+     "z_score": null,
+     "measurement": null
     },
     {
      "check_id": "unreachable_glyphs",
      "code": "unreachable-glyphs",
      "severity": "WARN",
      "glyph": "bar.size3",
-     "location": {}
+     "location": {},
+     "z_score": null,
+     "measurement": null
     },
     {
      "check_id": "unreachable_glyphs",
      "code": "unreachable-glyphs",
      "severity": "WARN",
      "glyph": "uni2016.size3",
-     "location": {}
+     "location": {},
+     "z_score": null,
+     "measurement": null
     },
     {
      "check_id": "unreachable_glyphs",
      "code": "unreachable-glyphs",
      "severity": "WARN",
      "glyph": "uni27E8.size3",
-     "location": {}
+     "location": {},
+     "z_score": null,
+     "measurement": null
     },
     {
      "check_id": "unreachable_glyphs",
      "code": "unreachable-glyphs",
      "severity": "WARN",
      "glyph": "uni27E9.size3",
-     "location": {}
+     "location": {},
+     "z_score": null,
+     "measurement": null
     },
     {
      "check_id": "unreachable_glyphs",
      "code": "unreachable-glyphs",
      "severity": "WARN",
      "glyph": "radical.size3",
-     "location": {}
+     "location": {},
+     "z_score": null,
+     "measurement": null
     },
     {
      "check_id": "unreachable_glyphs",
      "code": "unreachable-glyphs",
      "severity": "WARN",
      "glyph": "parenleft.size4",
-     "location": {}
+     "location": {},
+     "z_score": null,
+     "measurement": null
     },
     {
      "check_id": "unreachable_glyphs",
      "code": "unreachable-glyphs",
      "severity": "WARN",
      "glyph": "parenright.size4",
-     "location": {}
+     "location": {},
+     "z_score": null,
+     "measurement": null
     },
     {
      "check_id": "unreachable_glyphs",
      "code": "unreachable-glyphs",
      "severity": "WARN",
      "glyph": "bracketleft.size4",
-     "location": {}
+     "location": {},
+     "z_score": null,
+     "measurement": null
     },
     {
      "check_id": "unreachable_glyphs",
      "code": "unreachable-glyphs",
      "severity": "WARN",
      "glyph": "bracketright.size4",
-     "location": {}
+     "location": {},
+     "z_score": null,
+     "measurement": null
     },
     {
      "check_id": "unreachable_glyphs",
      "code": "unreachable-glyphs",
      "severity": "WARN",
      "glyph": "braceleft.size4",
-     "location": {}
+     "location": {},
+     "z_score": null,
+     "measurement": null
     },
     {
      "check_id": "unreachable_glyphs",
      "code": "unreachable-glyphs",
      "severity": "WARN",
      "glyph": "braceright.size4",
-     "location": {}
+     "location": {},
+     "z_score": null,
+     "measurement": null
     },
     {
      "check_id": "unreachable_glyphs",
      "code": "unreachable-glyphs",
      "severity": "WARN",
      "glyph": "bar.size4",
-     "location": {}
+     "location": {},
+     "z_score": null,
+     "measurement": null
     },
     {
      "check_id": "unreachable_glyphs",
      "code": "unreachable-glyphs",
      "severity": "WARN",
      "glyph": "uni2016.size4",
-     "location": {}
+     "location": {},
+     "z_score": null,
+     "measurement": null
     },
     {
      "check_id": "unreachable_glyphs",
      "code": "unreachable-glyphs",
      "severity": "WARN",
      "glyph": "uni27E8.size4",
-     "location": {}
+     "location": {},
+     "z_score": null,
+     "measurement": null
     },
     {
      "check_id": "unreachable_glyphs",
      "code": "unreachable-glyphs",
      "severity": "WARN",
      "glyph": "uni27E9.size4",
-     "location": {}
+     "location": {},
+     "z_score": null,
+     "measurement": null
     },
     {
      "check_id": "unreachable_glyphs",
      "code": "unreachable-glyphs",
      "severity": "WARN",
      "glyph": "radical.size4",
-     "location": {}
+     "location": {},
+     "z_score": null,
+     "measurement": null
     },
     {
      "check_id": "unreachable_glyphs",
      "code": "unreachable-glyphs",
      "severity": "WARN",
      "glyph": "summation.size1",
-     "location": {}
+     "location": {},
+     "z_score": null,
+     "measurement": null
     },
     {
      "check_id": "unreachable_glyphs",
      "code": "unreachable-glyphs",
      "severity": "WARN",
      "glyph": "product.size1",
-     "location": {}
+     "location": {},
+     "z_score": null,
+     "measurement": null
     },
     {
      "check_id": "unreachable_glyphs",
      "code": "unreachable-glyphs",
      "severity": "WARN",
      "glyph": "summation.size2",
-     "location": {}
+     "location": {},
+     "z_score": null,
+     "measurement": null
     },
     {
      "check_id": "unreachable_glyphs",
      "code": "unreachable-glyphs",
      "severity": "WARN",
      "glyph": "product.size2",
-     "location": {}
+     "location": {},
+     "z_score": null,
+     "measurement": null
     },
     {
      "check_id": "unreachable_glyphs",
      "code": "unreachable-glyphs",
      "severity": "WARN",
      "glyph": "summation.size3",
-     "location": {}
+     "location": {},
+     "z_score": null,
+     "measurement": null
     },
     {
      "check_id": "unreachable_glyphs",
      "code": "unreachable-glyphs",
      "severity": "WARN",
      "glyph": "product.size3",
-     "location": {}
+     "location": {},
+     "z_score": null,
+     "measurement": null
     },
     {
      "check_id": "unreachable_glyphs",
      "code": "unreachable-glyphs",
      "severity": "WARN",
      "glyph": "summation.size4",
-     "location": {}
+     "location": {},
+     "z_score": null,
+     "measurement": null
     },
     {
      "check_id": "unreachable_glyphs",
      "code": "unreachable-glyphs",
      "severity": "WARN",
      "glyph": "product.size4",
-     "location": {}
+     "location": {},
+     "z_score": null,
+     "measurement": null
     },
     {
      "check_id": "unreachable_glyphs",
      "code": "unreachable-glyphs",
      "severity": "WARN",
      "glyph": "integral.size1",
-     "location": {}
+     "location": {},
+     "z_score": null,
+     "measurement": null
     },
     {
      "check_id": "unreachable_glyphs",
      "code": "unreachable-glyphs",
      "severity": "WARN",
      "glyph": "integral.size2",
-     "location": {}
+     "location": {},
+     "z_score": null,
+     "measurement": null
     },
     {
      "check_id": "unreachable_glyphs",
      "code": "unreachable-glyphs",
      "severity": "WARN",
      "glyph": "integral.size3",
-     "location": {}
+     "location": {},
+     "z_score": null,
+     "measurement": null
     },
     {
      "check_id": "unreachable_glyphs",
      "code": "unreachable-glyphs",
      "severity": "WARN",
      "glyph": "integral.size4",
-     "location": {}
+     "location": {},
+     "z_score": null,
+     "measurement": null
     },
     {
      "check_id": "unreachable_glyphs",
      "code": "unreachable-glyphs",
      "severity": "WARN",
      "glyph": "parenleft.bot",
-     "location": {}
+     "location": {},
+     "z_score": null,
+     "measurement": null
     },
     {
      "check_id": "unreachable_glyphs",
      "code": "unreachable-glyphs",
      "severity": "WARN",
      "glyph": "parenleft.ext",
-     "location": {}
+     "location": {},
+     "z_score": null,
+     "measurement": null
     },
     {
      "check_id": "unreachable_glyphs",
      "code": "unreachable-glyphs",
      "severity": "WARN",
      "glyph": "parenleft.top",
-     "location": {}
+     "location": {},
+     "z_score": null,
+     "measurement": null
     },
     {
      "check_id": "unreachable_glyphs",
      "code": "unreachable-glyphs",
      "severity": "WARN",
      "glyph": "parenright.bot",
-     "location": {}
+     "location": {},
+     "z_score": null,
+     "measurement": null
     },
     {
      "check_id": "unreachable_glyphs",
      "code": "unreachable-glyphs",
      "severity": "WARN",
      "glyph": "parenright.ext",
-     "location": {}
+     "location": {},
+     "z_score": null,
+     "measurement": null
     },
     {
      "check_id": "unreachable_glyphs",
      "code": "unreachable-glyphs",
      "severity": "WARN",
      "glyph": "parenright.top",
-     "location": {}
+     "location": {},
+     "z_score": null,
+     "measurement": null
     },
     {
      "check_id": "unreachable_glyphs",
      "code": "unreachable-glyphs",
      "severity": "WARN",
      "glyph": "bracketleft.bot",
-     "location": {}
+     "location": {},
+     "z_score": null,
+     "measurement": null
     },
     {
      "check_id": "unreachable_glyphs",
      "code": "unreachable-glyphs",
      "severity": "WARN",
      "glyph": "bracketleft.ext",
-     "location": {}
+     "location": {},
+     "z_score": null,
+     "measurement": null
     },
     {
      "check_id": "unreachable_glyphs",
      "code": "unreachable-glyphs",
      "severity": "WARN",
      "glyph": "bracketleft.top",
-     "location": {}
+     "location": {},
+     "z_score": null,
+     "measurement": null
     },
     {
      "check_id": "unreachable_glyphs",
      "code": "unreachable-glyphs",
      "severity": "WARN",
      "glyph": "bracketright.bot",
-     "location": {}
+     "location": {},
+     "z_score": null,
+     "measurement": null
     },
     {
      "check_id": "unreachable_glyphs",
      "code": "unreachable-glyphs",
      "severity": "WARN",
      "glyph": "bracketright.ext",
-     "location": {}
+     "location": {},
+     "z_score": null,
+     "measurement": null
     },
     {
      "check_id": "unreachable_glyphs",
      "code": "unreachable-glyphs",
      "severity": "WARN",
      "glyph": "bracketright.top",
-     "location": {}
+     "location": {},
+     "z_score": null,
+     "measurement": null
     },
     {
      "check_id": "unreachable_glyphs",
      "code": "unreachable-glyphs",
      "severity": "WARN",
      "glyph": "braceleft.bot",
-     "location": {}
+     "location": {},
+     "z_score": null,
+     "measurement": null
     },
     {
      "check_id": "unreachable_glyphs",
      "code": "unreachable-glyphs",
      "severity": "WARN",
      "glyph": "braceleft.ext",
-     "location": {}
+     "location": {},
+     "z_score": null,
+     "measurement": null
     },
     {
      "check_id": "unreachable_glyphs",
      "code": "unreachable-glyphs",
      "severity": "WARN",
      "glyph": "braceleft.mid",
-     "location": {}
+     "location": {},
+     "z_score": null,
+     "measurement": null
     },
     {
      "check_id": "unreachable_glyphs",
      "code": "unreachable-glyphs",
      "severity": "WARN",
      "glyph": "braceleft.top",
-     "location": {}
+     "location": {},
+     "z_score": null,
+     "measurement": null
     },
     {
      "check_id": "unreachable_glyphs",
      "code": "unreachable-glyphs",
      "severity": "WARN",
      "glyph": "braceright.bot",
-     "location": {}
+     "location": {},
+     "z_score": null,
+     "measurement": null
     },
     {
      "check_id": "unreachable_glyphs",
      "code": "unreachable-glyphs",
      "severity": "WARN",
      "glyph": "braceright.ext",
-     "location": {}
+     "location": {},
+     "z_score": null,
+     "measurement": null
     },
     {
      "check_id": "unreachable_glyphs",
      "code": "unreachable-glyphs",
      "severity": "WARN",
      "glyph": "braceright.mid",
-     "location": {}
+     "location": {},
+     "z_score": null,
+     "measurement": null
     },
     {
      "check_id": "unreachable_glyphs",
      "code": "unreachable-glyphs",
      "severity": "WARN",
      "glyph": "braceright.top",
-     "location": {}
+     "location": {},
+     "z_score": null,
+     "measurement": null
     },
     {
      "check_id": "unreachable_glyphs",
      "code": "unreachable-glyphs",
      "severity": "WARN",
      "glyph": "bar.ext",
-     "location": {}
+     "location": {},
+     "z_score": null,
+     "measurement": null
     },
     {
      "check_id": "unreachable_glyphs",
      "code": "unreachable-glyphs",
      "severity": "WARN",
      "glyph": "uni2016.ext",
-     "location": {}
+     "location": {},
+     "z_score": null,
+     "measurement": null
     },
     {
      "check_id": "unreachable_glyphs",
      "code": "unreachable-glyphs",
      "severity": "WARN",
      "glyph": "radical.bot",
-     "location": {}
+     "location": {},
+     "z_score": null,
+     "measurement": null
     },
     {
      "check_id": "unreachable_glyphs",
      "code": "unreachable-glyphs",
      "severity": "WARN",
      "glyph": "radical.ext",
-     "location": {}
+     "location": {},
+     "z_score": null,
+     "measurement": null
     },
     {
      "check_id": "unreachable_glyphs",
      "code": "unreachable-glyphs",
      "severity": "WARN",
      "glyph": "radical.top",
-     "location": {}
+     "location": {},
+     "z_score": null,
+     "measurement": null
     },
     {
      "check_id": "unreachable_glyphs",
      "code": "unreachable-glyphs",
      "severity": "WARN",
      "glyph": "integral.bot",
-     "location": {}
+     "location": {},
+     "z_score": null,
+     "measurement": null
     },
     {
      "check_id": "unreachable_glyphs",
      "code": "unreachable-glyphs",
      "severity": "WARN",
      "glyph": "integral.ext",
-     "location": {}
+     "location": {},
+     "z_score": null,
+     "measurement": null
     },
     {
      "check_id": "unreachable_glyphs",
      "code": "unreachable-glyphs",
      "severity": "WARN",
      "glyph": "integral.top",
-     "location": {}
+     "location": {},
+     "z_score": null,
+     "measurement": null
     },
     {
      "check_id": "unreachable_glyphs",
@@ -86247,6 +86657,8 @@
      "severity": "WARN",
      "glyph": null,
      "location": {},
+     "z_score": null,
+     "measurement": null,
      "context": {
       "total_unreachable": 84
      }
@@ -86255,37 +86667,12 @@
      "check_id": "suspicious_sidebearings",
      "code": "large-rsb-variation",
      "severity": "WARN",
-     "glyph": "Lacute",
-     "location": {
-      "wght": 599.98779296875
-     }
-    },
-    {
-     "check_id": "suspicious_sidebearings",
-     "code": "large-rsb-variation",
-     "severity": "WARN",
-     "glyph": "Lacute",
-     "location": {
-      "wght": 600.006103515625
-     }
-    },
-    {
-     "check_id": "suspicious_sidebearings",
-     "code": "large-rsb-variation",
-     "severity": "WARN",
-     "glyph": "Lacute",
-     "location": {
-      "wght": 700.0
-     }
-    },
-    {
-     "check_id": "suspicious_sidebearings",
-     "code": "large-rsb-variation",
-     "severity": "WARN",
      "glyph": "zcaron",
      "location": {
       "wght": 449.98779296875
-     }
+     },
+     "z_score": 11.485076904296875,
+     "measurement": "right sidebearings"
     },
     {
      "check_id": "suspicious_sidebearings",
@@ -86294,7 +86681,42 @@
      "glyph": "zcaron",
      "location": {
       "wght": 450.006103515625
-     }
+     },
+     "z_score": 11.485076904296875,
+     "measurement": "right sidebearings"
+    },
+    {
+     "check_id": "suspicious_sidebearings",
+     "code": "large-rsb-variation",
+     "severity": "WARN",
+     "glyph": "Lacute",
+     "location": {
+      "wght": 599.98779296875
+     },
+     "z_score": 19.06690216064453,
+     "measurement": "right sidebearings"
+    },
+    {
+     "check_id": "suspicious_sidebearings",
+     "code": "large-rsb-variation",
+     "severity": "WARN",
+     "glyph": "Lacute",
+     "location": {
+      "wght": 600.006103515625
+     },
+     "z_score": 19.06690216064453,
+     "measurement": "right sidebearings"
+    },
+    {
+     "check_id": "suspicious_sidebearings",
+     "code": "large-rsb-variation",
+     "severity": "WARN",
+     "glyph": "Lacute",
+     "location": {
+      "wght": 700.0
+     },
+     "z_score": 16.05118751525879,
+     "measurement": "right sidebearings"
     },
     {
      "check_id": "suspicious_sidebearings",
@@ -86303,7 +86725,9 @@
      "glyph": "ellipsis",
      "location": {
       "wght": 300.0
-     }
+     },
+     "z_score": 13.38908863067627,
+     "measurement": "advance widths"
     },
     {
      "check_id": "suspicious_sidebearings",
@@ -86312,7 +86736,9 @@
      "glyph": "ellipsis",
      "location": {
       "wght": 350.0
-     }
+     },
+     "z_score": 13.670393943786621,
+     "measurement": "advance widths"
     },
     {
      "check_id": "suspicious_sidebearings",
@@ -86321,7 +86747,9 @@
      "glyph": "ellipsis",
      "location": {
       "wght": 449.98779296875
-     }
+     },
+     "z_score": 13.67434310913086,
+     "measurement": "advance widths"
     },
     {
      "check_id": "suspicious_sidebearings",
@@ -86330,7 +86758,9 @@
      "glyph": "ellipsis",
      "location": {
       "wght": 450.006103515625
-     }
+     },
+     "z_score": 13.67434310913086,
+     "measurement": "advance widths"
     },
     {
      "check_id": "suspicious_sidebearings",
@@ -86339,7 +86769,9 @@
      "glyph": "ellipsis",
      "location": {
       "wght": 499.993896484375
-     }
+     },
+     "z_score": 13.945965766906738,
+     "measurement": "advance widths"
     },
     {
      "check_id": "suspicious_sidebearings",
@@ -86348,7 +86780,9 @@
      "glyph": "ellipsis",
      "location": {
       "wght": 599.98779296875
-     }
+     },
+     "z_score": 14.232278823852539,
+     "measurement": "advance widths"
     },
     {
      "check_id": "suspicious_sidebearings",
@@ -86357,7 +86791,9 @@
      "glyph": "ellipsis",
      "location": {
       "wght": 600.006103515625
-     }
+     },
+     "z_score": 14.232278823852539,
+     "measurement": "advance widths"
     },
     {
      "check_id": "suspicious_sidebearings",
@@ -86366,15 +86802,21 @@
      "glyph": "ellipsis",
      "location": {
       "wght": 700.0
-     }
+     },
+     "z_score": 14.436285972595215,
+     "measurement": "advance widths"
     }
    ],
-   "passed": false,
-   "numerical_passed": true
+   "passed": true,
+   "numerical_passed": true,
+   "alignment_source": "saved aligned masters",
+   "unaccepted_fontspector_findings": [],
+   "missing_accepted_findings": [],
+   "verdict": "verified with accepted findings"
   }
  },
  "incompatible": [],
- "verdict": "not verified",
+ "verdict": "verified with accepted findings",
  "previous_fontspector_findings": {
   "Roman": [
    {

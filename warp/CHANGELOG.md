@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Added eight measured side-bearing findings and an exact comparison that rejects missing or unlisted findings.
+
 - Fixed the measurement mode accepting a saved proof without source hashes: it now needs a hash for each of the seven masters. A correction now updates the saved hashes and correction list at once, so a failed measurement can be retried.
 - Fixed a failed correction build leaving rewritten masters beside saved hashes of the old ones: the masters are now restored.
 - Raised the build job timeout of the Warp workflow from 40 to 75 minutes.
