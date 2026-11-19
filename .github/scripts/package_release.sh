@@ -153,7 +153,7 @@ case "$fam" in
       need "fonts/warp/ttf/$style.ttf" "fonts/warp/otf/$style.otf" "fonts/warp/webfonts/$style.woff2"
     done
     # Final font hashes are separate from the historical inspector measurements.
-    python - <<'CHECK_WARP'
+    python3 - <<'CHECK_WARP'
 import hashlib
 import json
 from pathlib import Path

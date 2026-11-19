@@ -8,8 +8,8 @@ Correction replay now resolves composites before rotating their bases, preservin
 | Version | 0.3.0 (font version 0.300) |
 | Pull request | Variable font release preparation |
 | Stage | Warp 0.3 includes six static styles and Roman and Italic variable TTF and WOFF2 fonts, weights 300 to 700 |
-| Gate now | The clean build replays inspected corrections, compares source outline hashes and runs the numerical gates. Earlier inspection measurements remain in ladder.json. |
-| Next | Inspect the versioned release fonts before publication. The optical-size axis remains open. |
+| Gate now | The clean build replays the inspected corrections, compares the source outline hashes and runs the numerical gates. The 0.3.0 fonts were inspected with Fontspector 1.9.0: verified with accepted findings, 0 FAIL and 0 ERROR. |
+| Next | Tag and release Warp 0.3.0 (the founder's step). The optical-size axis remains open. |
 | Last local run | 2026-11-19, after the correction-order fix: Roman is 7,448,792 bytes; Italic is 6,679,608 bytes. Both report 0 FAIL and 0 ERROR. The verdict is verified with accepted findings: the eight new side-bearing findings are listed with their causes. |
 
 ## Variable font size (2026-11-17)
@@ -41,7 +41,7 @@ It records their hashes and leaves the previous interpolation report intact.
 Checks of fresh builds compare compiled outlines and metrics separately from metadata.
 Moving contours keep their deltas when IUP would omit the entire contour.
 The focused weight ladder suite passed 36 tests, including fresh builds of both fonts.
-The full Warp suite passed 161 tests. The byte guard for the released styles passed.
+The full Warp suite passed 168 tests, including the release packaging tests. The byte guard for the released styles passed.
 The committed inspection reports 0 FAIL, 0 ERROR and 0 start-point findings for both files.
 The saved verdict is **verified with accepted findings**: the inspection run on 2026-11-19 matches the eight accepted findings in both directions, with 0 FAIL and 0 ERROR.
 Both slopes add advance-width findings for ellipsis at 350, 449.98779296875 and 450.006103515625.
