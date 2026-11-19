@@ -1,3 +1,4 @@
-# Python packages for site/build.py. brotli writes and reads WOFF2.
+# Python packages for site/build.py. brotli writes and reads WOFF2; Pillow writes the images.
 fonttools==4.68.0
 brotli==1.2.1
+pillow==13.0.0
