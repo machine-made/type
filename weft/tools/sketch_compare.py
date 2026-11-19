@@ -26,7 +26,7 @@ LINES = [
     "abcdefghijklmnopqrstuvwxyz",
     "ABCDEFGHIJKLMNOPQRSTUVWXYZ",
     "0123456789",
-    "Made by machines Proven for machines",
+    "Made by machines Verified scientific software",
     "Il1 O0 rn m cl d 5S 2Z B8 g9",
 ]
 

@@ -296,6 +296,8 @@ input[type=range] { width: 100%; accent-color: var(--red); margin: 4px 0; min-he
 .waterfall li { display: grid; grid-template-columns: 44px minmax(0, 1fr); gap: 12px; align-items: baseline; padding-block: 6px; border-top: 1px solid var(--rule); }
 .wf-label { font-size: var(--step-0); color: var(--muted); font-variant-numeric: tabular-nums; }
 .wf-text { font-size: clamp(1.375rem, 1rem + 1.6vw, 2.125rem); line-height: 1.2; white-space: nowrap; overflow: hidden; text-overflow: clip; }
+/* On a phone the specimen lines wrap instead of being cut off. */
+@media (max-width: 480px) { .size-v, .wf-text { white-space: normal; overflow-wrap: anywhere; } }
 .forms { display: grid; gap: 0; border-top: 1px solid var(--rule); }
 .form-row { display: grid; gap: 8px; padding-block: 18px; border-bottom: 1px solid var(--rule); }
 .form-sample { font-size: clamp(2rem, 1.2rem + 3.4vw, 3.75rem); line-height: 1.15; font-weight: 500; overflow-wrap: anywhere; max-width: none; }
