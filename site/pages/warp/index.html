@@ -11,7 +11,7 @@ scripts: warp.js
   <h1 id="warp-h" class="warp-title"><span class="visually-hidden">machine-made </span>Warp</h1>
   <span class="warp-rule" aria-hidden="true"></span>
   <p class="warp-sub">A Modern serif for science, drawn by a pen</p>
-  <p class="warp-sc">{{WARP_VERSION}} · {{WARP_CHAR_COUNT}} characters · six styles</p>
+  <p class="warp-sc">release {{RELEASE_VERSION}} · {{WARP_VERSION}} · {{WARP_CHAR_COUNT}} characters · six styles</p>
   <p class="warp-ornament" aria-label="The Gaussian integral: the integral of e to the minus x squared, dx, equals the square root of pi.">∫ e<sup>−x²</sup> dx = √π</p>
   <p class="warp-lede">Warp is the fourth machine-made typeface: a Modern with vertical stress, for papers and maths. No outline is drawn by hand. Every letter is a few centre-lines swept by one level pen, and its hairlines, serifs and teardrops all come out of that pen.</p>
 </section>
@@ -108,9 +108,48 @@ scripts: warp.js
   </div>
 </section>
 
-<section class="wrap warp-band" id="glyphs" aria-labelledby="glyphs-h">
+<section class="wrap warp-band" id="maths" aria-labelledby="maths-h">
   <div class="warp-sh">
     <p class="warp-num">v.</p>
+    <div class="warp-ttl">
+      <h2 id="maths-h">Maths, set with MathML</h2>
+      <p class="warp-intro">All six fonts have an OpenType MATH table. A browser reads it to place scripts, build fractions and radicals, and pick larger delimiters. The formulas below are MathML, not images, and the glyphs come from this font. They need a browser that draws MathML.</p>
+    </div>
+  </div>
+  <div class="warp-rows">
+    <div class="warp-row"><span class="warp-rl">Integral</span><span class="warp-rc warp-formula"><math display="block"><mrow><msubsup><mo>∫</mo><mrow><mo>−</mo><mi>∞</mi></mrow><mi>∞</mi></msubsup><msup><mi>e</mi><mrow><mo>−</mo><msup><mi>x</mi><mn>2</mn></msup></mrow></msup><mspace width="0.17em"></mspace><mi>d</mi><mi>x</mi><mo>=</mo><msqrt><mi>π</mi></msqrt></mrow></math></span></div>
+    <div class="warp-row"><span class="warp-rl">Radical, fraction</span><span class="warp-rc warp-formula"><math display="block"><mrow><mi>x</mi><mo>=</mo><mfrac><mrow><mo>−</mo><mi>b</mi><mo>±</mo><msqrt><mrow><msup><mi>b</mi><mn>2</mn></msup><mo>−</mo><mn>4</mn><mi>a</mi><mi>c</mi></mrow></msqrt></mrow><mrow><mn>2</mn><mi>a</mi></mrow></mfrac></mrow></math></span></div>
+    <div class="warp-row"><span class="warp-rl">Sum, large operator</span><span class="warp-rc warp-formula"><math display="block"><mrow><munderover><mo>∑</mo><mrow><mi>n</mi><mo>=</mo><mn>1</mn></mrow><mi>∞</mi></munderover><mfrac><mn>1</mn><msup><mi>n</mi><mn>2</mn></msup></mfrac><mo>=</mo><mfrac><msup><mi>π</mi><mn>2</mn></msup><mn>6</mn></mfrac></mrow></math></span></div>
+    <div class="warp-row"><span class="warp-rl">Delimiters at any height</span><span class="warp-rc warp-formula"><math display="block"><mrow><mi>A</mi><mo>=</mo><mrow><mo>(</mo><mtable><mtr><mtd><mn>1</mn></mtd><mtd><mn>0</mn></mtd><mtd><mfrac><mn>1</mn><mn>2</mn></mfrac></mtd></mtr><mtr><mtd><mn>0</mn></mtd><mtd><mn>1</mn></mtd><mtd><mfrac><mrow><mi>λ</mi></mrow><mrow><mn>1</mn><mo>+</mo><mi>λ</mi></mrow></mfrac></mtd></mtr></mtable><mo>)</mo></mrow></mrow></math></span></div>
+  </div>
+  <p class="note">Four sizes of ( ) [ ] { } | ‖ ⟨ ⟩ √ ∫ ∑ ∏, and assemblies that stack to any height for ( ) [ ] { } | ‖ √ ∫. The pen draws every size and every piece at its height; nothing is scaled. The same table sets formulas in LuaLaTeX with unicode-math, in XeLaTeX and in Word. A page of formulas set by LuaLaTeX is in <a href="{{REPO_URL}}/blob/main/proofs/warp/warp-math.png"><code>proofs/warp/warp-math.png</code></a>.</p>
+</section>
+
+<section class="wrap warp-band" id="languages" aria-labelledby="lang-h">
+  <div class="warp-sh">
+    <p class="warp-num">vi.</p>
+    <div class="warp-ttl">
+      <h2 id="lang-h">Central European Latin and Greek</h2>
+      <p class="warp-intro">Latin Extended-A and Ș ș Ț ț. Romanian and Latvian use the comma below, and ď ť ľ Ľ use the vertical caron. Greek has tonos and dialytika.</p>
+    </div>
+  </div>
+  <div class="warp-rows">
+    <div class="warp-row"><span class="warp-rl">Polish</span><span class="warp-rc warp-mid" lang="pl">Zażółć gęślą jaźń.</span></div>
+    <div class="warp-row"><span class="warp-rl">Czech</span><span class="warp-rc warp-mid" lang="cs">Příliš žluťoučký kůň úpěl ďábelské ódy.</span></div>
+    <div class="warp-row"><span class="warp-rl">Hungarian</span><span class="warp-rc warp-mid" lang="hu">Árvíztűrő tükörfúrógép.</span></div>
+    <div class="warp-row"><span class="warp-rl">Romanian</span><span class="warp-rc warp-mid" lang="ro">Ștefan și Țepeș merg la Iași.</span></div>
+    <div class="warp-row"><span class="warp-rl">Turkish</span><span class="warp-rc warp-mid" lang="tr">Şişli, Iğdır, İstanbul, ığdır.</span></div>
+    <div class="warp-row"><span class="warp-rl">Latvian</span><span class="warp-rc warp-mid" lang="lv">Ķēniņš un ļaudis.</span></div>
+    <div class="warp-row"><span class="warp-rl">Greek with tonos</span><span class="warp-rc warp-mid" lang="el">Ελλάδα, άέήίόύώ, ΐΰ</span></div>
+    <div class="warp-row"><span class="warp-rl">Italic capitals</span><span class="warp-rc warp-mid"><i>B D E F H I J K L P R S T U X Y Z &amp;</i></span></div>
+    <div class="warp-row"><span class="warp-rl">Small capitals <code>smcp</code></span><span class="warp-rc warp-mid warp-smcp">đ ħ ł ŧ ŋ ŀ</span></div>
+  </div>
+  <p class="note">The italic capitals have their own cursive forms, with entry hooks and curled feet. The TTF files are hinted with ttfautohint.</p>
+</section>
+
+<section class="wrap warp-band" id="glyphs" aria-labelledby="glyphs-h">
+  <div class="warp-sh">
+    <p class="warp-num">vii.</p>
     <div class="warp-ttl">
       <h2 id="glyphs-h"><span id="glyph-count">{{WARP_CHAR_COUNT}}</span> characters</h2>
       <p class="warp-intro">Read from the font's character map when the site is built. Select a character to see it large. {{WARP_GLYPH_COUNT}} glyphs in all, with the small capitals, the four figure styles and the ligatures.</p>
@@ -131,7 +170,7 @@ scripts: warp.js
 
 <section class="wrap warp-band" id="made" aria-labelledby="made-h">
   <div class="warp-sh">
-    <p class="warp-num">vi.</p>
+    <p class="warp-num">viii.</p>
     <div class="warp-ttl">
       <h2 id="made-h">From a sketch to a font</h2>
       <p class="warp-intro">Agents write the generator, the tests and the CI. People set the goals and review the proofs.</p>
@@ -150,13 +189,23 @@ scripts: warp.js
     </article>
     <article class="card">
       <h3>Maths</h3>
-      <p>0.2 has an OpenType MATH table: delimiters, radicals and big operators in four sizes and as assemblies, all drawn by the pen at their height, and the mathematical italic letters. Set it with LuaLaTeX and unicode-math. 0.3 makes Warp a variable font with weight and optical size axes.</p>
+      <p>0.2 has an OpenType MATH table: delimiters, radicals and big operators in four sizes and as assemblies, all drawn by the pen at their height, and the mathematical italic letters. Set it with LuaLaTeX and unicode-math.</p>
       <p><a href="{{REPO_URL}}/blob/main/warp/STATUS.md">Read the status</a></p>
     </article>
   </div>
 </section>
 
+<section class="wrap warp-band" id="next" aria-labelledby="next-h">
+  <div class="warp-sh">
+    <p class="warp-num">ix.</p>
+    <div class="warp-ttl">
+      <h2 id="next-h">In the next release: a weight axis</h2>
+      <p class="warp-intro">The 0.2.0 files are static: Regular, Italic, Bold and Bold Italic for text, and two Display styles. The repository now builds variable fonts with a weight axis from 300 to 700 for Roman and Italic, from seven masters per slope. They are not in the 0.2.0 files, and they come in the next release.</p>
+    </div>
+  </div>
+</section>
+
 <section class="wrap warp-band warp-cta" aria-labelledby="get-warp-h">
-  <h2 id="get-warp-h">Get Warp 0.2</h2>
-  <p><a class="btn" href="{{WARP_RELEASE}}">Download from GitHub</a> <a class="btn btn-ghost" href="../download/#warp">Install and @font-face</a></p>
+  <h2 id="get-warp-h">Get Warp {{RELEASE_VERSION}}</h2>
+  <p><a class="btn" href="{{WARP_RELEASE}}">Release page</a> <a class="btn btn-ghost" href="{{WARP_ZIP}}">Zip with all files</a> <a class="btn btn-ghost" href="../download/#warp">Install and @font-face</a></p>
 </section>
