@@ -15,9 +15,8 @@ Fontspector reported zero FAIL, FATAL and ERROR results for each inspected font.
 Eight side-bearing findings were accepted: three in Roman and five in Italic.
 Six concern the ellipsis: dot spacing follows the changing stem width.
 Two concern Italic zcaron: its right side bearing changes by 19 units between weights 400 and 500.
-These inspection measurements come from the earlier ladder proof.
-The release build checks that its source outlines match that proof and runs the numerical gates again.
-A fresh inspection of the versioned release fonts is required before publication.
+These measurements come from inspecting the versioned 0.3.0 variable fonts with Fontspector 1.9.0.
+The release build also checks that its source outlines match the inspected sources and runs the numerical gates again.
 
 The archive includes an OCR report made during packaging preparation.
 Its Tesseract version and measured error rates are recorded in readability.json.

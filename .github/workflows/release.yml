@@ -534,12 +534,12 @@ jobs:
             exit 1
           fi
           # A tag that exists already is fine when its commit has the same release files
-          # (fonts/warp warp) as this commit: that is a re-run after a failed upload, and the
+          # (fonts/warp warp proofs/warp) as this commit: that is a re-run after a failed upload, and the
           # release goes onto that tag. Any other change needs a new version.
           existing="$(git ls-remote --tags origin "refs/tags/${RELEASE_TAG}^{}" "refs/tags/${RELEASE_TAG}" | awk '{print $1}' | tail -n 1)"
           if [ -n "$existing" ]; then
             git fetch --quiet --depth=1 origin "$existing"
-            if git diff --quiet "$existing" "$GITHUB_SHA" -- fonts/warp warp; then
+            if git diff --quiet "$existing" "$GITHUB_SHA" -- fonts/warp warp proofs/warp; then
               echo "Tag ${RELEASE_TAG} exists already on ${existing} with the same release files. Re-running the release."
               exit 0
             fi
