@@ -10,7 +10,7 @@ Correction replay now resolves composites before rotating their bases, preservin
 | Stage | Warp 0.2 built: 6 static styles (TTF hinted, OTF, WOFF2) with an OpenType MATH table |
 | Gate now | Both variable fonts fit 9,437,184 bytes. Numerical gates pass. Fontspector reports 0 FAIL and 0 ERROR for both. |
 | Next | Investigate the new side-bearing findings (3 in Roman, 5 in Italic). The optical-size axis remains open. |
-| Last local run | 2026-11-17, after the correction-order fix: Roman is 7,448,792 bytes; Italic is 6,679,608 bytes. Both report 0 FAIL and 0 ERROR. The verdict remains not verified because of the new side-bearing findings. |
+| Last local run | 2026-11-19, after the correction-order fix: Roman is 7,448,792 bytes; Italic is 6,679,608 bytes. Both report 0 FAIL and 0 ERROR. The verdict is verified with accepted findings: the eight new side-bearing findings are listed with their causes. |
 
 ## Variable font size (2026-11-17)
 
@@ -41,21 +41,24 @@ It records their hashes and leaves the previous interpolation report intact.
 Checks of fresh builds compare compiled outlines and metrics separately from metadata.
 Moving contours keep their deltas when IUP would omit the entire contour.
 The focused weight ladder suite passed 36 tests, including fresh builds of both fonts.
-The full Warp suite passed 139 tests. The byte guard for the released styles passed.
+The full Warp suite passed 161 tests. The byte guard for the released styles passed.
 The committed inspection reports 0 FAIL, 0 ERROR and 0 start-point findings for both files.
-The verdict is **not verified** because Roman has three new side-bearing findings and Italic has five.
+The saved verdict is **verified with accepted findings**: the inspection run on 2026-11-19 matches the eight accepted findings in both directions, with 0 FAIL and 0 ERROR.
 Both slopes add advance-width findings for ellipsis at 350, 449.98779296875 and 450.006103515625.
 Italic also adds right-side-bearing findings for zcaron at 449.98779296875 and 450.006103515625.
 These glyphs retain exact phantom-point deltas at every tuple; their phantom metrics were not lost.
-The warning cause remains unresolved; the metric encoding is unchanged.
+Ellipsis dots are spaced by the stem-dependent dot diameter, so their advance varies more than for any other glyph.
+The Italic zcaron right side bearing steps by 19 units between static masters 400 and 500.
+The accepted list records all eight findings with their locations, measured z-scores and causes.
+A later release may change static ellipsis spacing and zcaron shapes to remove these findings.
 Replaying the correction-order fix changes three LightItalic outlines: etatonos, u1D6EF and u1D702.
-Their revised build needs another Fontspector run.
+The Fontspector run of 2026-11-19 used the revised build.
 The next section records the earlier numerical measurements and the latest inspection counts.
 
 ## Text weight ladder (2026-11-16)
 
-Verdict: **not verified**. The latest inspection has 0 FAIL, 0 FATAL, 0 ERROR and 0 start-point findings in both files.
-New side-bearing warnings block verification. The tables below retain the earlier numerical measurements, before size optimisation.
+Verdict: **verified with accepted findings**. The latest inspection has 0 FAIL, 0 FATAL, 0 ERROR and 0 start-point findings in both files.
+The eight new side-bearing warnings are accepted and listed. The tables below retain the earlier numerical measurements, before size optimisation.
 
 Each variable font has masters at 300, 350, 400, 450, 500, 600 and 700,
 with axis range 300 to 700 and default 400. The five named weights remain

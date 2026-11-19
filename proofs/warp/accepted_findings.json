@@ -1,0 +1,94 @@
+{
+  "Italic": [
+    {
+      "cause": "The Italic right side bearing steps by 19 units between the static masters at weights 400 and 500.",
+      "check_id": "suspicious_sidebearings",
+      "code": "large-rsb-variation",
+      "glyph": "zcaron",
+      "location": {
+        "wght": 449.98779296875
+      },
+      "measurement": "right sidebearings",
+      "z_score": 11.48507308959961
+    },
+    {
+      "cause": "The Italic right side bearing steps by 19 units between the static masters at weights 400 and 500.",
+      "check_id": "suspicious_sidebearings",
+      "code": "large-rsb-variation",
+      "glyph": "zcaron",
+      "location": {
+        "wght": 450.006103515625
+      },
+      "measurement": "right sidebearings",
+      "z_score": 11.48507308959961
+    },
+    {
+      "cause": "Dots are spaced by the stem-dependent dot diameter, so the advance varies more than for any other glyph.",
+      "check_id": "suspicious_sidebearings",
+      "code": "large-aw-variation",
+      "glyph": "ellipsis",
+      "location": {
+        "wght": 350.0
+      },
+      "measurement": "advance widths",
+      "z_score": 13.670393943786621
+    },
+    {
+      "cause": "Dots are spaced by the stem-dependent dot diameter, so the advance varies more than for any other glyph.",
+      "check_id": "suspicious_sidebearings",
+      "code": "large-aw-variation",
+      "glyph": "ellipsis",
+      "location": {
+        "wght": 449.98779296875
+      },
+      "measurement": "advance widths",
+      "z_score": 13.674338340759277
+    },
+    {
+      "cause": "Dots are spaced by the stem-dependent dot diameter, so the advance varies more than for any other glyph.",
+      "check_id": "suspicious_sidebearings",
+      "code": "large-aw-variation",
+      "glyph": "ellipsis",
+      "location": {
+        "wght": 450.006103515625
+      },
+      "measurement": "advance widths",
+      "z_score": 13.674338340759277
+    }
+  ],
+  "Roman": [
+    {
+      "cause": "Dots are spaced by the stem-dependent dot diameter, so the advance varies more than for any other glyph.",
+      "check_id": "suspicious_sidebearings",
+      "code": "large-aw-variation",
+      "glyph": "ellipsis",
+      "location": {
+        "wght": 350.0
+      },
+      "measurement": "advance widths",
+      "z_score": 10.005154609680176
+    },
+    {
+      "cause": "Dots are spaced by the stem-dependent dot diameter, so the advance varies more than for any other glyph.",
+      "check_id": "suspicious_sidebearings",
+      "code": "large-aw-variation",
+      "glyph": "ellipsis",
+      "location": {
+        "wght": 449.98779296875
+      },
+      "measurement": "advance widths",
+      "z_score": 10.481949806213379
+    },
+    {
+      "cause": "Dots are spaced by the stem-dependent dot diameter, so the advance varies more than for any other glyph.",
+      "check_id": "suspicious_sidebearings",
+      "code": "large-aw-variation",
+      "glyph": "ellipsis",
+      "location": {
+        "wght": 450.006103515625
+      },
+      "measurement": "advance widths",
+      "z_score": 10.481949806213379
+    }
+  ]
+}
