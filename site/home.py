@@ -12,7 +12,6 @@ homebrew-tap, Latest with no repeat, and font subsets that keep their axes and t
 
 from __future__ import annotations
 
-import base64
 import datetime
 import html
 import io
@@ -113,38 +112,62 @@ def gh(*args: str) -> str:
     return done.stdout
 
 
-def fetch_facts() -> dict:
-    """The live facts of the home page, from the GitHub API. Any failure stops the build."""
-    org_parts = [
-        f'o{i}: organization(login:"{login}"){{ description repositories(first:100, privacy:PUBLIC, isArchived:false)'
-        "{nodes{name releases(first:5, orderBy:{field:CREATED_AT, direction:DESC}){nodes{tagName publishedAt url isDraft isPrerelease}}}} }"
-        for i, login in enumerate(ORGS.values())
-    ]
-    query = (
-        "query{ typerepo: repository(owner:\"machine-made\", name:\"type\"){ releases(first:40, orderBy:{field:CREATED_AT, direction:DESC})"
-        "{nodes{tagName publishedAt url isDraft isPrerelease}} } " + " ".join(org_parts) + " }"
-    )
+RELEASE = "tagName publishedAt url isDraft isPrerelease"
+TYPE_RELEASES = (
+    'releases(first:100{after}, orderBy:{{field:CREATED_AT, direction:DESC}})'
+    "{{pageInfo{{hasNextPage endCursor}} nodes{{" + RELEASE + "}}}}"
+)
+
+
+def graphql(query: str) -> dict:
     try:
         answer = json.loads(gh("api", "graphql", "-f", f"query={query}"))
     except ValueError as exc:
         raise BuildError("gh api graphql did not return JSON") from exc
     if answer.get("errors") or not answer.get("data"):
         raise BuildError("graphql errors: " + json.dumps(answer.get("errors"))[:200])
-    data = answer["data"]
+    return answer["data"]
+
+
+def stable(r: dict | None) -> bool:
+    return bool(r) and not r.get("isDraft") and not r.get("isPrerelease") and bool(r.get("publishedAt"))
+
+
+def fetch_facts() -> dict:
+    """The live facts of the home page, from the GitHub API. Any failure stops the build."""
+    org_parts = [
+        f'o{i}: organization(login:"{login}"){{ description repositories(first:100, privacy:PUBLIC, isArchived:false)'
+        "{pageInfo{hasNextPage} nodes{name latestRelease{" + RELEASE + "} "
+        "releases(first:5, orderBy:{field:CREATED_AT, direction:DESC}){nodes{" + RELEASE + "}}}} }"
+        for i, login in enumerate(ORGS.values())
+    ]
+    data = graphql('query{ typerepo: repository(owner:"machine-made", name:"type"){ ' + TYPE_RELEASES.format(after="")
+                   + " } " + " ".join(org_parts) + " }")
     facts: dict = {"fetched": datetime.datetime.now(datetime.UTC).date().isoformat(), "families": {}, "houses": {}}
-    for r in data["typerepo"]["releases"]["nodes"]:
+    # Every page of type releases: the newest publication of each family wins, whatever the creation order.
+    page = data["typerepo"]["releases"]
+    nodes = list(page["nodes"])
+    while page["pageInfo"]["hasNextPage"]:
+        after = ', after:"' + page["pageInfo"]["endCursor"] + '"'
+        page = graphql('query{ typerepo: repository(owner:"machine-made", name:"type"){ '
+                       + TYPE_RELEASES.format(after=after) + " } }")["typerepo"]["releases"]
+        nodes += page["nodes"]
+    for r in nodes:
         fam = r["tagName"].split("-v")[0]
-        if fam in CONTROLS and fam not in facts["families"] and not r["isDraft"] and not r["isPrerelease"]:
+        if fam in CONTROLS and stable(r) and (fam not in facts["families"] or r["publishedAt"] > facts["families"][fam]["publishedAt"]):
             facts["families"][fam] = {k: r[k] for k in ("tagName", "publishedAt", "url")}
     if set(facts["families"]) != set(CONTROLS):
         raise BuildError(f"no release found for {sorted(set(CONTROLS) - set(facts['families']))}")
     for i, name in enumerate(ORGS):
         org = data[f"o{i}"]
+        if org["repositories"]["pageInfo"]["hasNextPage"]:
+            raise BuildError(f"{name} has more than 100 public repositories; read the next page before building")
         newest = []
         for repo in org["repositories"]["nodes"]:
             if repo["name"] in NEVER:
                 continue
-            rels = [r for r in repo["releases"]["nodes"] if not r["isDraft"] and not r["isPrerelease"] and r["publishedAt"]]
+            # The five newest releases may all be prereleases; the latest stable release still counts.
+            rels = [r for r in [*repo["releases"]["nodes"], repo["latestRelease"]] if stable(r)]
             if rels:
                 r = max(rels, key=lambda x: x["publishedAt"])
                 newest.append((r["publishedAt"], repo["name"], r["tagName"]))
@@ -152,9 +175,10 @@ def fetch_facts() -> dict:
         facts["houses"][name] = {"line": org["description"] or "", "newest": newest[0] if newest else None}
     facts["assets"] = {fam: gh("api", f"repos/{REPO}/releases/tags/{rel['tagName']}", "--jq", ".assets[].name").split()
                        for fam, rel in facts["families"].items()}
-    facts["licence"] = gh("api", f"repos/{REPO}/license", "--jq", ".license.spdx_id").strip()
-    licensing = base64.b64decode(gh("api", f"repos/{REPO}/contents/LICENSING.md", "--jq", ".content")).decode()
-    facts["ofl"] = "SIL Open Font License 1.1" in licensing
+    # The licences come from the checkout, like the workflows below.
+    licence = (ROOT / "LICENSE").read_text(encoding="utf-8")
+    facts["licence"] = "Apache-2.0" if "Apache License" in licence and "Version 2.0" in licence else "unknown"
+    facts["ofl"] = "SIL Open Font License 1.1" in (ROOT / "LICENSING.md").read_text(encoding="utf-8")
     # The workflows come from the checkout: the site workflow may read contents only, not actions.
     facts["workflows"] = {}
     for fam in CONTROLS:
