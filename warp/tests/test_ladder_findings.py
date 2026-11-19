@@ -183,7 +183,7 @@ def test_accepted_main_preserves_other_gates(
     (tmp_path / "ladder.json").write_text(json.dumps(proof))
     (tmp_path / "accepted_findings.json").write_text(json.dumps(accepted))
     monkeypatch.setattr(vf_ladder, "PROOFS", tmp_path)
-    monkeypatch.setattr(vf_ladder, "proof_sheet", lambda *args: "proof.png")
+    monkeypatch.setattr(vf_ladder, "proof_sheet", lambda *_args: "proof.png")
 
     def run(
         italic: bool, *args: object, **kwargs: object
