@@ -613,7 +613,9 @@ def test_ladder_local_tuples_reproduce_composites(tmp_path: Path) -> None:
     for variation in variations:
         assert None not in variation.coordinates
         peak = variation.axes["wght"][1]
-        assert sum(supportScalar({"wght": peak}, v.axes) for v in variations) == 1
+        # Scalars are floats; 1e-9 allows summation rounding, not lost weight.
+        total = sum(supportScalar({"wght": peak}, v.axes) for v in variations)
+        assert total == pytest.approx(1.0, abs=1e-9)
 
 
 def test_ladder_axis_rounding_does_not_thin_midpoint_bar(tmp_path: Path) -> None:
