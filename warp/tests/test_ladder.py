@@ -7,6 +7,7 @@ import os
 import subprocess
 import sys
 from collections.abc import Callable
+from itertools import groupby
 from pathlib import Path
 from typing import TYPE_CHECKING
 
@@ -458,13 +459,10 @@ def test_ladder_full_font_size(
                 font, statics[400], B.weight_style(weight, italic)
             )
             assert rotations == report["initial_rotations"][str(weight)]
-    for correction in report["start_point_corrections"]:
-        name, weight = correction["glyph"], correction["weight"]
-        if statics[weight]["glyf"][name].isComposite():
-            vf_ladder.resolve_composite_sources(statics, name)
-        vf_ladder.rotate_contour(
-            statics[weight]["glyf"][name], correction["contour"], correction["shift"]
-        )
+    for _, batch in groupby(
+        report["start_point_corrections"], key=lambda row: row["attempt"]
+    ):
+        vf_ladder.apply_corrections(statics, list(batch))
     font, path = vf_ladder.build_vf(statics, list(B.MASTER_WEIGHTS), italic, tmp_path)
     assert len(font.getGlyphOrder()) == 890
     assert path.stat().st_size <= 9_437_184
@@ -654,7 +652,10 @@ from loom.compatible import aligned_start
 import compat
 h = hashlib.sha256()
 for style in B.MASTER_STYLES:
-    for name in ('a', 'iota', 'Xi', 'L', 'hungarumlautcomb.case', 'l.sc', 'hbar.sc', 'theta.sc', 'ellipsis'):
+    for name in (
+        'a', 'iota', 'Xi', 'L', 'hungarumlautcomb.case', 'l.sc', 'hbar.sc',
+        'theta.sc', 'ellipsis', 'eta', 'etatonos', 'u1D6EF', 'u1D702',
+    ):
         for contour in compat.contours(style, name, True):
             for segment in contour:
                 for p in segment[1:]:
@@ -735,6 +736,28 @@ def test_ladder_resolve_composite_keeps_translated_contours(tmp_path: Path) -> N
     with TTFont(path) as saved:
         assert not saved["glyf"]["accented"].isComposite()
         assert list(saved["glyf"]["accented"].coordinates) == list(glyph.coordinates)
+
+
+@pytest.mark.parametrize("base_first", [True, False])
+def test_ladder_replayed_corrections_rotate_composite_once(
+    base_first: bool,
+) -> None:
+    import vf_ladder
+
+    statics = local_test_fonts()
+    glyf = statics[350]["glyf"]
+    before = {
+        name: list(glyf[name].getCoordinates(glyf)[0]) for name in ("base", "accented")
+    }
+    names = ("base", "accented") if base_first else ("accented", "base")
+    corrections: list[Record] = [
+        {"weight": 350, "glyph": name, "contour": 0, "shift": 1} for name in names
+    ]
+    vf_ladder.apply_corrections(statics, corrections)
+    for name in ("base", "accented"):
+        expected = before[name][1:4] + before[name][:1] + before[name][4:]
+        assert list(glyf[name].coordinates) == expected, name
+    assert all(not font["glyf"]["accented"].isComposite() for font in statics.values())
 
 
 @pytest.mark.parametrize("base_first", [True, False])

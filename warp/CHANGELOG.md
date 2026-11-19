@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- Fixed correction replay to resolve composites before rotating their bases, preserving the frozen source outlines.
 - Fixed correction order so reported composites resolve before any base glyph rotates.
 - Last inspected files: Roman 7,448,792 bytes; Italic 6,679,608 bytes. Both report 0 FAIL and 0 ERROR.
 - The verdict is not verified because Roman has three new side-bearing findings and Italic has five.

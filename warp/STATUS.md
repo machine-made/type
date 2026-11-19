@@ -1,5 +1,7 @@
 # Warp status
 
+Correction replay now resolves composites before rotating their bases, preserving the frozen source outlines.
+
 | Field | Value |
 | --- | --- |
 | Family | machine-made Warp, machine-made Warp Display |

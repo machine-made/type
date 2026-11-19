@@ -129,6 +129,18 @@ def resolve_composite_sources(statics: Sources, name: str) -> None:
         resolve_composite(source, name)
 
 
+def apply_corrections(statics: Sources, corrections: Sequence[Record]) -> None:
+    """Freeze reported composites, then rotate each contour in one correction batch."""
+    # A base-first row order would otherwise rotate a composite twice.
+    for row in corrections:
+        name, weight = row["glyph"], row["weight"]
+        if statics[weight]["glyf"][name].isComposite():
+            resolve_composite_sources(statics, name)
+    for row in corrections:
+        name, weight = row["glyph"], row["weight"]
+        rotate_contour(statics[weight]["glyf"][name], row["contour"], row["shift"])
+
+
 def read_aligned_sources(weights: Sequence[int], italic: bool, out: Path) -> Sources:
     return {
         weight: TTFont(out / f"{B.weight_style(weight, italic)}.ttf")
@@ -830,15 +842,8 @@ def correct_slope(
     statics = read_aligned_sources(weights, italic, out)
     corrections = []
     changes = set()
-    # Freeze reported composites before any row can rotate a shared base.
-    # Otherwise a base-first row order applies its shift to the composite too.
     for row in starts:
         weight, name = master_weight(row["weight"], weights), row["glyph"]
-        if statics[weight]["glyf"][name].isComposite():
-            resolve_composite_sources(statics, name)
-    for row in starts:
-        weight, name = master_weight(row["weight"], weights), row["glyph"]
-        glyph = statics[weight]["glyf"][name]
         expected = row["expected"]
         if expected["reverse_contour"]:
             raise ValueError(f"{row['slope']} {name} {weight}: winding differs")
@@ -848,7 +853,6 @@ def correct_slope(
             continue
         changes.add(key)
         shift = expected["proposed_start_point"]
-        rotate_contour(glyph, contour, shift)
         corrections.append(
             {
                 "attempt": attempt,
@@ -859,6 +863,7 @@ def correct_slope(
             }
         )
     if changes:
+        apply_corrections(statics, corrections)
         build_vf(statics, weights, italic, out)
     return corrections
 
