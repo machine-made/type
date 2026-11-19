@@ -2,6 +2,21 @@
 
 ## Unreleased
 
+## 0.3.0
+
+### Added
+
+- Roman and Italic variable TTF and WOFF2 fonts, with weights from 300 to 700.
+- Clean variable builds that replay inspected contour corrections and run the numerical gates.
+- Release archives with variable fonts, pinned file checks and SHA-256 sums for every font.
+- Tests for archive contents and missing or changed variable fonts.
+
+### Changed
+
+- Raised the release job timeout to 75 minutes and added variable font inspection.
+- Set the package and font versions to 0.3.0 and 0.300.
+
+
 - Added eight measured side-bearing findings and an exact comparison that rejects missing or unlisted findings.
 
 - Fixed the measurement mode accepting a saved proof without source hashes: it now needs a hash for each of the seven masters. A correction now updates the saved hashes and correction list at once, so a failed measurement can be retried.
@@ -10,7 +25,7 @@
 - Fixed correction replay to resolve composites before rotating their bases, preserving the frozen source outlines.
 - Fixed correction order so reported composites resolve before any base glyph rotates.
 - Last inspected files: Roman 7,448,792 bytes; Italic 6,679,608 bytes. Both report 0 FAIL and 0 ERROR.
-- The verdict is not verified because Roman has three new side-bearing findings and Italic has five.
+- The inspected ladder is verified with eight accepted side-bearing findings: three in Roman and five in Italic.
 - Reduced variable font size by sharing identical outlines and variation data, with IUP tolerances for each weight.
 - Added checks that rebuild both fonts and limit each file to 9,437,184 bytes.
 - Added a mode that measures corrected masters and leaves Fontspector results unknown.

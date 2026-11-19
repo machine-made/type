@@ -41,7 +41,7 @@ from loom import revisions as RV
 from loom.latin_ext import OGONEK, mathit_def
 from loom.sketch import G, GI
 
-VERSION = (0, 200)  # 0.200: Warp 0.2
+VERSION = (0, 300)  # 0.300: Warp 0.3
 COPYRIGHT = "Copyright 2026 The machine-made Warp Project Authors (https://github.com/machine-made/type)"
 LICENSE_DESCRIPTION = (
     "This Font Software is licensed under the SIL Open Font License, "

@@ -868,6 +868,28 @@ def prepare_slope(italic: bool, out: Path) -> dict[str, Rotations]:
     return rotations
 
 
+def prepare_release_slope(
+    italic: bool, out: Path, saved: Record
+) -> dict[str, Rotations]:
+    """Rebuild the inspected outline indexing without running the inspector."""
+    statics = compiled_sources(italic, out)
+    rotations = {}
+    for weight, font in statics.items():
+        if weight != 400:
+            rotations[str(weight)] = align_static(
+                font, statics[400], B.weight_style(weight, italic)
+            )
+    # Replay each inspection batch in its original order.
+    corrections = saved["start_point_corrections"]
+    for attempt in sorted({row["attempt"] for row in corrections}):
+        apply_corrections(statics, [r for r in corrections if r["attempt"] == attempt])
+    build_vf(statics, list(B.MASTER_WEIGHTS), italic, out)
+    for name, expected in saved["source_outline_hashes_sha256"].items():
+        if source_outline_hash(out / name) != expected:
+            raise ValueError(f"Inspected source outlines changed: {name}")
+    return rotations
+
+
 def rebuild_aligned_slope(italic: bool, out: Path) -> None:
     """Re-encode saved, corrected masters without inspecting or rotating them."""
     weights = list(B.MASTER_WEIGHTS)
@@ -987,6 +1009,7 @@ def run_slope(
     executable: str | None,
     reuse_aligned_sources: bool = False,
     on_correction: Callable[[list[Record]], None] | None = None,
+    release_proof: Record | None = None,
 ) -> tuple[Record, list[Record], Path]:
     slope = "Italic" if italic else "Roman"
     weights = list(B.MASTER_WEIGHTS)
@@ -994,7 +1017,9 @@ def run_slope(
     path = out / f"MachineMadeWarp{suffix}[wght].ttf"
     # Each builder exits before inspection. Clearing Python objects alone
     # can leave its allocator holding gigabytes of unused font memory.
-    if reuse_aligned_sources:
+    if release_proof is not None:
+        rotations = worker_process(prepare_release_slope, italic, out, release_proof)
+    elif reuse_aligned_sources:
         worker_process(rebuild_aligned_slope, italic, out)
         rotations = {}
     else:
@@ -1084,6 +1109,47 @@ def run_slope(
     return report, findings, path
 
 
+def release_build(out: Path) -> int:
+    """Measure clean release builds; leave all inspected proofs untouched."""
+    proof = json.loads((PROOFS / "ladder.json").read_text())
+    interpolation = json.loads((PROOFS / "interpolation.json").read_text())
+    if interpolation["start_point_count"] != 0:
+        raise ValueError("Inspected start-point count must be zero")
+    report: Record = {"styles": {}, "variable_fonts": {}}
+    passed = True
+    for italic in (False, True):
+        slope = "Italic" if italic else "Roman"
+        saved = proof["styles"][slope]
+        expected_names = {f"{B.weight_style(w, italic)}.ttf" for w in B.MASTER_WEIGHTS}
+        if set(saved["source_outline_hashes_sha256"]) != expected_names:
+            raise ValueError(f"Missing inspected source outline hashes for {slope}")
+        row, _, path = run_slope(italic, out, None, release_proof=saved)
+        # These are new numerical measurements, not a new inspection verdict.
+        report["styles"][slope] = {
+            key: row[key]
+            for key in (
+                "source_hashes_sha256",
+                "source_outline_hashes_sha256",
+                "file_size_bytes",
+                "instances",
+                "fidelity",
+                "numerical_passed",
+            )
+        }
+        for measurement in report["styles"][slope]["fidelity"].values():
+            measurement.pop(
+                "glyphs", None
+            )  # Full rasters stay in --out/*-fidelity.json.
+        report["variable_fonts"][path.name] = {
+            "sha256": hashlib.sha256(path.read_bytes()).hexdigest(),
+            "size_bytes": path.stat().st_size,
+            "slope": slope,
+        }
+        passed &= row["numerical_passed"]
+    write_json(out / "release.json", report)
+    return int(not passed)
+
+
 def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument("--out", type=Path, default=OUT)
@@ -1091,7 +1157,7 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument(
         "--skip-fontspector",
         action="store_true",
-        help="Measure without inspection; the verdict stays not verified",
+        help="Measure without inspection; clean builds leave inspected proofs untouched",
     )
     ap.add_argument(
         "--reuse-aligned-sources",
@@ -1099,13 +1165,13 @@ def main(argv: list[str] | None = None) -> int:
         help="Rebuild from the saved, corrected source TTFs in --out",
     )
     args = ap.parse_args(argv)
-    if args.skip_fontspector and not args.reuse_aligned_sources:
-        ap.error("--skip-fontspector requires --reuse-aligned-sources")
     if not args.skip_fontspector and not args.fontspector:
         ap.error("Fontspector is required; put it on PATH or use --fontspector")
     os.environ["SOURCE_DATE_EPOCH"] = "1793059200"
     out = args.out.resolve()
     out.mkdir(parents=True, exist_ok=True)
+    if args.skip_fontspector and not args.reuse_aligned_sources:
+        return release_build(out)
     report = {
         "styles": {},
         "incompatible": [],

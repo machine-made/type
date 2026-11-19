@@ -5,11 +5,11 @@ Correction replay now resolves composites before rotating their bases, preservin
 | Field | Value |
 | --- | --- |
 | Family | machine-made Warp, machine-made Warp Display |
-| Version | 0.2 (font version 0.200) |
-| Pull request | Weight ladder, branch warp-wght-ladder |
-| Stage | Warp 0.2 built: 6 static styles (TTF hinted, OTF, WOFF2) with an OpenType MATH table |
-| Gate now | Both variable fonts fit 9,437,184 bytes. Numerical gates pass. Fontspector reports 0 FAIL and 0 ERROR for both. |
-| Next | Investigate the new side-bearing findings (3 in Roman, 5 in Italic). The optical-size axis remains open. |
+| Version | 0.3.0 (font version 0.300) |
+| Pull request | Variable font release preparation |
+| Stage | Warp 0.3 includes six static styles and Roman and Italic variable TTF and WOFF2 fonts, weights 300 to 700 |
+| Gate now | The clean build replays inspected corrections, compares source outline hashes and runs the numerical gates. Earlier inspection measurements remain in ladder.json. |
+| Next | Inspect the versioned release fonts before publication. The optical-size axis remains open. |
 | Last local run | 2026-11-19, after the correction-order fix: Roman is 7,448,792 bytes; Italic is 6,679,608 bytes. Both report 0 FAIL and 0 ERROR. The verdict is verified with accepted findings: the eight new side-bearing findings are listed with their causes. |
 
 ## Variable font size (2026-11-17)

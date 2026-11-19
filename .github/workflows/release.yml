@@ -437,7 +437,7 @@ jobs:
   warp:
     if: startsWith(inputs.tag || github.ref_name, 'warp-v')
     runs-on: ubuntu-24.04
-    timeout-minutes: 40
+    timeout-minutes: 75
     permissions:
       contents: write
       id-token: write
@@ -470,13 +470,16 @@ jobs:
           python -m pip install -e ".[test]"
           node --version
 
+      - name: Build static and variable fonts with numerical gates
+        working-directory: warp
+        run: scripts/build.sh
+
       - name: Run tests
         working-directory: warp
         run: python -m pytest -q
 
-      - name: Build fonts
-        working-directory: warp
-        run: scripts/build.sh
+      - name: Check variable font hashes against the release proof
+        run: cmp proofs/warp/release.json build/warp-vf/release.json
 
       - name: Check that the build is the same as the committed fonts
         run: |
@@ -501,7 +504,7 @@ jobs:
           sudo install -m 755 "$RUNNER_TEMP/${name}/fontspector" /usr/local/bin/fontspector
           fontspector --version
 
-      - name: Check fonts (Fontspector, universal profile)
+      - name: Check static and variable fonts (Fontspector, universal profile)
         working-directory: warp
         run: scripts/check.sh fontspector
 
@@ -547,8 +550,7 @@ jobs:
           git push origin "refs/tags/${RELEASE_TAG}"
 
       - name: Create the release
-        # gh reads each file argument as a glob. The Warp file names have no
-        # brackets; any bracket in a future name must be escaped (\[ \]).
+        # gh reads file arguments as globs; escape the variable-font brackets.
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
@@ -568,6 +570,10 @@ jobs:
             "$OUT/MachineMadeWarp-BoldItalic.ttf" \
             "$OUT/MachineMadeWarpDisplay-Regular.ttf" \
             "$OUT/MachineMadeWarpDisplay-Italic.ttf" \
+            "$OUT/MachineMadeWarp\[wght\].ttf" \
+            "$OUT/MachineMadeWarp-Italic\[wght\].ttf" \
+            "$OUT/MachineMadeWarp\[wght\].woff2" \
+            "$OUT/MachineMadeWarp-Italic\[wght\].woff2" \
             "$OUT/readability.json" \
             "$OUT/SHA256SUMS"
 
