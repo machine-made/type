@@ -19,7 +19,8 @@ env:
 jobs:
   build:
     runs-on: ubuntu-24.04
-    timeout-minutes: 40
+    # On 19 Nov the tests, two font builds and the fidelity sweep took 40 minutes and were cancelled at the limit.
+    timeout-minutes: 75
     defaults:
       run:
         working-directory: warp
