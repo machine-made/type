@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import argparse
+import functools
 import gc
 import hashlib
 import json
@@ -898,8 +899,42 @@ def measure_slope(
     return instances, fidelities
 
 
+def source_hashes(weights: Sequence[int], italic: bool, out: Path) -> dict[str, str]:
+    return {
+        name: hashlib.sha256((out / name).read_bytes()).hexdigest()
+        for name in (f"{B.weight_style(weight, italic)}.ttf" for weight in weights)
+    }
+
+
+def verify_saved_sources(saved: Record, slope: str, italic: bool, out: Path) -> None:
+    """Fail unless the saved proof names every master and each file still matches."""
+    hashes = saved.get("source_hashes_sha256", {})
+    expected_names = {f"{B.weight_style(w, italic)}.ttf" for w in B.MASTER_WEIGHTS}
+    if set(hashes) != expected_names:
+        raise ValueError(f"Missing aligned source hashes for {slope}")
+    for name, digest in source_hashes(B.MASTER_WEIGHTS, italic, out).items():
+        if digest != hashes[name]:
+            raise ValueError(f"Saved aligned source changed: {name}")
+
+
+def checkpoint_corrections(
+    report: Record, saved: Record, italic: bool, out: Path, changes: list[Record]
+) -> None:
+    """Keep the saved provenance equal to the files on disk after a correction,
+    so a failed measurement can be retried."""
+    saved["start_point_corrections"] = (
+        saved.get("start_point_corrections", []) + changes
+    )
+    saved["source_hashes_sha256"] = source_hashes(B.MASTER_WEIGHTS, italic, out)
+    write_json(PROOFS / "ladder.json", report)
+
+
 def run_slope(
-    italic: bool, out: Path, executable: str | None, reuse_aligned_sources: bool = False
+    italic: bool,
+    out: Path,
+    executable: str | None,
+    reuse_aligned_sources: bool = False,
+    on_correction: Callable[[list[Record]], None] | None = None,
 ) -> tuple[Record, list[Record], Path]:
     slope = "Italic" if italic else "Roman"
     weights = list(B.MASTER_WEIGHTS)
@@ -934,6 +969,9 @@ def run_slope(
         corrections.extend(changes)
         if not changes:
             break
+        if on_correction:
+            # The correction rewrote the aligned masters on disk.
+            on_correction(changes)
     instances, fidelities = worker_process(measure_slope, weights, italic, out)
     numerical_passed = (
         path.stat().st_size <= MAX_VF_BYTES
@@ -969,11 +1007,7 @@ def run_slope(
         "file_size_limit_bytes": MAX_VF_BYTES,
         "iup_tolerances": IUP_TOLERANCES,
         "identical_outline_aliases": aliases,
-        "source_hashes_sha256": {
-            name: hashlib.sha256((out / name).read_bytes()).hexdigest()
-            for weight in weights
-            for name in (f"{B.weight_style(weight, italic)}.ttf",)
-        },
+        "source_hashes_sha256": source_hashes(weights, italic, out),
         "source_outline_hashes_sha256": {
             name: source_outline_hash(out / name)
             for weight in weights
@@ -1083,23 +1117,22 @@ def main(argv: list[str] | None = None) -> int:
         try:
             if args.reuse_aligned_sources:
                 old_style = report["aligned_sources"][slope]
-                for name, expected in old_style.get("source_hashes_sha256", {}).items():
-                    if (
-                        hashlib.sha256((out / name).read_bytes()).hexdigest()
-                        != expected
-                    ):
-                        raise ValueError(f"Saved aligned source changed: {name}")
+                verify_saved_sources(old_style, slope, italic, out)
+                saved_corrections = list(old_style.get("start_point_corrections", []))
+
                 result, rows, path = run_slope(
                     italic,
                     out,
                     None if args.skip_fontspector else args.fontspector,
                     reuse_aligned_sources=True,
+                    on_correction=functools.partial(
+                        checkpoint_corrections, report, old_style, italic, out
+                    ),
                 )
                 result["alignment_source"] = "saved aligned masters"
                 result["initial_rotations"] = old_style.get("initial_rotations", {})
                 result["start_point_corrections"] = (
-                    old_style.get("start_point_corrections", [])
-                    + result["start_point_corrections"]
+                    saved_corrections + result["start_point_corrections"]
                 )
             else:
                 result, rows, path = run_slope(italic, out, args.fontspector)

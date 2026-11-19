@@ -362,6 +362,25 @@ def test_ladder_shared_outlines_preserve_interpolation(
                 assert a["hmtx"][name] == b["hmtx"][name], (weight, name)
 
 
+def seed_saved_proof(out: Path) -> None:
+    """Write the proof of an earlier full run: a reuse run needs its source hashes."""
+    import json
+
+    import vf_ladder
+
+    saved = {
+        slope: {
+            "source_hashes_sha256": vf_ladder.source_hashes(
+                B.MASTER_WEIGHTS, slope == "Italic", out
+            ),
+            "initial_rotations": {},
+            "start_point_corrections": [],
+        }
+        for slope in ("Roman", "Italic")
+    }
+    (out / "ladder.json").write_text(json.dumps({"aligned_sources": saved}))
+
+
 def test_ladder_measure_without_fontspector(
     tmp_path: Path, monkeypatch: MonkeyPatch
 ) -> None:
@@ -378,6 +397,7 @@ def test_ladder_measure_without_fontspector(
             font.save(tmp_path / f"{B.weight_style(weight, italic)}.ttf")
         suffix = "-Italic" if italic else ""
         statics[400].save(tmp_path / f"MachineMadeWarp{suffix}[wght].ttf")
+    seed_saved_proof(tmp_path)
 
     def worker(target: Callable[..., object], *args: object) -> object:
         if target is vf_ladder.rebuild_aligned_slope:
@@ -430,6 +450,103 @@ def test_ladder_measure_without_fontspector(
             retried["styles"][slope]["source_hashes_sha256"]
             == (report["styles"][slope]["source_hashes_sha256"])
         )
+
+
+def saved_measurement(tmp_path: Path, monkeypatch: MonkeyPatch) -> Path:
+    """Run measurement mode once so that the output folder holds a saved proof."""
+    import vf_ladder
+
+    monkeypatch.setattr(vf_ladder, "PROOFS", tmp_path)
+    for italic in (False, True):
+        statics = local_test_fonts()
+        for weight, font in statics.items():
+            font.save(tmp_path / f"{B.weight_style(weight, italic)}.ttf")
+        suffix = "-Italic" if italic else ""
+        statics[400].save(tmp_path / f"MachineMadeWarp{suffix}[wght].ttf")
+    seed_saved_proof(tmp_path)
+    monkeypatch.setattr(vf_ladder, "proof_sheet", lambda paths, out: "sheet.png")
+    monkeypatch.setattr(
+        vf_ladder,
+        "worker_process",
+        lambda target, *args: (
+            None
+            if target is vf_ladder.rebuild_aligned_slope
+            else (
+                {str(w): {"max_units": 0.02 if w == 400 else 0.52} for w in B.WEIGHTS},
+                {"325": {"max_percent": 4.99, "passed": True}},
+            )
+        ),
+    )
+    argv = ["--out", str(tmp_path), "--skip-fontspector", "--reuse-aligned-sources"]
+    assert vf_ladder.main(argv) == 0
+    return tmp_path / "ladder.json"
+
+
+def test_ladder_reuse_requires_every_saved_source_hash(
+    tmp_path: Path, monkeypatch: MonkeyPatch
+) -> None:
+    import json
+
+    import vf_ladder
+
+    proof = saved_measurement(tmp_path, monkeypatch)
+    argv = ["--out", str(tmp_path), "--skip-fontspector", "--reuse-aligned-sources"]
+    proof.unlink()
+    with pytest.raises(ValueError, match="Missing aligned source hashes for Roman"):
+        vf_ladder.main(argv)
+    proof.unlink()
+    saved_measurement(tmp_path, monkeypatch)
+    saved = json.loads(proof.read_text())
+    del saved["styles"]["Roman"]["source_hashes_sha256"]["Light.ttf"]
+    proof.write_text(json.dumps(saved))
+    with pytest.raises(ValueError, match="Missing aligned source hashes for Roman"):
+        vf_ladder.main(argv)
+    saved["styles"]["Roman"]["source_hashes_sha256"] = {}
+    proof.write_text(json.dumps(saved))
+    with pytest.raises(ValueError, match="Missing aligned source hashes for Roman"):
+        vf_ladder.main(argv)
+
+
+def test_ladder_reuse_failure_keeps_provenance_of_corrected_masters(
+    tmp_path: Path, monkeypatch: MonkeyPatch
+) -> None:
+    import json
+
+    import vf_ladder
+
+    proof = saved_measurement(tmp_path, monkeypatch)
+    row = {"attempt": 0, "weight": 300, "glyph": "accented", "contour": 0, "shift": 1}
+    calls = []
+
+    def worker(target: Callable[..., object], *args: object) -> object:
+        calls.append(target.__name__)
+        if target is vf_ladder.correct_slope:
+            # The real correction rewrites the aligned master on disk.
+            with (tmp_path / "Light.ttf").open("ab") as master:
+                master.write(b"\0")
+            return [row]
+        if target is vf_ladder.measure_slope:
+            raise RuntimeError("measurement stopped")
+        return None
+
+    def inspect(
+        executable: str, path: Path, out: Path, slope: str
+    ) -> tuple[dict[str, int], list[Record]]:
+        return {}, [{"kind": "start_point"}] if "correct_slope" not in calls else []
+
+    monkeypatch.setattr(vf_ladder, "worker_process", worker)
+    monkeypatch.setattr(vf_ladder, "inspect_font", inspect)
+    argv = ["--out", str(tmp_path), "--reuse-aligned-sources", "--fontspector", "fake"]
+    with pytest.raises(RuntimeError, match="measurement stopped"):
+        vf_ladder.main(argv)
+    failed = json.loads(proof.read_text())
+    saved = failed["aligned_sources"]["Roman"]
+    assert saved["start_point_corrections"] == [row]
+    assert saved["source_hashes_sha256"] == vf_ladder.source_hashes(
+        B.MASTER_WEIGHTS, False, tmp_path
+    )
+    # The next reuse run accepts the corrected files.
+    vf_ladder.verify_saved_sources(saved, "Roman", False, tmp_path)
 
 
 @pytest.mark.parametrize("italic", (False, True))
