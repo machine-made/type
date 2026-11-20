@@ -265,6 +265,7 @@ input[type=range] { width: 100%; accent-color: var(--red); margin: 4px 0; min-he
 /* Warp: a journal frontispiece, after the approved sketch page. Ivory
    paper, hairline rules, small capitals, one deep ink blue. Set in Warp. */
 .page-warp main {
+  --red: var(--accent);
   --paper: #15120E;
   --panel: #1D1914;
   --ink: #ECE4D2;
