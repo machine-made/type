@@ -22,8 +22,9 @@ import tempfile
 import threading
 from itertools import pairwise
 from pathlib import Path
+from typing import Any
 
-from playwright.sync_api import sync_playwright
+from playwright.sync_api import BrowserContext, Page, sync_playwright
 
 PAGES = {"home": "", "weft": "weft/", "sans": "sans/", "heddle": "heddle/", "warp": "warp/", "download": "download/", "404": "no/such/page"}
 WIDTHS = (320, 360, 390, 1280, 1920)
@@ -69,15 +70,15 @@ class Pages(http.server.SimpleHTTPRequestHandler):
         self.wfile.write(body)
 
 
-def system_fonts(context: object, page: object) -> list[str]:
+def system_fonts(context: BrowserContext, page: Page) -> list[str]:
     """Every text node drawn, even in part, in a font that is not a web font of the page."""
-    cdp = context.new_cdp_session(page)  # type: ignore[attr-defined]
+    cdp = context.new_cdp_session(page)
     cdp.send("DOM.enable")
     cdp.send("CSS.enable")
     root = cdp.send("DOM.getDocument", {"depth": -1, "pierce": False})["root"]
     bad: list[str] = []
 
-    def walk(node: dict) -> None:
+    def walk(node: dict[str, Any]) -> None:
         if node.get("nodeName") in ("SCRIPT", "STYLE", "HEAD", "TITLE", "NOSCRIPT"):
             return
         kids = node.get("children", [])

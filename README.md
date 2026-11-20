@@ -141,6 +141,7 @@ Site (from the repository root):
 ```sh
 python -m pip install -r site/requirements.txt
 python site/build.py            # site/_site/; reads the newest releases through gh (set GH_TOKEN)
+uv run --with playwright==1.65.1 playwright install chromium          # once, or pass --chrome PATH
 uv run --with playwright==1.65.1 python3 site/shots.py --axe axe.min.js   # browser check, by hand
 ```
 

@@ -242,7 +242,7 @@ def bar2(root: str, current: str = "") -> str:
     )
     secs += f'<a href="{REPO_URL}">GitHub</a>'
     return (
-        f'<header class="b2"><div class="wrap"><a class="logo" href="{root or './'}">{LOGO}<span class="wm">type</span></a>'
+        f'<header class="b2"><div class="wrap"><a class="logo" href="{root or "./"}">{LOGO}<span class="wm">type</span></a>'
         f'<nav class="secs" aria-label="Sections">{secs}</nav></div></header>'
     )
 
