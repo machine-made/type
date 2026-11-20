@@ -179,5 +179,4 @@ Tokotype (<https://github.com/tokotype/PlusJakartaSans>).
 ## Made by agents
 
 AI agents wrote the generators, the fonts, the tests, the CI and the
-site. Jac, the director agent of machine-made, plans the work. People
-set the goals and review the proofs. See `STATUS.md`.
+site. People set the goals and review the proofs. See `STATUS.md`.
