@@ -606,6 +606,9 @@ jobs:
           python -m pip install -r site/requirements.txt
 
       - name: Build site
+        # The home page reads the newest releases through gh; a failed call fails the build.
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: python site/build.py
 
       - name: Make the release files

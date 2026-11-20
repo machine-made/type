@@ -1,18 +1,24 @@
 name: site
 
-# Build the specimen site (site/build.py) and deploy it to GitHub Pages.
+# Build the specimen site (site/build.py) and deploy it to GitHub Pages. A pull request that
+# touches the site builds and checks it too, with the same token, but does not deploy.
 # Pages source must be "GitHub Actions" (repo settings).
 
 on:
   push:
     branches: [main]
+  pull_request:
+    paths:
+      - "site/**"
+      - "fonts/**"
+      - ".github/workflows/site.yml"
   workflow_dispatch:
 
 permissions:
   contents: read
 
 concurrency:
-  group: pages
+  group: ${{ github.event_name == 'pull_request' && format('site-pr-{0}', github.ref) || 'pages' }}
   cancel-in-progress: false
 
 jobs:
@@ -41,6 +47,9 @@ jobs:
       # it stops with an error when a file is missing, so the deploy fails
       # and the live site stays as it is.
       - name: Build site
+        # The home page reads the newest releases through gh; a failed call fails the build.
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: python site/build.py
 
       - name: Check the built site
@@ -50,21 +59,24 @@ jobs:
                    fonts/warp/MachineMadeWarp-Regular.woff2 fonts/warp/MachineMadeWarp-Italic.woff2 \
                    fonts/warp/MachineMadeWarp-Bold.woff2 fonts/warp/MachineMadeWarp-BoldItalic.woff2 \
                    fonts/warp/MachineMadeWarpDisplay-Regular.woff2 fonts/warp/MachineMadeWarpDisplay-Italic.woff2 \
-                   data/readability.json data/heddle.json data/warp.json index.html weft/index.html heddle/index.html \
-                   warp/index.html; do
+                   data/readability.json data/heddle.json data/warp.json index.html 404.html weft/index.html heddle/index.html \
+                   warp/index.html fonts/home/weft.woff2 fonts/home/heddle.woff2 og.jpg; do
             test -s "site/_site/$f" || { echo "::error::site/_site/$f is missing."; exit 1; }
           done
           python -c 'import json,sys; r=json.load(open("site/_site/data/readability.json")); sys.exit(0 if r.get("rows") else 1)'
 
       - name: Configure Pages
+        if: github.event_name != 'pull_request'
         uses: actions/configure-pages@45bfe0192ca1faeb007ade9deae92b16b8254a0d # v6.0.0
 
       - name: Upload Pages artifact
+        if: github.event_name != 'pull_request'
         uses: actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9 # v5.0.0
         with:
           path: site/_site
 
   deploy:
+    if: github.event_name != 'pull_request'
     needs: build
     runs-on: ubuntu-24.04
     timeout-minutes: 10

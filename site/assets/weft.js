@@ -122,7 +122,7 @@
       var grid = el("div", { "class": "glyph-grid", role: "group", "aria-labelledby": hid });
       grp.chars.forEach(function (c) {
         var b = el("button", { type: "button", "aria-pressed": "false",
-          "aria-label": (c.n || hex(c.u)) + ", " + hex(c.u), title: hex(c.u) + " " + c.n },
+          "aria-label": String.fromCodePoint(c.u) + ", " + (c.n || hex(c.u)) + ", " + hex(c.u), title: hex(c.u) + " " + c.n },
           String.fromCodePoint(c.u));
         b.addEventListener("click", function () { show(b, c); });
         grid.appendChild(b);

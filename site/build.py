@@ -1,8 +1,10 @@
 """Build the specimen and release site for machine-made/type.
 
 Usage:
-    python site/build.py            # writes site/_site/
-    python site/build.py --out DIR  # writes DIR/
+    python site/build.py                     # writes site/_site/; reads the GitHub facts through gh
+    python site/build.py --out DIR           # writes DIR/
+    python site/build.py --facts FILE        # reads the facts from FILE instead of the GitHub API
+    python site/build.py --save-facts FILE   # also writes the facts it read to FILE
 
 The script:
 
@@ -16,11 +18,16 @@ The script:
 4. Reads proofs/weft/readability.json (written by
    weft/tools/readability.py). It stops with an error when the file is
    missing or has no FRAG rows.
-5. Draws the "machine-made" wordmark and the favicon as SVG from the
-   Weft outlines.
-6. Fills the page templates and writes the HTML.
+5. Reads the live facts from the GitHub API (home.py): the newest
+   release of each family and of each house, the release files, the
+   licence and the workflows. It stops with an error when a call fails,
+   so a page with stale facts is never written.
+6. Writes the home page and the 404 page in the design system of the
+   four sites (assets/system.css, home.py), and fills the family and
+   download pages into the same two bars and footer.
 
-Needs Python 3.11+ and fontTools with brotli (for WOFF2).
+Needs Python 3.11+, fontTools with brotli (for WOFF2), Pillow (for the
+images) and gh with a token (GH_TOKEN) for the facts.
 """
 
 from __future__ import annotations
@@ -36,17 +43,15 @@ import unicodedata
 from pathlib import Path
 from urllib.parse import quote
 
-from fontTools.pens.boundsPen import BoundsPen
-from fontTools.pens.recordingPen import DecomposingRecordingPen
-from fontTools.pens.svgPathPen import SVGPathPen
-from fontTools.pens.transformPen import TransformPen
 from fontTools.ttLib import TTFont
+
+import home
+from home import BuildError
 
 SITE = Path(__file__).resolve().parent
 ROOT = SITE.parent
 
 REPO_URL = "https://github.com/machine-made/type"
-ORG_URL = "https://github.com/machine-made"
 RELEASE_VERSION = "0.2.0"
 RELEASES = {fam: f"{REPO_URL}/releases/tag/{fam}-v{RELEASE_VERSION}"
             for fam in ("weft", "sans", "heddle", "warp")}
@@ -112,15 +117,6 @@ HEDDLE_WEIGHTS = [(100, "Thin"), (200, "ExtraLight"), (300, "Light"), (400, "Reg
                    (900, "Black")]
 
 READABILITY = ROOT / "proofs" / "weft" / "readability.json"
-
-# Weft metrics in font units (BRIEF.md): 1 design unit = 62.5 units.
-WEFT_UNIT = 62.5
-WEFT_X_HEIGHT = 500
-WORDMARK_WGHT = 700
-
-
-class BuildError(Exception):
-    """A build step cannot continue."""
 
 
 # ---------------------------------------------------------------------------
@@ -235,141 +231,6 @@ def inspect(path: Path) -> dict:
 
 
 # ---------------------------------------------------------------------------
-# Wordmark and favicon (SVG drawn from the Weft outlines)
-# ---------------------------------------------------------------------------
-
-def weft_for_wordmark(chosen: dict) -> TTFont:
-    files = chosen["weft"]["files"]
-    if "bold" in files:
-        return TTFont(files["bold"])
-    font = TTFont(files["vf"])
-    axes = axes_of(font)
-    if axes:
-        from fontTools.varLib import instancer
-        pins = {tag: v[1] for tag, v in axes.items()}
-        if "wght" in axes:
-            pins["wght"] = max(axes["wght"][0], min(axes["wght"][2], WORDMARK_WGHT))
-        if "FRAG" in axes:
-            pins["FRAG"] = 0
-        font = instancer.instantiateVariableFont(font, pins)
-    return font
-
-
-def contours(recording: list) -> list:
-    """Split a recorded pen value into one list per contour."""
-    out, cur = [], []
-    for op, args in recording:
-        cur.append((op, args))
-        if op in ("closePath", "endPath"):
-            out.append(cur)
-            cur = []
-    if cur:
-        out.append(cur)
-    return out
-
-
-def replay(ops: list, pen) -> None:
-    for op, args in ops:
-        getattr(pen, op)(*args)
-
-
-def contour_ymin(ops: list) -> float:
-    ys = [pt[1] for _, args in ops for pt in args]
-    return min(ys) if ys else 0
-
-
-def hyphen_ops(stroke_w: float) -> list:
-    """Draw a hyphen from the loom stroke table when the font has none.
-
-    Stroke table: open line (1.5, 4.6) to (5.5, 4.6), square caps, box
-    offset 2.5. Phase 1 fonts have no hyphen glyph.
-    """
-    half = stroke_w / 2
-    x0 = (2.5 + 1.5) * WEFT_UNIT - half
-    x1 = (2.5 + 5.5) * WEFT_UNIT + half
-    y0, y1 = 4.6 * WEFT_UNIT - half, 4.6 * WEFT_UNIT + half
-    return [("moveTo", ((x0, y0),)), ("lineTo", ((x0, y1),)), ("lineTo", ((x1, y1),)),
-            ("lineTo", ((x1, y0),)), ("closePath", ())]
-
-
-def stroke_width_units(font: TTFont) -> float:
-    """Return the stem width of the font, measured from the 'l' stem."""
-    gs = font.getGlyphSet()
-    cmap = font.getBestCmap()
-    name = cmap.get(ord("i"))
-    if name is None:
-        return 84
-    rec = DecomposingRecordingPen(gs)
-    gs[name].draw(rec)
-    dots = [c for c in contours(rec.value) if contour_ymin(c) > WEFT_X_HEIGHT]
-    if dots:
-        bp = BoundsPen(gs)
-        replay(dots[0], bp)
-        if bp.bounds:
-            return bp.bounds[2] - bp.bounds[0]
-    return 84
-
-
-def wordmark_svg(font: TTFont, text: str = "machine-made", label: str = "machine-made") -> str:
-    """Return an inline SVG of text in Weft. The dot of each i is red."""
-    gs = font.getGlyphSet()
-    cmap = font.getBestCmap()
-    hmtx = font["hmtx"]
-    ink, dots = SVGPathPen(gs), SVGPathPen(gs)
-    bounds = BoundsPen(gs)
-    sw = stroke_width_units(font)
-    x = 0
-    for ch in text:
-        name = cmap.get(ord(ch))
-        if name is None and ch == "-":
-            ops, adv = hyphen_ops(sw), 750
-            groups = [(ops, False)]
-        elif name is None:
-            raise BuildError(f"The Weft font has no glyph for {ch!r}; the wordmark needs it.")
-        else:
-            rec = DecomposingRecordingPen(gs)
-            gs[name].draw(rec)
-            adv = hmtx[name][0]
-            groups = [(c, ch == "i" and contour_ymin(c) > WEFT_X_HEIGHT) for c in contours(rec.value)]
-        for ops, is_dot in groups:
-            # Flip y for SVG: font y goes up, SVG y goes down.
-            target = dots if is_dot else ink
-            replay(ops, TransformPen(target, (1, 0, 0, -1, x, 0)))
-            replay(ops, TransformPen(bounds, (1, 0, 0, -1, x, 0)))
-        x += adv
-    x0, y0, x1, y1 = bounds.bounds
-    pad = 0
-    vb = f"{x0 - pad:.0f} {y0 - pad:.0f} {x1 - x0 + 2 * pad:.0f} {y1 - y0 + 2 * pad:.0f}"
-    return (
-        f'<svg class="wordmark" viewBox="{vb}" role="img" aria-label="{html.escape(label)}" '
-        f'xmlns="http://www.w3.org/2000/svg">'
-        f'<path fill="currentColor" d="{ink.getCommands()}"/>'
-        f'<path class="wordmark-dot" fill="var(--red, #DE2A1F)" d="{dots.getCommands()}"/>'
-        f"</svg>"
-    )
-
-
-def favicon_svg(font: TTFont) -> str:
-    """Return a favicon: the Weft i, white on black, with a red dot."""
-    gs = font.getGlyphSet()
-    name = font.getBestCmap()[ord("i")]
-    rec = DecomposingRecordingPen(gs)
-    gs[name].draw(rec)
-    stem, dot = SVGPathPen(gs), SVGPathPen(gs)
-    # Centre the 750-unit advance in a 1000-unit square; baseline at 820.
-    tr = (1, 0, 0, -1, 125, 840)
-    for c in contours(rec.value):
-        replay(c, TransformPen(dot if contour_ymin(c) > WEFT_X_HEIGHT else stem, tr))
-    return (
-        '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1000">'
-        '<rect width="1000" height="1000" rx="120" fill="#121314"/>'
-        f'<path fill="#F4F5F3" d="{stem.getCommands()}"/>'
-        f'<path fill="#DE2A1F" d="{dot.getCommands()}"/>'
-        "</svg>\n"
-    )
-
-
-# ---------------------------------------------------------------------------
 # Readability report and commit list
 # ---------------------------------------------------------------------------
 
@@ -451,8 +312,9 @@ def commits(limit: int = 10) -> list:
 # Templates
 # ---------------------------------------------------------------------------
 
-PAGES = ["index.html", "weft/index.html", "sans/index.html", "heddle/index.html",
-         "warp/index.html", "download/index.html", "404.html"]
+# The family and download pages, filled into templates/layout.html. The home page and the 404 page come from
+# home.py.
+PAGES = ["weft/index.html", "sans/index.html", "heddle/index.html", "warp/index.html", "download/index.html"]
 TOKEN = re.compile(r"\{\{\s*([A-Z0-9_]+)\s*\}\}")
 META = re.compile(r"\A<!--(.*?)-->\s*", re.S)
 
@@ -596,15 +458,19 @@ def swirl_tag(features: dict) -> str:
 # Main
 # ---------------------------------------------------------------------------
 
-def build(out: Path) -> None:
+def build(out: Path, facts_file: Path | None = None, save_facts: Path | None = None) -> None:
     chosen = select_fonts()
     report = readability()
+    facts = home.load_facts(facts_file) if facts_file else home.fetch_facts()
+    if save_facts:
+        save_facts.write_text(json.dumps(facts, indent=1, sort_keys=True) + "\n", encoding="utf-8")
 
     if out.exists():
         shutil.rmtree(out)
     (out / "data").mkdir(parents=True)
     # Copy the CSS, JS and images. The fonts go to fonts/ (below).
-    shutil.copytree(SITE / "assets", out / "assets", ignore=shutil.ignore_patterns("fonts"))
+    # system.css goes into each page through home.system_css(), not as a file.
+    shutil.copytree(SITE / "assets", out / "assets", ignore=shutil.ignore_patterns("fonts", "system.css"))
 
     # Fonts.
     for fam, sel in chosen.items():
@@ -638,10 +504,8 @@ def build(out: Path) -> None:
     (out / "data" / "readability.json").write_text(json.dumps(report, indent=1), encoding="utf-8")
     (out / "assets" / "fonts.css").write_text(font_face_css(chosen, info), encoding="utf-8")
 
-    mark_font = weft_for_wordmark(chosen)
-    wordmark = wordmark_svg(mark_font)
-    (out / "assets" / "favicon.svg").write_text(favicon_svg(mark_font), encoding="utf-8")
     (out / ".nojekyll").write_text("", encoding="utf-8")
+    home.build_images(out)
 
     weft_axes = info["weft"]["axes"]
     sans_axes = info["sans"]["axes"]
@@ -650,7 +514,6 @@ def build(out: Path) -> None:
     planned_w = FAMILIES["weft"]["planned_axes"]
     values = {
         "REPO_URL": REPO_URL,
-        "ORG_URL": ORG_URL,
         "WEFT_RELEASE": RELEASES["weft"],
         "SANS_RELEASE": RELEASES["sans"],
         "HEDDLE_RELEASE": RELEASES["heddle"],
@@ -673,7 +536,6 @@ def build(out: Path) -> None:
         "HEDDLE_WDTH_RANGE": fmt_range(heddle_axes.get("wdth") or planned_sh["wdth"]),
         "HEDDLE_WIDTH_ROWS": heddle_rows("wdth", heddle_widths, "Grotesk 1958", '"wght" 700'),
         "HEDDLE_WEIGHT_ROWS": heddle_rows("wght", HEDDLE_WEIGHTS, "Hamburgefonstiv", '"wdth" 100'),
-        "WORDMARK": wordmark,
         "WEFT_VERSION": html.escape(short_version(info["weft"])),
         "SANS_VERSION": html.escape(short_version(info["sans"])),
         "WEFT_CHAR_COUNT": info["weft"]["char_count"],
@@ -689,33 +551,48 @@ def build(out: Path) -> None:
         "SANS_FORMS_NOTE": "The default forms of machine-made Sans: straight a j p q r y. No feature is on.",
     }
 
+    # The home page and the 404 page: the system pages, with font subsets and the tester.
+    axes = {fam: {"axes": [(t, int(v[0]), int(v[2])) for t, v in info[fam]["axes"].items()],
+                  "statics": len(home.statics(facts["assets"][fam]))} for fam in chosen}
+    full = {fam: sel["files"]["vf"].name for fam, sel in chosen.items()}
+    pages = home.build_fonts(list(home.home_pages(facts, axes, full)),
+                             {fam: sel["files"]["vf"] for fam, sel in chosen.items()}, out)
+    written = {"index.html": pages[0], "404.html": pages[1]}
+
     layout = (SITE / "templates" / "layout.html").read_text(encoding="utf-8")
+    system = home.system_css()
     for rel in PAGES:
         src = (SITE / "pages" / rel).read_text(encoding="utf-8")
         meta, body = page_meta(src)
-        depth = rel.count("/")
-        root = "../" * depth if depth else "./"
-        nav = {f"NAV_{k}": ' aria-current="page"' if meta.get("nav") == k.lower() else ""
-               for k in ("HOME", "WEFT", "SANS", "HEDDLE", "WARP", "DOWNLOAD")}
+        root = "../" * rel.count("/")
         scripts = "".join(f'<script src="{root}assets/{s.strip()}" defer></script>'
                           for s in meta.get("scripts", "").split(",") if s.strip())
-        # The 404 page can open at any depth, so it uses absolute paths.
-        if rel == "404.html":
-            root = "/type/"
-        page_values = dict(values, ROOT=root, **nav,
+        page_values = dict(values, ROOT=root, SYSTEM=system, TOKENS=home.tokens(), GROUND=home.THEME["ground"],
+                           BAR1=home.bar1(), BAR2=home.bar2(root, rel.split("/")[0] + "/"), FOOTER=home.footer(),
                            TITLE=meta.get("title", "machine-made fonts"),
                            DESCRIPTION=meta.get("description", ""),
                            BODY_CLASS=meta.get("class", ""),
                            SCRIPTS=scripts)
-        # Preload the fonts that the first screen of the page uses.
+        # Preload the fonts that the first screen of the page uses: "warp" is the main file of a family,
+        # "warp.display" names one of its files (FAMILIES[...]["files"]).
+        hrefs = []
+        for entry in meta.get("preload", "sans").split(","):
+            fam, _, key = entry.strip().partition(".")
+            if fam not in chosen:
+                continue
+            if (key or "vf") not in chosen[fam]["files"]:
+                raise BuildError(f"{rel}: preload {entry.strip()!r} names no file of {fam}")
+            hrefs.append(f"fonts/{fam}/{url_path(chosen[fam]['files'][key or 'vf'].name)}")
         page_values["PRELOAD"] = "".join(
-            f'<link rel="preload" href="{root}{info[fam]["file"]}" as="font" type="font/woff2" crossorigin>'
-            for fam in meta.get("preload", "sans").split(",") if fam.strip() in info
+            f'<link rel="preload" href="{root}{h}" as="font" type="font/woff2" crossorigin>' for h in hrefs
         )
         page_values["BODY"] = render(body, page_values, rel)
+        written[rel] = render(layout, page_values, "layout.html")
+    home.check_pages(written)
+    for rel, text in written.items():
         dest = out / rel
         dest.parent.mkdir(parents=True, exist_ok=True)
-        dest.write_text(render(layout, page_values, "layout.html"), encoding="utf-8")
+        dest.write_text(text, encoding="utf-8")
 
     print(f"Built the site in {out}.")
     for fam, sel in chosen.items():
@@ -728,9 +605,11 @@ def build(out: Path) -> None:
 def main(argv: list[str]) -> int:
     ap = argparse.ArgumentParser(description="Build the machine-made/type site.")
     ap.add_argument("--out", type=Path, default=SITE / "_site", help="output folder (default: site/_site)")
+    ap.add_argument("--facts", type=Path, help="read the GitHub facts from this file instead of the API")
+    ap.add_argument("--save-facts", type=Path, help="also write the GitHub facts to this file")
     args = ap.parse_args(argv)
     try:
-        build(args.out.resolve())
+        build(args.out.resolve(), args.facts, args.save_facts)
     except BuildError as exc:
         print(f"Error: {exc}", file=sys.stderr)
         return 1
