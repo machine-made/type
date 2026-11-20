@@ -1,6 +1,6 @@
 [project]
 name = "warp-loom"
-version = "0.2.0"
+version = "0.3.0"
 description = "Generator for the machine-made Warp typeface."
 requires-python = ">=3.13"
 license = "Apache-2.0"

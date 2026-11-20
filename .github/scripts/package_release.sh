@@ -136,17 +136,54 @@ case "$fam" in
        "fonts/heddle/variable/MachineMadeHeddle[wdth,wght].ttf" "$out/"
     ;;
   warp)
+    export SOURCE_DATE_EPOCH="${SOURCE_DATE_EPOCH:-1793059200}"
     name="machine-made-warp-${version}"
     need fonts/warp/ttf/MachineMadeWarp-Regular.ttf fonts/warp/ttf/MachineMadeWarp-Italic.ttf \
          fonts/warp/ttf/MachineMadeWarp-Bold.ttf fonts/warp/ttf/MachineMadeWarp-BoldItalic.ttf \
          fonts/warp/ttf/MachineMadeWarpDisplay-Regular.ttf fonts/warp/ttf/MachineMadeWarpDisplay-Italic.ttf \
          fonts/warp/otf/MachineMadeWarp-Regular.otf fonts/warp/webfonts/MachineMadeWarp-Regular.woff2 \
+         'fonts/warp/vf/MachineMadeWarp[wght].ttf' \
+         'fonts/warp/vf/MachineMadeWarp-Italic[wght].ttf' \
+         'fonts/warp/vf/MachineMadeWarp[wght].woff2' \
+         'fonts/warp/vf/MachineMadeWarp-Italic[wght].woff2' \
+         proofs/warp/ladder.json proofs/warp/release.json \
          warp/OFL.txt "warp/RELEASE-NOTES-${notes_version}.md" "$out/readability.json"
+    for style in MachineMadeWarp-Regular MachineMadeWarp-Italic MachineMadeWarp-Bold \
+                 MachineMadeWarp-BoldItalic MachineMadeWarpDisplay-Regular MachineMadeWarpDisplay-Italic; do
+      need "fonts/warp/ttf/$style.ttf" "fonts/warp/otf/$style.otf" "fonts/warp/webfonts/$style.woff2"
+    done
+    # Final font hashes are separate from the historical inspector measurements.
+    python3 - <<'CHECK_WARP'
+import hashlib
+import json
+from pathlib import Path
+
+proof = json.loads(Path("proofs/warp/ladder.json").read_text())
+release = json.loads(Path("proofs/warp/release.json").read_text())
+for slope, suffix in (("Roman", ""), ("Italic", "-Italic")):
+    name = f"MachineMadeWarp{suffix}[wght].ttf"
+    path = Path("fonts/warp/vf") / name
+    expected = release["variable_fonts"][name]
+    measured = release["styles"][slope]
+    pinned = proof["styles"][slope]
+    if (path.stat().st_size != expected["size_bytes"]
+            or path.stat().st_size != pinned["file_size_bytes"]
+            or hashlib.sha256(path.read_bytes()).hexdigest() != expected["sha256"]
+            or measured["source_outline_hashes_sha256"] != pinned["source_outline_hashes_sha256"]
+            or not measured["numerical_passed"]):
+        raise SystemExit(f"error: {path} differs from the pinned ladder/release hashes or sizes.")
+    web = path.with_suffix(".woff2")
+    web_pin = release["web_fonts"][web.name]
+    if (web.stat().st_size != web_pin["size_bytes"]
+            or hashlib.sha256(web.read_bytes()).hexdigest() != web_pin["sha256"]):
+        raise SystemExit(f"error: {web} differs from the pinned variable web font.")
+CHECK_WARP
     mkdir -p "$stage/$name"
-    cp -r fonts/warp/ttf fonts/warp/otf fonts/warp/webfonts "$stage/$name/"
+    cp -r fonts/warp/ttf fonts/warp/otf fonts/warp/webfonts fonts/warp/vf "$stage/$name/"
     cp warp/OFL.txt "$stage/$name/OFL.txt"
     cp "warp/RELEASE-NOTES-${notes_version}.md" "$stage/$name/RELEASE-NOTES.md"
     cp "$out/readability.json" "$stage/$name/readability.json"
+    cp proofs/warp/release.json "$stage/$name/release.json"
     {
       echo "# machine-made Warp ${version}"
       echo
@@ -155,7 +192,9 @@ case "$fam" in
       echo "machine-made Warp Display: Regular, Italic (titles, opsz 60)."
       echo
       echo "- ttf/, otf/: the six static fonts"
-      echo "- webfonts/: WOFF2 of the six fonts"
+      echo "- webfonts/: WOFF2 of the six static fonts"
+      echo "- vf/: Roman and Italic variable TTF and WOFF2, weights 300 to 700"
+      echo "- SHA256SUMS: SHA-256 of every font in this folder"
       echo "- readability.json: the OCR readability report of this release"
       echo "- RELEASE-NOTES.md: what is in this release"
       echo
@@ -163,8 +202,10 @@ case "$fam" in
       echo "Source: https://github.com/machine-made/type"
       echo "Specimen: https://machine-made.github.io/type/warp/"
     } > "$stage/$name/README.md"
+    (cd "$stage/$name" && find ttf otf webfonts vf -type f -print0 \
+      | LC_ALL=C sort -z | xargs -0 sha256sum > SHA256SUMS)
     make_zip "$stage" "$out/$name.zip"
-    cp fonts/warp/webfonts/*.woff2 fonts/warp/ttf/*.ttf "$out/"
+    cp fonts/warp/webfonts/*.woff2 fonts/warp/ttf/*.ttf fonts/warp/vf/*.ttf fonts/warp/vf/*.woff2 "$out/"
     ;;
   site)
     name="machine-made-type-site-${version}"
@@ -179,6 +220,6 @@ case "$fam" in
     ;;
 esac
 
-(cd "$out" && sha256sum -- * | LC_ALL=C sort -k2 > "$stage/SHA256SUMS" && mv "$stage/SHA256SUMS" SHA256SUMS)
+(cd "$out" && find . -maxdepth 1 -type f ! -name SHA256SUMS -print0 | LC_ALL=C sort -z | xargs -0 sha256sum | LC_ALL=C sort -k2 > "$stage/SHA256SUMS" && mv "$stage/SHA256SUMS" SHA256SUMS)
 echo "Release files in $out:"
 ls -l "$out"

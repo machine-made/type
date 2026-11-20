@@ -1,0 +1,244 @@
+{
+ "styles": {
+  "Roman": {
+   "source_hashes_sha256": {
+    "Light.ttf": "f566fe279540ea6a5e2443d9c943e59ad09f706791e48b980ec2723d5afdfd92",
+    "Weight350.ttf": "a9cfed3b1c9164c2f4f248a993cd853c8892eaa0f58df1225b056fd53a26fc46",
+    "Regular.ttf": "919a26f669a14f2a2da56ffa9c1f23310716bc3289f30caae72b56238df4bc15",
+    "Weight450.ttf": "719eb3325b88c67368d8d033b03c07f6a4d868dda77fa12b59e52f46e7bcc05a",
+    "Medium.ttf": "b81b305dab6ed083961581ca93789d9d5620d86628eb17af3607f20e1855154f",
+    "SemiBold.ttf": "128e1a5d639afe44e083220ebc084c02573c8a2e355e0485957987c1b10800c1",
+    "Bold.ttf": "c925d49833a839671062b92acb6349f61717511afe20a0c92bb9a9aa1b757cb0"
+   },
+   "source_outline_hashes_sha256": {
+    "Light.ttf": "be4d11823c3728984327c4ee5c97141c6b85532a7bc08e54c634ff7f64598be7",
+    "Weight350.ttf": "d3b458bdb9fdeaa618c997060cbeadcec6e0109817e07db0e1dc686b3a327436",
+    "Regular.ttf": "9c5f976839860880bdd580341493e2bfe47cdc13dcceeab9d928f78812d4f37a",
+    "Weight450.ttf": "87e2f072a027c7aabc8c5df4acc3229530a7bdcec41c12a037c3ac9b7ebfa364",
+    "Medium.ttf": "60e19e52d15a1dd62f0069f2e230216ca729319b1521cff91d2d63fbaed60ac5",
+    "SemiBold.ttf": "5a55a984a01d7af8355d23bafe1184255df12d753d8ac2042b28d5747be99f24",
+    "Bold.ttf": "72d4ad96cf45850e066bb5b3d5f741df327a34b94983e33637e5361b7b10403d"
+   },
+   "file_size_bytes": 7448792,
+   "instances": {
+    "300": {
+     "max_units": 0.9970611680325906,
+     "vertex_bound_units": 0.9770611680325906,
+     "glyph": "napostrophe",
+     "curve_flatness_units": 0.01,
+     "method": "Corresponding vertices bound the full flattened boundaries"
+    },
+    "400": {
+     "max_units": 0.02,
+     "vertex_bound_units": 0.0,
+     "glyph": null,
+     "curve_flatness_units": 0.01,
+     "method": "Corresponding vertices bound the full flattened boundaries"
+    },
+    "500": {
+     "max_units": 0.9970611680325934,
+     "vertex_bound_units": 0.9770611680325934,
+     "glyph": "Epsilontonos",
+     "curve_flatness_units": 0.01,
+     "method": "Corresponding vertices bound the full flattened boundaries"
+    },
+    "600": {
+     "max_units": 0.9857743355031501,
+     "vertex_bound_units": 0.9657743355031501,
+     "glyph": "ellipsis",
+     "curve_flatness_units": 0.01,
+     "method": "Corresponding vertices bound the full flattened boundaries"
+    },
+    "700": {
+     "max_units": 0.52,
+     "vertex_bound_units": 0.5,
+     "glyph": "exclam",
+     "curve_flatness_units": 0.01,
+     "method": "Corresponding vertices bound the full flattened boundaries"
+    }
+   },
+   "fidelity": {
+    "325": {
+     "max_percent": 4.994,
+     "glyph": "radical.ext",
+     "ppem": 128,
+     "passed": true
+    },
+    "350": {
+     "max_percent": 3.26,
+     "glyph": "v",
+     "ppem": 128,
+     "passed": true
+    },
+    "375": {
+     "max_percent": 3.9829999999999997,
+     "glyph": "summation",
+     "ppem": 128,
+     "passed": true
+    },
+    "425": {
+     "max_percent": 4.377000000000001,
+     "glyph": "one.lf",
+     "ppem": 128,
+     "passed": true
+    },
+    "450": {
+     "max_percent": 2.868,
+     "glyph": "radical.bot",
+     "ppem": 128,
+     "passed": true
+    },
+    "475": {
+     "max_percent": 3.2359999999999998,
+     "glyph": "N",
+     "ppem": 128,
+     "passed": true
+    },
+    "550": {
+     "max_percent": 3.443,
+     "glyph": "radical.ext",
+     "ppem": 128,
+     "passed": true
+    },
+    "650": {
+     "max_percent": 3.396,
+     "glyph": "u1D6F6",
+     "ppem": 128,
+     "passed": true
+    }
+   },
+   "numerical_passed": true
+  },
+  "Italic": {
+   "source_hashes_sha256": {
+    "LightItalic.ttf": "23d930d463542ac9f5ff2341675d7a11dbebdd61b5f956381ef15621bb96f37b",
+    "Weight350Italic.ttf": "e369c087ccaa586b8cd4027a0bff01dee4e1f09ed40ff13a3239146f6aae1285",
+    "Italic.ttf": "33e5de3ab68d79d58a0db7cd9a2124b9f16929e6e6a908ad5386db8e2ec320e0",
+    "Weight450Italic.ttf": "26b2c13024945901633600e867affa08bd31622f519042563db6ca0402dd52af",
+    "MediumItalic.ttf": "d59f232e376c748857097df4f2d69a507bd3121a4a94cb54562a2c8bce2de77f",
+    "SemiBoldItalic.ttf": "9e208360433505bafa47d65dc25ba79c6305c6a3aa9e5280b600354b724d33b3",
+    "BoldItalic.ttf": "3781b24cc643d3cfda8a19b64af50ba73e42bd7de614c598820bea1b6297b61e"
+   },
+   "source_outline_hashes_sha256": {
+    "LightItalic.ttf": "b23ec5460689bcea78de78fa24d7926086b6fd8789f3e8edae2ea34fc3bd262e",
+    "Weight350Italic.ttf": "23bf1710c83f8938f1d2e6f270df49e39e5ffa53873b6fbb06b82ace314cfc6b",
+    "Italic.ttf": "419901755e2bec12c5960aca43f9a98011ce9125a95c5e57c1b25bc5890479e4",
+    "Weight450Italic.ttf": "dd90b0c710bd54e3eb5dcedcb40c0e90e59a9107163d2ecb5158d437655ac82f",
+    "MediumItalic.ttf": "b1191d0cd8a001087503e2448a0e48de5b621e94a422edbd0e4327f6e3da81e6",
+    "SemiBoldItalic.ttf": "60a8ee7ba6aff4a09b63c78dc86ecc3812a8c78ed1896ca9ff328c5ea88f66fd",
+    "BoldItalic.ttf": "e84a742379d72da24b6777cc843ada8bd61fa1aab6c9bf6400f43571d95ba0cd"
+   },
+   "file_size_bytes": 6679608,
+   "instances": {
+    "300": {
+     "max_units": 0.9970611680325802,
+     "vertex_bound_units": 0.9770611680325801,
+     "glyph": "integral.size4",
+     "curve_flatness_units": 0.01,
+     "method": "Corresponding vertices bound the full flattened boundaries"
+    },
+    "400": {
+     "max_units": 0.02,
+     "vertex_bound_units": 0.0,
+     "glyph": null,
+     "curve_flatness_units": 0.01,
+     "method": "Corresponding vertices bound the full flattened boundaries"
+    },
+    "500": {
+     "max_units": 0.9970611680325934,
+     "vertex_bound_units": 0.9770611680325934,
+     "glyph": "onehalf",
+     "curve_flatness_units": 0.01,
+     "method": "Corresponding vertices bound the full flattened boundaries"
+    },
+    "600": {
+     "max_units": 0.9833320221819143,
+     "vertex_bound_units": 0.9633320221819143,
+     "glyph": "Tcaron",
+     "curve_flatness_units": 0.01,
+     "method": "Corresponding vertices bound the full flattened boundaries"
+    },
+    "700": {
+     "max_units": 0.52,
+     "vertex_bound_units": 0.5,
+     "glyph": "exclam",
+     "curve_flatness_units": 0.01,
+     "method": "Corresponding vertices bound the full flattened boundaries"
+    }
+   },
+   "fidelity": {
+    "325": {
+     "max_percent": 4.994,
+     "glyph": "radical.ext",
+     "ppem": 128,
+     "passed": true
+    },
+    "350": {
+     "max_percent": 3.27,
+     "glyph": "tildecomb.case",
+     "ppem": 128,
+     "passed": true
+    },
+    "375": {
+     "max_percent": 4.1000000000000005,
+     "glyph": "macroncomb.case",
+     "ppem": 128,
+     "passed": true
+    },
+    "425": {
+     "max_percent": 4.064,
+     "glyph": "one.lf",
+     "ppem": 128,
+     "passed": true
+    },
+    "450": {
+     "max_percent": 3.057,
+     "glyph": "tildecomb.case",
+     "ppem": 128,
+     "passed": true
+    },
+    "475": {
+     "max_percent": 2.9739999999999998,
+     "glyph": "parenright.size4",
+     "ppem": 128,
+     "passed": true
+    },
+    "550": {
+     "max_percent": 3.443,
+     "glyph": "radical.ext",
+     "ppem": 128,
+     "passed": true
+    },
+    "650": {
+     "max_percent": 3.396,
+     "glyph": "u1D6F6",
+     "ppem": 128,
+     "passed": true
+    }
+   },
+   "numerical_passed": true
+  }
+ },
+ "variable_fonts": {
+  "MachineMadeWarp[wght].ttf": {
+   "sha256": "8b71974938743a80a845f000655350f36973750ea9954424d63bf5c9e1765743",
+   "size_bytes": 7448792,
+   "slope": "Roman"
+  },
+  "MachineMadeWarp-Italic[wght].ttf": {
+   "sha256": "66f96b90d481f0735dae5473357ad8263715dd44039477060c98a62a522f9d5a",
+   "size_bytes": 6679608,
+   "slope": "Italic"
+  }
+ },
+ "web_fonts": {
+  "MachineMadeWarp-Italic[wght].woff2": {
+   "sha256": "028fe7b4999d26e18c7ff139fca384a45411b97ce98555005e5546fc91741b32",
+   "size_bytes": 1561220
+  },
+  "MachineMadeWarp[wght].woff2": {
+   "sha256": "37c055d173f735ec3e8208227acd5cb7e97c7aee9e351b7e5db01c6d945a1ff2",
+   "size_bytes": 1830476
+  }
+ }
+}

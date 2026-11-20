@@ -52,13 +52,13 @@
     "u1D6F8": "u1D44B"
    },
    "source_hashes_sha256": {
-    "Light.ttf": "9953d2e9c25442d6980385c9854fd9fb1f510795501a71a002f5a0823fd0cffa",
-    "Weight350.ttf": "fcd46542189b9b44e1a276107ecdd7d74054954fd0e0879d9be0e646dd901a19",
-    "Regular.ttf": "e51ec634b46da0f2c1504628d7d8b59548d9ce32c2b6a71874bbbd507520d7ae",
-    "Weight450.ttf": "894b54fce6787765e58f757f5e739d43ff4144be4ad2e63140a359ada5c077eb",
-    "Medium.ttf": "b3846f6e7278a2159939cc2ddd6f21ac9d0f25a2b89539e56b088dd4a198c5af",
-    "SemiBold.ttf": "d87866691c0d0382a98877f4e51844a7436a5ca50296494bbaa30acfdee061c2",
-    "Bold.ttf": "86f5064628852ed56b971e3965dedfd3c82b14ad367bb08d2efc4cdf0977e60f"
+    "Light.ttf": "f566fe279540ea6a5e2443d9c943e59ad09f706791e48b980ec2723d5afdfd92",
+    "Weight350.ttf": "a9cfed3b1c9164c2f4f248a993cd853c8892eaa0f58df1225b056fd53a26fc46",
+    "Regular.ttf": "919a26f669a14f2a2da56ffa9c1f23310716bc3289f30caae72b56238df4bc15",
+    "Weight450.ttf": "719eb3325b88c67368d8d033b03c07f6a4d868dda77fa12b59e52f46e7bcc05a",
+    "Medium.ttf": "b81b305dab6ed083961581ca93789d9d5620d86628eb17af3607f20e1855154f",
+    "SemiBold.ttf": "128e1a5d639afe44e083220ebc084c02573c8a2e355e0485957987c1b10800c1",
+    "Bold.ttf": "c925d49833a839671062b92acb6349f61717511afe20a0c92bb9a9aa1b757cb0"
    },
    "source_outline_hashes_sha256": {
     "Light.ttf": "be4d11823c3728984327c4ee5c97141c6b85532a7bc08e54c634ff7f64598be7",
@@ -43465,7 +43465,7 @@
      "location": {
       "wght": 449.98779296875
      },
-     "z_score": 10.481950759887695,
+     "z_score": 10.481953620910645,
      "measurement": "advance widths"
     },
     {
@@ -43476,7 +43476,7 @@
      "location": {
       "wght": 450.006103515625
      },
-     "z_score": 10.481950759887695,
+     "z_score": 10.481953620910645,
      "measurement": "advance widths"
     }
    ],
@@ -44329,7 +44329,7 @@
      "location": {
       "wght": 449.98779296875
      },
-     "z_score": 10.481950759887695,
+     "z_score": 10.481953620910645,
      "measurement": "advance widths"
     },
     {
@@ -44340,7 +44340,7 @@
      "location": {
       "wght": 450.006103515625
      },
-     "z_score": 10.481950759887695,
+     "z_score": 10.481953620910645,
      "measurement": "advance widths"
     },
     {
@@ -44351,7 +44351,7 @@
      "location": {
       "wght": 499.993896484375
      },
-     "z_score": 10.830705642700195,
+     "z_score": 10.830710411071777,
      "measurement": "advance widths"
     },
     {
@@ -44362,7 +44362,7 @@
      "location": {
       "wght": 599.98779296875
      },
-     "z_score": 11.745593070983887,
+     "z_score": 11.74559497833252,
      "measurement": "advance widths"
     },
     {
@@ -44373,7 +44373,7 @@
      "location": {
       "wght": 600.006103515625
      },
-     "z_score": 11.745593070983887,
+     "z_score": 11.74559497833252,
      "measurement": "advance widths"
     },
     {
@@ -44384,7 +44384,7 @@
      "location": {
       "wght": 700.0
      },
-     "z_score": 12.59475326538086,
+     "z_score": 12.594747543334961,
      "measurement": "advance widths"
     }
    ],
@@ -44436,13 +44436,13 @@
     "u1D702": "eta"
    },
    "source_hashes_sha256": {
-    "LightItalic.ttf": "6cb99b738bd958440a9cea39aca91f8549a187ba93a311e43891b5d81fc9db0c",
-    "Weight350Italic.ttf": "fecba720ad5a7c3848968bbba2945a1bfe88bce7d2430a61550d71f79d2fe488",
-    "Italic.ttf": "a76673e09cebaff652c034b74f9845e208bfcdcddc6718d542461f2f546135ee",
-    "Weight450Italic.ttf": "1bb1bab20599750c6f0c9d15626a013b14a35af3c5dbecc3b9552da366dc9c48",
-    "MediumItalic.ttf": "0bcf69b5a550df97a39a0aff2d57610f0b9d3550c0704e24527ca474c5f7a8b9",
-    "SemiBoldItalic.ttf": "7095d26f5a53b9ca9c4d581d1b396c633d363b6c2c56fbb6fdac166d4e2b192c",
-    "BoldItalic.ttf": "93f29398ad5ad64299e34c0f17c75755b2ee04ed74f11bdc8e72f1ba829e627b"
+    "LightItalic.ttf": "23d930d463542ac9f5ff2341675d7a11dbebdd61b5f956381ef15621bb96f37b",
+    "Weight350Italic.ttf": "e369c087ccaa586b8cd4027a0bff01dee4e1f09ed40ff13a3239146f6aae1285",
+    "Italic.ttf": "33e5de3ab68d79d58a0db7cd9a2124b9f16929e6e6a908ad5386db8e2ec320e0",
+    "Weight450Italic.ttf": "26b2c13024945901633600e867affa08bd31622f519042563db6ca0402dd52af",
+    "MediumItalic.ttf": "d59f232e376c748857097df4f2d69a507bd3121a4a94cb54562a2c8bce2de77f",
+    "SemiBoldItalic.ttf": "9e208360433505bafa47d65dc25ba79c6305c6a3aa9e5280b600354b724d33b3",
+    "BoldItalic.ttf": "3781b24cc643d3cfda8a19b64af50ba73e42bd7de614c598820bea1b6297b61e"
    },
    "source_outline_hashes_sha256": {
     "LightItalic.ttf": "b23ec5460689bcea78de78fa24d7926086b6fd8789f3e8edae2ea34fc3bd262e",
@@ -85722,7 +85722,7 @@
      "location": {
       "wght": 449.98779296875
      },
-     "z_score": 11.485076904296875,
+     "z_score": 11.485074043273926,
      "measurement": "right sidebearings"
     },
     {
@@ -85733,7 +85733,7 @@
      "location": {
       "wght": 450.006103515625
      },
-     "z_score": 11.485076904296875,
+     "z_score": 11.485074043273926,
      "measurement": "right sidebearings"
     },
     {
@@ -85744,7 +85744,7 @@
      "location": {
       "wght": 350.0
      },
-     "z_score": 13.670393943786621,
+     "z_score": 13.670392036437988,
      "measurement": "advance widths"
     },
     {
@@ -85755,7 +85755,7 @@
      "location": {
       "wght": 449.98779296875
      },
-     "z_score": 13.67434310913086,
+     "z_score": 13.674341201782227,
      "measurement": "advance widths"
     },
     {
@@ -85766,7 +85766,7 @@
      "location": {
       "wght": 450.006103515625
      },
-     "z_score": 13.67434310913086,
+     "z_score": 13.674341201782227,
      "measurement": "advance widths"
     }
    ],
@@ -86667,33 +86667,11 @@
      "check_id": "suspicious_sidebearings",
      "code": "large-rsb-variation",
      "severity": "WARN",
-     "glyph": "zcaron",
-     "location": {
-      "wght": 449.98779296875
-     },
-     "z_score": 11.485076904296875,
-     "measurement": "right sidebearings"
-    },
-    {
-     "check_id": "suspicious_sidebearings",
-     "code": "large-rsb-variation",
-     "severity": "WARN",
-     "glyph": "zcaron",
-     "location": {
-      "wght": 450.006103515625
-     },
-     "z_score": 11.485076904296875,
-     "measurement": "right sidebearings"
-    },
-    {
-     "check_id": "suspicious_sidebearings",
-     "code": "large-rsb-variation",
-     "severity": "WARN",
      "glyph": "Lacute",
      "location": {
       "wght": 599.98779296875
      },
-     "z_score": 19.06690216064453,
+     "z_score": 19.066930770874023,
      "measurement": "right sidebearings"
     },
     {
@@ -86704,7 +86682,7 @@
      "location": {
       "wght": 600.006103515625
      },
-     "z_score": 19.06690216064453,
+     "z_score": 19.066930770874023,
      "measurement": "right sidebearings"
     },
     {
@@ -86715,7 +86693,29 @@
      "location": {
       "wght": 700.0
      },
-     "z_score": 16.05118751525879,
+     "z_score": 16.051189422607422,
+     "measurement": "right sidebearings"
+    },
+    {
+     "check_id": "suspicious_sidebearings",
+     "code": "large-rsb-variation",
+     "severity": "WARN",
+     "glyph": "zcaron",
+     "location": {
+      "wght": 449.98779296875
+     },
+     "z_score": 11.485074043273926,
+     "measurement": "right sidebearings"
+    },
+    {
+     "check_id": "suspicious_sidebearings",
+     "code": "large-rsb-variation",
+     "severity": "WARN",
+     "glyph": "zcaron",
+     "location": {
+      "wght": 450.006103515625
+     },
+     "z_score": 11.485074043273926,
      "measurement": "right sidebearings"
     },
     {
@@ -86726,7 +86726,7 @@
      "location": {
       "wght": 300.0
      },
-     "z_score": 13.38908863067627,
+     "z_score": 13.38908576965332,
      "measurement": "advance widths"
     },
     {
@@ -86737,7 +86737,7 @@
      "location": {
       "wght": 350.0
      },
-     "z_score": 13.670393943786621,
+     "z_score": 13.670392036437988,
      "measurement": "advance widths"
     },
     {
@@ -86748,7 +86748,7 @@
      "location": {
       "wght": 449.98779296875
      },
-     "z_score": 13.67434310913086,
+     "z_score": 13.674341201782227,
      "measurement": "advance widths"
     },
     {
@@ -86759,7 +86759,7 @@
      "location": {
       "wght": 450.006103515625
      },
-     "z_score": 13.67434310913086,
+     "z_score": 13.674341201782227,
      "measurement": "advance widths"
     },
     {
@@ -86770,7 +86770,7 @@
      "location": {
       "wght": 499.993896484375
      },
-     "z_score": 13.945965766906738,
+     "z_score": 13.945974349975586,
      "measurement": "advance widths"
     },
     {
@@ -86803,7 +86803,7 @@
      "location": {
       "wght": 700.0
      },
-     "z_score": 14.436285972595215,
+     "z_score": 14.436286926269531,
      "measurement": "advance widths"
     }
    ],
