@@ -13,7 +13,7 @@
 
 ### Changed
 
-- Raised the release job timeout to 75 minutes and added variable font inspection.
+- Raised the timeout of the release job and of the Warp build job to 240 minutes and added variable font inspection. A full run on a hosted runner needs about 64 minutes for the tests and the build alone.
 - Set the package and font versions to 0.3.0 and 0.300.
 
 
