@@ -363,7 +363,7 @@ def sans_waterfall(axis: list, italic: bool) -> str:
     for w in steps:
         rows.append(
             f'<li><span class="wf-label">{w}</span>'
-            f'<span class="wf-text" style="font-weight:{w};font-style:{style}">Proven for machines</span></li>'
+            f'<span class="wf-text" style="font-weight:{w};font-style:{style}">Type for code and science</span></li>'
         )
     return "\n".join(rows)
 
